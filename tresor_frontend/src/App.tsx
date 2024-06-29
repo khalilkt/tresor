@@ -146,7 +146,7 @@ function App() {
 
   async function logIn(username: string, password: string) {
     try {
-      const response = await axios.post(rootUrl + "/auth/login/", {
+      const response = await axios.post(rootUrl + "auth/login/", {
         username: username,
         password: password,
       });
