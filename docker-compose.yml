@@ -7,8 +7,6 @@ services:
     command: "gunicorn tresor_backend.wsgi --bind 0.0.0.0:8000"
     ports:
       - "8000:8000"
-    volumes:
-      - backend_media:/app/media
     env_file:
       - ./.env
     depends_on:
@@ -60,5 +58,4 @@ services:
   #     - 8080:8080
 
 volumes:
-  backend_media:
   pg_data:
