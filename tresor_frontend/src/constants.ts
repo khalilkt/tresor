@@ -1,2 +1,2 @@
-export const rootUrl = "http://localhost:8000/";
-// export const rootUrl = "https://listy-khalilkt.pythonanywhere.com/";
+// export const rootUrl = "http://localhost:8000/";
+export const rootURl = "http://38.180.157.173:8000/";
