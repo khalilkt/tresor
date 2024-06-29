@@ -1,0 +1,64 @@
+version: "3"
+
+services:
+  backend:
+    build:
+      context: ./tresor_backend
+    command: "gunicorn tresor_backend.wsgi --bind 0.0.0.0:8000"
+    ports:
+      - "8000:8000"
+    volumes:
+      - backend_media:/app/media
+    env_file:
+      - ./.env
+    depends_on:
+      - db
+
+  nginx:
+    build:
+      context: ./
+      dockerfile: ./nginx/Dockerfile
+
+    ports:
+      - "80:8080"
+      - "81:8181"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx-setup.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./certbot/www:/var/www/certbot:ro
+      - ./certbot/conf:/etc/letsencrypt:ro
+
+    depends_on:
+      - backend
+      - db
+
+  certbot:
+    image: certbot/certbot
+    container_name: certbot
+    volumes:
+      - ./certbot/conf:/etc/letsencrypt:rw
+      - ./certbot/www:/var/www/certbot:rw
+
+  db:
+    image: postgres:latest
+    restart: unless-stopped
+
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_DB=TRESOR_DB
+      - POSTGRES_USER=IMZ
+      - POSTGRES_PASSWORD=aoishdqiwuf13213edn1i21x012u09x12ue28e12837eds128
+      - PGDATA=/var/lib/postgresql/data/
+    volumes:
+      - pg_data:/var/lib/postgresql/data/:rw
+
+  # adminer:
+  #   image: adminer
+  #   restart: always
+  #   ports:
+  #     - 8080:8080
+
+volumes:
+  backend_media:
+  pg_data:
