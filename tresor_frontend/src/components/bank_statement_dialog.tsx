@@ -49,7 +49,7 @@ export function BankStatementDialog({
     if (!startDate || !endDate) return;
     setData(null);
     try {
-      const ret = await axios.get(`${rootUrl}/accounts/${account.id}/releve`, {
+      const ret = await axios.get(`${rootUrl}accounts/${account.id}/releve`, {
         params: { start_date: startDate, end_date: endDate },
         headers: {
           Authorization: "Token " + token,
