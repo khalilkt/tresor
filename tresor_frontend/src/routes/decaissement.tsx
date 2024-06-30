@@ -74,9 +74,9 @@ function ExcelImportDialog({
     const columnsToSearch = ["Nom", "Banque", "Compte", "Montant"];
     const columnsName: { [key: string]: string } = {
       Nom: "name",
-      Montant: "montant",
       Banque: "banq_name",
       Compte: "banq_number",
+      Montant: "montant",
     };
     let headerRowIndex = 0;
     let headerRow: any[] = data[headerRowIndex];
@@ -91,6 +91,7 @@ function ExcelImportDialog({
         const columnIndex = headerRow.findIndex(
           (value) => value?.toString().toLowerCase() === column.toLowerCase()
         );
+        console.log("found", columnIndex, column);
         if (columnIndex !== -1) {
           columnIndices[column] = columnIndex;
         }

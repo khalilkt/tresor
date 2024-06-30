@@ -69,7 +69,7 @@ function ExcelImportDialog({
   const processExcelData = (data: any[][]): CollectionDetailForm[] | null => {
     const columnsToSearch = [
       "Numéro de chèque",
-      "Partie entrante",
+      "Partie versante",
       "Banque",
       "Montant",
       "destination",
