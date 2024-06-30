@@ -18,7 +18,7 @@ from django.contrib import admin
 from django.urls import path
 from tresor.views import AccountViewSet , AccountReleve, CollectionOperationListCreateView, DisbursementOperationListCreateView, DisbursementOperationDetails, CollectionOperationDetail, StatsView
 
-from authentication.views import LoginTokenView, LoginView, UsersViewSet
+from authentication.views import LoginTokenView, LoginView, PasswordUpdateView, UsersViewSet
 from rest_framework.routers import DefaultRouter
 
 router = DefaultRouter()
@@ -31,6 +31,8 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('auth/token/', LoginTokenView.as_view(), name="login-token"),
     path('auth/login/', LoginView.as_view(), name="login"),
+    path('users/<int:user_id>/update_password/', PasswordUpdateView.as_view(), name="password-update"),
+
 
     path('collections/', CollectionOperationListCreateView.as_view(), name="collections"),
     path('collections/<int:pk>/', CollectionOperationDetail.as_view(), name="collection-details"),

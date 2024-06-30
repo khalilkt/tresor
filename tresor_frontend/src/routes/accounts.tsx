@@ -271,47 +271,32 @@ export default function AccountsPage() {
           </tbody>
         )}
       </table>
-      <div ref={printRef} className="-z-10 opacity-0 print:opacity-100">
+      <div
+        ref={printRef}
+        className="absolute print:opacity-100 opacity-0 -z-50"
+      >
         <PrintPage>
-          <div className="flex flex-col">
-            <h2 className="text-center text-xl font-semibold mb-10">
-              Solde des comptes bancaires
-            </h2>
-            <table className="w-full text-center text-lg">
-              <thead className="">
-                <tr className="font-bold bg-slate-100">
-                  <th className="text-medium w-[30%] py-1 border text-center text-base">
-                    BANQUE
-                  </th>
-                  <th className="text-medium py-1 border text-base">
-                    N° COMPTE
-                  </th>
-                  <th className="text-medium py-1 border text-base">SOLDE</th>
+          <h1 className="text-center text-2xl font-medium my-10">
+            Solde des comptes bancaires
+          </h1>
+          <table className="text-center w-full">
+            <thead>
+              <tr className="bg-slate-100">
+                <th className="border ">Nom</th>
+                <th className="border ">Numéro de compte</th>
+                <th className="border ">Solde</th>
+              </tr>
+            </thead>
+            <tbody>
+              {accountsData?.map((account, i) => (
+                <tr key={i}>
+                  <td className="border">{account.name}</td>
+                  <td className="border">{account.number}</td>
+                  <td className="border">{account.balance}</td>
                 </tr>
-              </thead>
-              <tbody>
-                {accountsData?.map((account, i) => (
-                  <tr className="">
-                    <td className="p-0 px-0 pl-0 text-start border">
-                      {account.name}
-                    </td>
-                    <td className=" border text-start">{account.number}</td>
-                    <td className=" text-end border">
-                      {account.balance.toString() + " MRU"}
-                    </td>
-                  </tr>
-                ))}
-                <tr>
-                  <td colSpan={2}></td>
-                  <td className="border">
-                    {accountsData
-                      ?.reduce((acc, curr) => acc + curr.balance, 0)
-                      .toString()}
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+              ))}
+            </tbody>
+          </table>
         </PrintPage>
       </div>
     </div>

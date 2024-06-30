@@ -31,9 +31,97 @@ const PASSWORD_INPUT_ID = "agent_password_dialog";
 const PASSWORDCHANGE_INPUT_ID = "agent_passwordchange_dialog";
 const PASSWORDCHANGE_CONFIRM_INPUT_ID = "agent_passwordchange_confirm_dialog";
 
+function PasswordChangeDialog({
+  userId,
+  onDone,
+}: {
+  onDone: () => void;
+  userId: number;
+}) {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const token = useContext(AuthContext).authData!.token;
+
+  async function updatePassword(userId: number) {
+    try {
+      const passwordInput = document.getElementById(
+        PASSWORDCHANGE_INPUT_ID
+      ) as HTMLInputElement;
+      const confirmPassordInput = document.getElementById(
+        PASSWORDCHANGE_CONFIRM_INPUT_ID
+      ) as HTMLInputElement;
+
+      if (!passwordInput || !confirmPassordInput) {
+        return;
+      }
+      if (
+        passwordInput.value.length === 0 ||
+        confirmPassordInput.value.length === 0
+      ) {
+        alert("Veuillez remplir tous les champs");
+        return;
+      }
+      if (passwordInput.value !== confirmPassordInput.value) {
+        alert("Les mots de passe ne correspondent pas");
+        return;
+      }
+      setIsSubmitting(true);
+
+      await axios.post(
+        rootUrl + `users/${userId}/update_password/`,
+        {
+          password: passwordInput.value,
+        },
+        {
+          headers: {
+            Authorization: `Token ${token}`,
+          },
+        }
+      );
+      onDone();
+    } catch (e) {
+      alert("Erreur lors de la mise à jour du mot de passe");
+    }
+    setIsSubmitting(false);
+  }
+
+  return (
+    <div className="grid w-[400px] grid-cols-2 gap-x-4 gap-y-6">
+      <Input
+        className="col-span-2"
+        type="password"
+        id={PASSWORDCHANGE_INPUT_ID}
+        placeholder="Mot de passe"
+      />
+      <Input
+        className="col-span-2"
+        type="password"
+        id={PASSWORDCHANGE_CONFIRM_INPUT_ID}
+        placeholder="Confirmer le mot de passe"
+      />
+      <FilledButton
+        onClick={() => {
+          onDone();
+        }}
+        isLight={true}
+        className="col-span-1"
+      >
+        Annuler
+      </FilledButton>
+      <FilledButton
+        onClick={() => {
+          updatePassword(userId);
+        }}
+        className="col-span-1"
+      >
+        Changer
+      </FilledButton>
+    </div>
+  );
+}
+
 export default function AgentsPage() {
   const [dialogState, setDialogState] = useState<{
-    state: "add" | "edit" | "delete" | "none";
+    state: "add" | "edit_pass" | "delete" | "none";
     payload: any;
   }>({
     state: "none",
@@ -136,7 +224,7 @@ export default function AgentsPage() {
   return (
     <div className="flex flex-col items-start gap-y-10 px-8 pb-12 pt-12 lg:px-10 lg:pb-0 lg:pt-20l">
       <MDialog
-        isOpen={dialogState.state === "add" || dialogState.state === "edit"}
+        isOpen={dialogState.state === "add"}
         title="Ajouter un agent"
         onClose={function (): void {
           setDialogState({ state: "none", payload: null });
@@ -191,6 +279,20 @@ export default function AgentsPage() {
           </div>
         }
       </MDialog>
+      <MDialog
+        isOpen={dialogState.state === "edit_pass"}
+        title="Changer le mot de passe"
+        onClose={function (): void {
+          setDialogState({ state: "none", payload: null });
+        }}
+      >
+        <PasswordChangeDialog
+          userId={dialogState.payload}
+          onDone={() => {
+            setDialogState({ state: "none", payload: null });
+          }}
+        />
+      </MDialog>
 
       <Title>Agents</Title>
       <div className="flex justify-between w-full">
@@ -225,6 +327,7 @@ export default function AgentsPage() {
             <th className="text-medium py-3 text-center text-base">
               Nombre d'opérations de décaissement
             </th>
+            <th className="text-medium py-3 text-center text-base">Actions</th>
           </tr>
         </thead>
         {!usersData ? (
@@ -240,6 +343,15 @@ export default function AgentsPage() {
                 </Td>
                 <Td className="p-0 px-0 pl-0 font-medium text-center">
                   {user.total_disbursement_operations}
+                </Td>
+                <Td className="align-center">
+                  <button
+                    onClick={() => {
+                      setDialogState({ state: "edit_pass", payload: user.id });
+                    }}
+                  >
+                    <MdpIcon />
+                  </button>
                 </Td>
               </Tr>
             ))}

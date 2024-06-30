@@ -24,7 +24,13 @@ type CollectionDetailForm = Omit<
 
 type CollectionOperationForm = Omit<
   CollectionOperationInterface,
-  "id" | "created_at" | "updated_at" | "total" | "ref" | "details"
+  | "id"
+  | "created_at"
+  | "updated_at"
+  | "total"
+  | "ref"
+  | "details"
+  | "created_by_name"
 > & { details: CollectionDetailForm[] };
 
 function ExcelImportDialog({
@@ -398,6 +404,7 @@ export default function EncaissementPage() {
 
   const token = useContext(AuthContext).authData!.token;
   const searchTimer = useRef<NodeJS.Timeout>();
+  const isAdmin = useContext(AuthContext).authData!.user.is_admin;
 
   useEffect(() => {
     load();
@@ -534,11 +541,14 @@ export default function EncaissementPage() {
         <thead className="">
           <tr className="font-bold text-gray">
             <th className="text-medium w-[30%] py-3 text-start text-base">
-              Bénéficiaire
+              Motif
             </th>
 
             <th className="text-medium py-3 text-start text-base">Montant</th>
             <th className="text-medium py-3 text-start text-base">Date</th>
+            {isAdmin && (
+              <th className="text-medium py-3 text-start text-base">Agent</th>
+            )}
             <th className="text-medium py-3 text-start text-base">Actions</th>
           </tr>
         </thead>
@@ -549,7 +559,7 @@ export default function EncaissementPage() {
             {collectionsData.data?.map((collectionOperation, i) => (
               <Tr>
                 <Td className="p-0 px-0 pl-0 text-start">
-                  {collectionOperation.beneficiaire}
+                  {collectionOperation.motif}
                 </Td>
 
                 <Td className="p-0 px-0 pl-0 font-medium text-start">
@@ -558,6 +568,11 @@ export default function EncaissementPage() {
                 <Td className="p-0 px-0 pl-0 font-medium text-start">
                   {collectionOperation.date.toString()}
                 </Td>
+                {isAdmin && (
+                  <Td className="p-0 px-0 pl-0 font-medium text-start">
+                    {collectionOperation.created_by_name}
+                  </Td>
+                )}
                 <Td className="p-0 px-0 pl-0">
                   <button
                     onClick={() => {

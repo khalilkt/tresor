@@ -26,6 +26,8 @@ export interface CollectionOperationInterface {
   created_at: string;
   details: CollectionOperationDetail[];
   type: CollectionOperationType;
+
+  created_by_name: string;
 }
 
 export interface CollectionOperationDetail {
@@ -55,6 +57,7 @@ export interface DisbursementOperationInterface {
   ref: string;
   created_at: string;
   account_name: string;
+  created_by_name: string;
 }
 
 export interface DisbursementOperationDetail {

@@ -10,6 +10,7 @@ class DisbursementOperationManager(models.Manager):
         ret = super().get_queryset()
         ret = ret.annotate(total = Sum('details__montant'))
         ret = ret.annotate(account_name = F('account__name'))
+        ret = ret.annotate(created_by_name = F('created_by__username'))
         return ret
     
 class DisbursementOperation(models.Model):
@@ -55,6 +56,7 @@ class DisbursementOperationSerializer(serializers.ModelSerializer):
      
     details = DisbursementOperationDetailSerializer(many=True)
     total = serializers.DecimalField(max_digits=10, decimal_places=2, read_only=True)
+    created_by_name = serializers.CharField(read_only=True)
     account_name = serializers.CharField( read_only=True)
     account_data = AccountSerializer(source='account', read_only=True)
 

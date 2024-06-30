@@ -3,6 +3,12 @@ import qrcode from "../assets/qr_code.jpg";
 import joumhouria from "../assets/joumhouria_image.png";
 import { useEffect, useState } from "react";
 
+function formatDate(date: string) {
+  const year = date.slice(0, 4);
+  const month = date.slice(5, 7);
+  const day = date.slice(8, 10);
+  return `${day}/${month}/${year}`;
+}
 export function PrintPage({
   children,
   ...divProps
@@ -85,9 +91,9 @@ export function PrintPage({
                 </div>
                 <div className="mt-10 flex flex-col self-end text-xs">
                   <span>
-                    {" "}
-                    Nouadhibou le :
-                    ............................................. نواذيبو في{" "}
+                    Nouadhibou le
+                    {`     ${formatDate(new Date().toISOString().slice(0, 10))}     `}
+                    نواذيبو في
                   </span>
                 </div>
               </div>
@@ -95,7 +101,8 @@ export function PrintPage({
           </div>
         </div>
       </thead>
-      <tbody className="">
+      {/* align top */}
+      <tbody className="align-top">
         <tr className="">
           <td className="">
             <div className=" px-6 w-full">{children}</div>

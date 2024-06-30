@@ -140,6 +140,9 @@ export function BankStatementDialog({
         ref={printRef}
       >
         <PrintPage>
+          <h1 className="text-center text-2xl my-10">
+            Relevé de compte :{account.number} {account.name}
+          </h1>
           <div className="flex justify-between mb-4">
             <span>
               Report de solde au {formatDate(startDate)} :{"   "}{" "}

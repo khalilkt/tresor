@@ -46,7 +46,6 @@ class StatsView(APIView):
             "collections_count": collections_count,
             "disbursements_count": disbursements_count,
             "accounts_count": accounts_count
-
         })
     
 

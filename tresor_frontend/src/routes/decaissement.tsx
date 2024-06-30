@@ -26,6 +26,7 @@ type DisbursementOperationForm = Omit<
   | "account_name"
   | "account_data"
   | "ref"
+  | "created_by_name"
 >;
 
 function ExcelImportDialog({
@@ -343,6 +344,7 @@ export default function DecaissementPage() {
 
   const token = useContext(AuthContext).authData!.token;
   const searchTimer = useRef<NodeJS.Timeout>();
+  const isAdmin = useContext(AuthContext).authData!.user.is_admin;
 
   useEffect(() => {
     load();
@@ -499,13 +501,16 @@ export default function DecaissementPage() {
         <thead className="">
           <tr className="font-bold text-gray">
             <th className="text-medium w-[30%] py-3 text-start text-base">
-              Bénéficiaire
+              Motif
             </th>
             <th className="text-medium py-3 text-start text-base">
               Compte d'opération
             </th>
             <th className="text-medium py-3 text-start text-base">Montant</th>
             <th className="text-medium py-3 text-start text-base">Date</th>
+            {isAdmin && (
+              <th className="text-medium py-3 text-start text-base">Agent</th>
+            )}
             <th className="text-medium py-3 text-start text-base">Actions</th>
           </tr>
         </thead>
@@ -516,7 +521,7 @@ export default function DecaissementPage() {
             {disbursementsData.data?.map((disbursementOperation, i) => (
               <Tr>
                 <Td className="p-0 px-0 pl-0 text-start">
-                  {disbursementOperation.beneficiaire}
+                  {disbursementOperation.motif}
                 </Td>
                 <Td className="p-0 px-0 pl-0 text-start">
                   {disbursementOperation.account_name}
@@ -527,6 +532,11 @@ export default function DecaissementPage() {
                 <Td className="p-0 px-0 pl-0 font-medium text-start">
                   {disbursementOperation.date.toString()}
                 </Td>
+                {isAdmin && (
+                  <Td className="p-0 px-0 pl-0 text-start">
+                    {disbursementOperation.created_by_name}
+                  </Td>
+                )}
                 <Td className="p-0 px-0 pl-0">
                   <button
                     onClick={() => {

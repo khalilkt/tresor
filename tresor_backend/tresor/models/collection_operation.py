@@ -9,6 +9,7 @@ class CollectionOperationManager(models.Manager):
     def get_queryset(self):
         ret = super().get_queryset()
         ret = ret.annotate(total = models.Sum('details__montant'))
+        ret =  ret.annotate(created_by_name = models.F('created_by__username'))
         return ret
 
 class CollectionOperation(models.Model):
@@ -53,6 +54,7 @@ class CollectionOperationDetailSerializer(serializers.ModelSerializer):
 class CollectionOperationSerializer(serializers.ModelSerializer):
     details = CollectionOperationDetailSerializer(many=True)
     total = serializers.DecimalField(max_digits=10, decimal_places=2, read_only=True)
+    created_by_name = serializers.CharField(read_only=True)
 
     def validate_details(self, value):  
         type = self.initial_data.get('type' , "operation")
