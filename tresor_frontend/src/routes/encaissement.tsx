@@ -14,7 +14,7 @@ import { AuthContext } from "../App";
 import { useSearchParams } from "react-router-dom";
 import * as XLSX from "xlsx";
 import DisbursementOperationDetailDialog from "../components/disbusement_operation_dialog";
-import { ViewIcon } from "../components/icons";
+import { LoadingIcon, ViewIcon } from "../components/icons";
 import CollectionOpearionDetailDialog from "../components/collection_operation_dialog";
 
 type CollectionDetailForm = Omit<
@@ -36,9 +36,13 @@ type CollectionOperationForm = Omit<
 function ExcelImportDialog({
   onSubmit,
 }: {
-  onSubmit: (data: CollectionOperationForm) => void;
+  // should return a function that we can await
+
+  onSubmit: (data: CollectionOperationForm) => Promise<void>;
 }) {
   const accounts = useContext(AuthContext).authData!.accounts;
+
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [formData, setFormData] = useState<CollectionOperationForm>({
     beneficiaire: "",
@@ -82,9 +86,8 @@ function ExcelImportDialog({
     ];
     const columnsName: { [key: string]: string } = {
       "Numéro de chèque": "cheque_number",
-      "Partie entrante": "name",
+      "Partie versante": "name",
       Banque: "banq_name",
-
       Montant: "montant",
       destination: "destination_account",
     };
@@ -379,14 +382,21 @@ function ExcelImportDialog({
         </pre> */}
         <FilledButton
           className="rounded-lg bg-primary p-2 text-white disabled:opacity-50"
-          disabled={!isReadyToSubmit}
-          onClick={() => {
+          disabled={!isReadyToSubmit || isSubmitting}
+          onClick={async () => {
             if (isReadyToSubmit) {
-              onSubmit(formData);
+              setIsSubmitting(true);
+              try {
+                await onSubmit(formData);
+              } catch (e) {}
+              setIsSubmitting(false);
             }
           }}
         >
           Ajouter
+          <LoadingIcon
+            className={`w-5 h-5 ml-2 ${isSubmitting ? "" : "hidden"}`}
+          />
         </FilledButton>
 
         {/* <pre>{JSON.stringify(formData.details, null, 2)}</pre> */}
@@ -469,6 +479,7 @@ export default function EncaissementPage() {
   async function createCollectionOperation(data: CollectionOperationForm) {
     try {
       // pass the data and the token
+
       const response = await axios.post(
         rootUrl + "collections/",
         {
@@ -515,8 +526,8 @@ export default function EncaissementPage() {
         }}
       >
         <ExcelImportDialog
-          onSubmit={function (data): void {
-            createCollectionOperation(data);
+          onSubmit={async function (data) {
+            await createCollectionOperation(data);
           }}
         />
       </MDialog>

@@ -78,9 +78,7 @@ export default function CollectionOpearionDetailDialog({ id }: { id: number }) {
   const banks_names = groupedDetails.map((detail) => detail.bank_name);
 
   const tableHeaders =
-    selectedBank === "all"
-      ? ["BANQUE", "MOTANT"]
-      : ["NOM", "MONTANT", "BANQUE"];
+    selectedBank === "all" ? ["BANQUE", "MOTANT"] : ["NOM", "MONTANT"];
   const detailsData = selectedBank === "all" ? groupedDetails : filteredDetails;
 
   return (
@@ -151,7 +149,6 @@ export default function CollectionOpearionDetailDialog({ id }: { id: number }) {
                           <>
                             <Td>{detail.name}</Td>
                             <Td>{detail.montant}</Td>
-                            <Td>{detail.banq_name}</Td>
                           </>
                         ) : (
                           <>
@@ -226,9 +223,6 @@ export default function CollectionOpearionDetailDialog({ id }: { id: number }) {
                           <td className="border-r border-l ">{detail.name}</td>
                           <td className="border-r border-l  text-center">
                             {detail.montant}
-                          </td>
-                          <td className="border-r border-l  text-end">
-                            {detail.banq_name}
                           </td>
                         </>
                       ) : (

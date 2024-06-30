@@ -72,7 +72,7 @@ class DisbursementOperationSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("EMPTY_DETAILS")
         if type == "frais" and len(value) != 1:
             raise serializers.ValidationError("INVALID_DETAILS")
-        
+
 
         account = Account.objects.get(pk=self.initial_data['account'])
         total = 0

@@ -84,7 +84,7 @@ export default function DisbursementOperationDetailDialog({
   const tableHeaders =
     selectedBank === "all"
       ? ["Banque", "Montant"]
-      : ["Nom", "Montant", "Banque", "Numéro de compte"];
+      : ["Nom", "Montant", "Numéro de compte"];
   const detailsData = selectedBank === "all" ? groupedDetails : filteredDetails;
 
   return (
@@ -159,7 +159,6 @@ export default function DisbursementOperationDetailDialog({
                           <>
                             <Td>{detail.name}</Td>
                             <Td>{detail.montant}</Td>
-                            <Td>{detail.banq_name}</Td>
                             <Td>{detail.banq_number}</Td>
                           </>
                         ) : (
@@ -243,9 +242,7 @@ export default function DisbursementOperationDetailDialog({
                           <td className="border-r border-l text-center">
                             {detail.montant}
                           </td>
-                          <td className="border-r border-l text-center">
-                            {detail.banq_name}
-                          </td>
+
                           <td className="border-r border-l text-right">
                             {detail.banq_number}
                           </td>

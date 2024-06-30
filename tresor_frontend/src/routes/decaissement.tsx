@@ -14,7 +14,13 @@ import { rootUrl } from "../constants";
 import { AuthContext } from "../App";
 import { useSearchParams } from "react-router-dom";
 import * as XLSX from "xlsx";
-import { MdpIcon, MoreIcon, PrintIcon, ViewIcon } from "../components/icons";
+import {
+  LoadingIcon,
+  MdpIcon,
+  MoreIcon,
+  PrintIcon,
+  ViewIcon,
+} from "../components/icons";
 import DisbursementOperationDetailDialog from "../components/disbusement_operation_dialog";
 
 type DisbursementOperationForm = Omit<
@@ -32,9 +38,11 @@ type DisbursementOperationForm = Omit<
 function ExcelImportDialog({
   onSubmit,
 }: {
-  onSubmit: (data: DisbursementOperationForm) => void;
+  onSubmit: (data: DisbursementOperationForm) => Promise<void>;
 }) {
   const accounts = useContext(AuthContext).authData!.accounts;
+
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [formData, setFormData] = useState<DisbursementOperationForm>({
     account: accounts[0].id,
@@ -320,14 +328,19 @@ function ExcelImportDialog({
       </pre> */}
       <FilledButton
         className="rounded-lg bg-primary p-2 text-white disabled:opacity-50"
-        disabled={!isReadyToSubmit}
-        onClick={() => {
+        disabled={!isReadyToSubmit || isSubmitting}
+        onClick={async () => {
           if (isReadyToSubmit) {
-            onSubmit(formData);
+            setIsSubmitting(true);
+            try {
+              await onSubmit(formData);
+            } catch (e) {}
+            setIsSubmitting(false);
           }
         }}
       >
         Ajouter
+        <LoadingIcon className={`ml-2 ${isSubmitting ? "" : "hidden"}`} />
       </FilledButton>
 
       {/* <pre>{JSON.stringify(formData.details, null, 2)}</pre> */}
@@ -461,8 +474,8 @@ export default function DecaissementPage() {
         }}
       >
         <ExcelImportDialog
-          onSubmit={function (data): void {
-            createDisbursementOperation(data);
+          onSubmit={async function (data) {
+            await createDisbursementOperation(data);
           }}
         />
       </MDialog>
