@@ -116,6 +116,10 @@ export default function DisbursementOperationDetailDialog({
             <span className="font-semibold">Date:</span>
             <span>{data.date.toString()}</span>
           </div>
+          <div className="flex flex-col gap-y-1">
+            <span className="font-semibold">Référence:</span>
+            <span>{data.ref}</span>
+          </div>
 
           {data.type === "operation" && (
             <>
@@ -176,7 +180,7 @@ export default function DisbursementOperationDetailDialog({
           )}
           <div
             ref={printRef}
-            className="absolute print:opacity-100 opacity-0 -z-50"
+            className="absolute print:opacity-100 opacity-0 -z-50 pointer-events-none"
           >
             <PrintPage>
               {selectedBank === "all" && (

@@ -12,6 +12,7 @@ import { BankStatementIcon } from "../components/icons";
 import { BankStatementDialog } from "../components/bank_statement_dialog";
 import { PrintPage } from "../components/print_page";
 import { useReactToPrint } from "react-to-print";
+import { formatAmount, numberToFrench } from "../logiC/utils";
 
 function AddAccountDialog({
   onSubmit,
@@ -24,7 +25,7 @@ function AddAccountDialog({
         <Input
           type="text"
           id="name"
-          placeholder="Nom du compte"
+          placeholder="Banque"
           className="border-gray-300 border p-2"
         />
         <Input
@@ -180,6 +181,13 @@ export default function AccountsPage() {
     }
   }
 
+  const total = accountsData?.reduce((acc, account) => {
+    if (typeof account.balance !== "number") {
+      return acc + parseFloat(account.balance);
+    }
+    return acc + account.balance;
+  }, 0);
+
   return (
     <div className="flex flex-col items-start gap-y-10 px-8 pb-12 pt-12 lg:px-10 lg:pb-0 lg:pt-20l">
       <MDialog
@@ -236,7 +244,7 @@ export default function AccountsPage() {
         <thead className="">
           <tr className="font-bold text-gray">
             <th className="text-medium w-[30%] py-3 text-left text-base">
-              Nom
+              Banque
             </th>
             <th className="text-medium py-3 text-base">Numéro de compte</th>
             <th className="text-medium py-3 text-base">Solde</th>
@@ -273,7 +281,7 @@ export default function AccountsPage() {
       </table>
       <div
         ref={printRef}
-        className="absolute print:opacity-100 opacity-0 -z-50"
+        className="absolute print:opacity-100 opacity-0 -z-50 pointer-events-none"
       >
         <PrintPage>
           <h1 className="text-center text-2xl font-medium my-10">
@@ -282,7 +290,7 @@ export default function AccountsPage() {
           <table className="text-center w-full">
             <thead>
               <tr className="bg-slate-100">
-                <th className="border ">Nom</th>
+                <th className="border ">Banque</th>
                 <th className="border ">Numéro de compte</th>
                 <th className="border ">Solde</th>
               </tr>
@@ -292,11 +300,19 @@ export default function AccountsPage() {
                 <tr key={i}>
                   <td className="border">{account.name}</td>
                   <td className="border">{account.number}</td>
-                  <td className="border">{account.balance}</td>
+                  <td className="border">{formatAmount(account.balance)}</td>
                 </tr>
               ))}
+              <tr>
+                <td colSpan={2} className="border"></td>
+                <td className="border">{formatAmount(total ?? 0)}</td>
+              </tr>
             </tbody>
           </table>
+          <div className="pt-4">
+            Arrêté à la somme de{" : "}{" "}
+            {numberToFrench(parseInt(total?.toString() ?? "0")) + " ouguiyas"}
+          </div>
         </PrintPage>
       </div>
     </div>

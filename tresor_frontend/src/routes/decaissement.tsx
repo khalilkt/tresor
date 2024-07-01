@@ -320,6 +320,12 @@ function ExcelImportDialog({
           }}
         />
       )}
+      {formData.details.length > 0 && formData.type === "operation" && (
+        <span className="text-red-700">
+          Total :{" "}
+          {formData.details.reduce((acc, detail) => acc + detail.montant, 0)}
+        </span>
+      )}
       {/* <pre>
         {
           // show the data in a map

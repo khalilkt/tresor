@@ -27,7 +27,7 @@ class CollectionOperation(models.Model):
         if not self.pk:  # Only set ref if the object is being created for the first time
             year = self.date.year
             count = CollectionOperation.objects.filter(date__year=year).count() + 1
-            self.ref = f"{year}-{count:04d}"  # Format as 2024-0013
+            self.ref = f"{count:04d}/{year}/DTNDB"  # Format as 2024-0013
 
         super().save(*args, **kwargs)
     objects = CollectionOperationManager()

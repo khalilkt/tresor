@@ -9,7 +9,8 @@ import { FilledButton } from "./buttons";
 import { PrintPage } from "./print_page";
 import { useReactToPrint } from "react-to-print";
 import React from "react";
-import { formatAmount, formatDate } from "../logiC/utils";
+import { formatAmount, formatDate, numberToFrench } from "../logiC/utils";
+import { createPortal } from "react-dom";
 
 interface ReleveInterface {
   end_date_balance: number;
@@ -109,8 +110,8 @@ export function BankStatementDialog({
                     DATE
                   </th>
                   <th className="text-medium py-3 text-base w-1/2">LIBELLE</th>
-                  <th className="text-medium py-3 text-base">CREDIT</th>
                   <th className="text-medium py-3 text-base">DEBIT</th>
+                  <th className="text-medium py-3 text-base">CREDIT</th>
                 </tr>
               </thead>
               {!data ? (
@@ -121,11 +122,12 @@ export function BankStatementDialog({
                     <Tr>
                       <Td className="p-0 px-0 pl-0 text-left">{releve.date}</Td>
                       <Td className="font-medium">{releve.operation_name}</Td>
-                      <Td className="font-medium">
-                        {releve.type === "collection" ? releve.amount : ""}
-                      </Td>
+
                       <Td className="font-medium">
                         {releve.type === "disbursement" ? releve.amount : ""}
+                      </Td>
+                      <Td className="font-medium">
+                        {releve.type === "collection" ? releve.amount : ""}
                       </Td>
                     </Tr>
                   ))}
@@ -135,86 +137,93 @@ export function BankStatementDialog({
           </div>
         )}
       </div>
-      <div
-        className=" absolute -z-50 opacity-0 print:opacity-100"
-        ref={printRef}
-      >
-        <PrintPage>
-          <h1 className="text-center text-2xl my-10">
-            Relevé de compte :{account.number} {account.name}
-          </h1>
-          <div className="flex justify-between mb-4">
-            <span>
-              Report de solde au {formatDate(startDate)} :{"   "}{" "}
-              {formatAmount(data?.start_date_balance || 0)}
-            </span>
-            <span>
-              Relevé du {formatDate(startDate)} au {formatDate(endDate)}
-            </span>
-          </div>
-          <table className="text-center w-full">
-            <thead>
-              <tr className="font-bold bg-slate-100 text-center border-l">
-                <th className="py-1 border text-center">Date</th>
-                <th className="py-1 border text-center w-1/2">Libelle</th>
-                <th className="py-1 border text-center w-1/4">Credit</th>
-                <th className="py-1 border text-center w-1/4">Debit</th>
-              </tr>
-            </thead>
-            <tbody className=" text-start ">
-              {data?.data.map((detail, i) => (
-                <tr className="last:border-b" key={i}>
-                  <td className=" border pr-4 text-start w-min">
-                    {formatDate(detail.date)}
-                  </td>
-                  <td className=" border px-1 text-start">
-                    {detail.operation_name}
+      {createPortal(
+        <div
+          className="absolute print:opacity-100 opacity-0 -z-50 pointer-events-none"
+          ref={printRef}
+        >
+          <PrintPage>
+            <h1 className="text-center text-2xl my-10">
+              Relevé de compte :{account.number} {account.name}
+            </h1>
+            <div className="flex justify-between mb-4">
+              <span>
+                Report de solde au {formatDate(startDate)} :{"   "}{" "}
+                {formatAmount(data?.start_date_balance || 0)}
+              </span>
+              <span>
+                Relevé du {formatDate(startDate)} au {formatDate(endDate)}
+              </span>
+            </div>
+            <table className="text-center w-full">
+              <thead>
+                <tr className="font-bold bg-slate-100 text-center border-l">
+                  <th className="py-1 border text-center">Date</th>
+                  <th className="py-1 border text-center w-1/2">Libelle</th>
+                  <th className="py-1 border text-center w-1/4">Debit</th>
+                  <th className="py-1 border text-center w-1/4">Credit</th>
+                </tr>
+              </thead>
+              <tbody className=" text-start ">
+                {data?.data.map((detail, i) => (
+                  <tr className="last:border-b" key={i}>
+                    <td className=" border pr-4 text-start w-min">
+                      {formatDate(detail.date)}
+                    </td>
+                    <td className=" border px-1 text-start">
+                      {detail.operation_name}
+                    </td>
+
+                    <td className=" border px-1 text-end">
+                      {detail.type === "disbursement"
+                        ? formatAmount(detail.amount)
+                        : ""}
+                    </td>
+                    <td className=" border px-1 text-end">
+                      {detail.type === "collection"
+                        ? formatAmount(detail.amount)
+                        : ""}
+                    </td>
+                  </tr>
+                ))}
+                <tr>
+                  <td colSpan={2} className="  border px-1 text-end span">
+                    Total Débit/Total Crédit
                   </td>
                   <td className=" border px-1 text-end">
-                    {detail.type === "collection"
-                      ? formatAmount(detail.amount)
-                      : ""}
+                    {formatAmount(
+                      data?.data.reduce((acc, cur) => {
+                        return cur.type === "collection"
+                          ? acc + cur.amount
+                          : acc;
+                      }, 0) || 0
+                    )}
                   </td>
                   <td className=" border px-1 text-end">
-                    {detail.type === "disbursement"
-                      ? formatAmount(detail.amount)
-                      : ""}
+                    {formatAmount(
+                      data?.data.reduce((acc, cur) => {
+                        return cur.type === "disbursement"
+                          ? acc + cur.amount
+                          : acc;
+                      }, 0) || 0
+                    )}
                   </td>
                 </tr>
-              ))}
-              <tr>
-                <td colSpan={2} className="  border px-1 text-end span">
-                  Total Débit/Total Crédit
-                </td>
-                <td className=" border px-1 text-end">
-                  {formatAmount(
-                    data?.data.reduce((acc, cur) => {
-                      return cur.type === "collection" ? acc + cur.amount : acc;
-                    }, 0) || 0
-                  )}
-                </td>
-                <td className=" border px-1 text-end">
-                  {formatAmount(
-                    data?.data.reduce((acc, cur) => {
-                      return cur.type === "disbursement"
-                        ? acc + cur.amount
-                        : acc;
-                    }, 0) || 0
-                  )}
-                </td>
-              </tr>
-              <tr className="bg-slate-100">
-                <td colSpan={2} className="px-1 py-4 text-end span">
-                  Solde du compte
-                </td>
-                <td colSpan={2} className="text-center py-4">
-                  {formatAmount(data?.end_date_balance || 0)}
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </PrintPage>
-      </div>
+                <tr className="bg-slate-100">
+                  <td colSpan={2} className="px-1 py-4 text-end span">
+                    Solde du compte
+                  </td>
+                  <td colSpan={2} className="text-center py-4">
+                    {formatAmount(data?.end_date_balance || 0)}
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </PrintPage>
+        </div>,
+        document.body,
+        "print"
+      )}
     </div>
   );
 }
