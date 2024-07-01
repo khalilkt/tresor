@@ -7,7 +7,7 @@ import { AuthContext } from "../App";
 import { rootUrl } from "../constants";
 import { Td, Tr } from "./table";
 import axios from "axios";
-import { FilledButton } from "./buttons";
+import { FilledButton, OutlinedButton } from "./buttons";
 import { PrintIcon } from "./icons";
 import { useReactToPrint } from "react-to-print";
 import { PrintPage } from "./print_page";
@@ -73,6 +73,14 @@ export default function DisbursementOperationDetailDialog({
       }
     });
   }
+  function donwloadFile(file: string) {
+    const a = document.createElement("a");
+    a.href = file;
+    a.download = file;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  }
 
   const filteredDetails =
     selectedBank === "all"
@@ -136,6 +144,15 @@ export default function DisbursementOperationDetailDialog({
                     <option value={name}>{name}</option>
                   ))}
                 </Select>
+                {data.file && (
+                  <OutlinedButton
+                    onClick={() => {
+                      donwloadFile(data.file!);
+                    }}
+                  >
+                    Fichier
+                  </OutlinedButton>
+                )}
                 <FilledButton
                   onClick={() => {
                     handlePrint();

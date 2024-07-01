@@ -20,6 +20,7 @@ class DisbursementOperation(models.Model):
     beneficiaire = models.CharField(max_length=255)
     ref = models.CharField(max_length=20, unique=True, editable=False)
     type = models.CharField(max_length=255, choices=[('frais', 'Frais'), ('operation', 'Operation')], default='operation')
+    file = models.FileField(upload_to='disbursement_files/%Y/%m/%d/', null=True, blank=True)
 
 
     created_at = models.DateTimeField(auto_now_add=True)

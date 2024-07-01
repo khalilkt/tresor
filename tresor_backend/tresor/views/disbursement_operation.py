@@ -1,6 +1,6 @@
 from tresor.utils import filter_query_by_date
 from ..models.disbursement_operation import DisbursementOperation, DisbursementOperationSerializer
-from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView, RetrieveAPIView
+from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView, RetrieveAPIView , RetrieveUpdateAPIView
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.permissions import IsAdminUser, IsAuthenticated
 
@@ -34,7 +34,7 @@ class DisbursementOperationListCreateView(ListCreateAPIView):
         return super().pagination_class
     
 
-class DisbursementOperationDetails(RetrieveAPIView):
+class DisbursementOperationDetails(RetrieveUpdateAPIView):
     permission_classes = [IsAuthenticated]
     queryset = DisbursementOperation.objects.all()
     serializer_class = DisbursementOperationSerializer

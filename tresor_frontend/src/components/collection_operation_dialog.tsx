@@ -7,7 +7,7 @@ import { AuthContext } from "../App";
 import { rootUrl } from "../constants";
 import { Td, Tr } from "./table";
 import axios from "axios";
-import { FilledButton } from "./buttons";
+import { FilledButton, OutlinedButton } from "./buttons";
 import { PrintIcon } from "./icons";
 import { useReactToPrint } from "react-to-print";
 import { PrintPage } from "./print_page";
@@ -42,6 +42,15 @@ export default function CollectionOpearionDetailDialog({ id }: { id: number }) {
     } catch (e) {
       console.log(e);
     }
+  }
+
+  function donwloadFile(file: string) {
+    const a = document.createElement("a");
+    a.href = file;
+    a.download = file;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
   }
 
   useEffect(() => {
@@ -127,6 +136,15 @@ export default function CollectionOpearionDetailDialog({ id }: { id: number }) {
                     <option value={name}>{name}</option>
                   ))}
                 </Select>
+                {data.file && (
+                  <OutlinedButton
+                    onClick={() => {
+                      donwloadFile(data.file!);
+                    }}
+                  >
+                    Fichier
+                  </OutlinedButton>
+                )}
                 <FilledButton
                   onClick={() => {
                     handlePrint();

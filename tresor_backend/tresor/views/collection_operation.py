@@ -1,6 +1,6 @@
 from tresor.utils import filter_query_by_date
 from ..models.collection_operation import CollectionOperation, CollectionOperationSerializer
-from rest_framework.generics import ListCreateAPIView, RetrieveAPIView
+from rest_framework.generics import ListCreateAPIView, RetrieveAPIView, RetrieveUpdateAPIView
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.permissions import IsAdminUser, IsAuthenticated
 
@@ -36,7 +36,7 @@ class CollectionOperationListCreateView(ListCreateAPIView):
     
 
 
-class CollectionOperationDetail(RetrieveAPIView):
+class CollectionOperationDetail(RetrieveUpdateAPIView):
     permission_classes = [IsAuthenticated]
     queryset = CollectionOperation.objects.all()
     serializer_class = CollectionOperationSerializer

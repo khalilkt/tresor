@@ -31,7 +31,8 @@ type CollectionOperationForm = Omit<
   | "ref"
   | "details"
   | "created_by_name"
-> & { details: CollectionDetailForm[] };
+  | "file"
+> & { details: CollectionDetailForm[]; file: File | null };
 
 function ExcelImportDialog({
   onSubmit,
@@ -50,10 +51,12 @@ function ExcelImportDialog({
     details: [],
     date: new Date().toISOString().split("T")[0],
     type: "operation",
+    file: null,
   });
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
+
     if (!file) return;
 
     const reader = new FileReader();
@@ -69,7 +72,7 @@ function ExcelImportDialog({
       });
       const extractedData = processExcelData(jsonData);
       if (extractedData) {
-        setFormData({ ...formData, details: extractedData });
+        setFormData({ ...formData, details: extractedData, file: file });
       }
     };
 
@@ -480,10 +483,13 @@ export default function EncaissementPage() {
     try {
       // pass the data and the token
 
+      const file = data.file;
+
       const response = await axios.post(
         rootUrl + "collections/",
         {
           ...data,
+          file: null,
         },
         {
           headers: {
@@ -491,7 +497,17 @@ export default function EncaissementPage() {
           },
         }
       );
-
+      const id = response.data.id;
+      if (file) {
+        const formData = new FormData();
+        formData.append("file", file);
+        await axios.patch(rootUrl + "collections/" + id + "/", formData, {
+          headers: {
+            Authorization: "Token " + token,
+            "Content-Type": "multipart/form-data",
+          },
+        });
+      }
       load();
       setIsExportDialogOpen(false);
       console.log(response.data);

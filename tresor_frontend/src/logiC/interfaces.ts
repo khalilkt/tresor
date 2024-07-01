@@ -26,6 +26,7 @@ export interface CollectionOperationInterface {
   created_at: string;
   details: CollectionOperationDetail[];
   type: CollectionOperationType;
+  file: string | null;
 
   created_by_name: string;
 }
@@ -50,6 +51,8 @@ export interface DisbursementOperationInterface {
   account: number;
   details: DisbursementOperationDetail[];
   type: DisbursementOperationType;
+
+  file: string | null;
 
   account_data: AccountInterface;
   id: number;

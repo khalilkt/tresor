@@ -18,6 +18,7 @@ class CollectionOperation(models.Model):
     beneficiaire = models.CharField(max_length=255)
     ref = models.CharField(max_length=20, unique=True, editable=False)
     type = models.CharField(max_length=255, choices=[('rejected', 'Rejected'), ('versement', 'Versement'), ('operation', 'Operation')], default='operation')
+    file = models.FileField(upload_to='collection_files/%Y/%m/%d/', null=True, blank=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

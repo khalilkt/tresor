@@ -33,7 +33,8 @@ type DisbursementOperationForm = Omit<
   | "account_data"
   | "ref"
   | "created_by_name"
->;
+  | "file"
+> & { file: File | null };
 
 function ExcelImportDialog({
   onSubmit,
@@ -51,6 +52,7 @@ function ExcelImportDialog({
     details: [],
     date: new Date().toISOString().split("T")[0],
     type: "operation",
+    file: null,
   });
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -70,7 +72,7 @@ function ExcelImportDialog({
       });
       const extractedData = processExcelData(jsonData);
       if (extractedData) {
-        setFormData({ ...formData, details: extractedData });
+        setFormData({ ...formData, details: extractedData, file: file });
       }
     };
 
@@ -428,22 +430,21 @@ export default function DecaissementPage() {
     }
   }
 
-  async function createDisbursementOperation(
-    data: DisbursementOperationForm | number
-  ) {
+  async function createDisbursementOperation(data: DisbursementOperationForm) {
     try {
-      let body = {};
-      if (typeof data === "number") {
-        body = {};
-      } else {
-        body = {
-          ...data,
-        };
+      const file = data.file;
+
+      if (!file) {
+        alert("Veuillez importer un fichier.");
+        return;
       }
+
+      alert("file :" + file.name);
       const response = await axios.post(
         rootUrl + "disbursements/",
         {
-          ...body,
+          ...data,
+          file: null,
         },
         {
           headers: {
@@ -451,6 +452,17 @@ export default function DecaissementPage() {
           },
         }
       );
+      const id = response.data.id;
+      if (file) {
+        const formData = new FormData();
+        formData.append("file", file);
+        await axios.patch(rootUrl + "disbursements/" + id + "/", formData, {
+          headers: {
+            Authorization: "Token " + token,
+            "Content-Type": "multipart/form-data",
+          },
+        });
+      }
 
       load();
       setIsExportDialogOpen(false);

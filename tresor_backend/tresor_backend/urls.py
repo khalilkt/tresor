@@ -20,6 +20,8 @@ from tresor.views import AccountViewSet , AccountReleve, CollectionOperationList
 
 from authentication.views import LoginTokenView, LoginView, PasswordUpdateView, UsersViewSet
 from rest_framework.routers import DefaultRouter
+from django.conf import settings
+from django.conf.urls.static import static
 
 router = DefaultRouter()
 router.register(r'accounts', AccountViewSet)
@@ -43,5 +45,6 @@ urlpatterns = [
     path('accounts/<int:pk>/releve/', AccountReleve.as_view(), name='account-releve'),
 ]
 
+urlpatterns += static("" +  settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 urlpatterns += router.urls
 
