@@ -80,20 +80,27 @@ function ExcelImportDialog({
   };
 
   const processExcelData = (data: any[][]): CollectionDetailForm[] | null => {
-    const columnsToSearch = [
-      "Numéro de chèque",
+    let columnsToSearch = [
       "Partie versante",
       "Banque",
       "Montant",
       "destination",
     ];
+    if (formData.type === "operation") {
+      columnsToSearch.push("Numéro de chèque");
+    } else if (formData.type === "versement") {
+      columnsToSearch.push("Référence");
+    }
     const columnsName: { [key: string]: string } = {
       "Numéro de chèque": "cheque_number",
-      "Partie versante": "name",
+      Référence: "cheque_number",
       Banque: "banq_name",
+
+      "Partie versante": "name",
       Montant: "montant",
       destination: "destination_account",
     };
+
     let headerRowIndex = 0;
     let headerRow: any[] = data[headerRowIndex];
     let columnIndices: { [key: string]: number } = {};
@@ -120,7 +127,7 @@ function ExcelImportDialog({
 
     if (Object.keys(columnIndices).length === 0) {
       console.error("None of the specified columns were found");
-      alert("Certaines colonnes n'ont pas été trouvées dans le fichier ss.");
+      alert("Certaines colonnes n'ont pas été trouvées dans le fichier.");
       return null;
     }
     if (Object.keys(columnIndices).length < columnsToSearch.length) {
@@ -200,6 +207,7 @@ function ExcelImportDialog({
                 type: "operation",
                 details: [],
                 beneficiaire: "",
+                file: null,
               })
             }
           >
@@ -224,6 +232,7 @@ function ExcelImportDialog({
                     cheque_number: "-",
                   },
                 ],
+                file: null,
                 beneficiaire: "-",
               });
             }}
@@ -240,6 +249,7 @@ function ExcelImportDialog({
               setFormData({
                 ...formData,
                 type: "rejected",
+
                 details: [
                   {
                     montant: 0,
@@ -250,18 +260,19 @@ function ExcelImportDialog({
                   },
                 ],
                 beneficiaire: "-",
+                file: null,
               });
             }}
           >
             Rejet
           </button>
         </div>
-        {formData.type === "operation" && (
+        {(formData.type === "operation" || formData.type === "versement") && (
           <div className="flex items-center justify-center w-full">
             <label
               className={`flex flex-col items-center justify-center w-full h-64 border-2 border-dashed rounded-lg cursor-pointer bg-gray-50 dark:hover:bg-bray-800 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500 dark:hover:bg-gray-600 ${formData.details.length > 0 ? "border-primary" : "border-gray-300"}`}
             >
-              {formData.details.length > 0 ? (
+              {formData.file ? (
                 <div className="flex flex-col items-center justify-center pt-5 pb-6">
                   <svg
                     className="w-8 h-8 mb-4 text-primary"
@@ -343,20 +354,22 @@ function ExcelImportDialog({
           </>
         ) : (
           <>
-            <Input
-              placeholder="Montant"
-              value={formData.details[0].montant}
-              onChange={(e) => {
-                let value = parseInt(e.target.value);
-                if (isNaN(value)) {
-                  value = 0;
-                }
-                setFormData({
-                  ...formData,
-                  details: [{ ...formData.details[0], montant: value }],
-                });
-              }}
-            />
+            {!formData.file && (
+              <Input
+                placeholder="Montant"
+                value={formData.details[0].montant}
+                onChange={(e) => {
+                  let value = parseInt(e.target.value);
+                  if (isNaN(value)) {
+                    value = 0;
+                  }
+                  setFormData({
+                    ...formData,
+                    details: [{ ...formData.details[0], montant: value }],
+                  });
+                }}
+              />
+            )}
             <Select
               value={formData.details[0].destination_account}
               onChange={(e) =>
@@ -451,6 +464,7 @@ export default function EncaissementPage() {
 
   async function load() {
     let params = new URLSearchParams(searchParams);
+    params.set("type", "operation");
     try {
       const response = await axios.get(rootUrl + "collections", {
         headers: {
@@ -567,9 +581,10 @@ export default function EncaissementPage() {
       <table className="hidden w-full text-center text-lg lg:table">
         <thead className="">
           <tr className="font-bold text-gray">
-            <th className="text-medium w-[30%] py-3 text-start text-base">
+            <th className="text-medium w-[25%] py-3 text-start text-base">
               Motif
             </th>
+            <th className="text-medium py-3 text-start text-base">Ref</th>
 
             <th className="text-medium py-3 text-start text-base">Montant</th>
             <th className="text-medium py-3 text-start text-base">Date</th>
@@ -587,6 +602,9 @@ export default function EncaissementPage() {
               <Tr>
                 <Td className="p-0 px-0 pl-0 text-start">
                   {collectionOperation.motif}
+                </Td>
+                <Td className="p-0 px-0 pl-0 text-start">
+                  {collectionOperation.ref}
                 </Td>
 
                 <Td className="p-0 px-0 pl-0 font-medium text-start">

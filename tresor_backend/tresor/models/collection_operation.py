@@ -62,9 +62,9 @@ class CollectionOperationSerializer(serializers.ModelSerializer):
 
         if len(value) == 0:
             raise serializers.ValidationError("EMPTY_DETAILS")
-        if type != "operation" and len(value) != 1:
-            raise serializers.ValidationError("INVALID_DETAILS")
-        
+        if type == "rejected" and len(value) > 1:
+            raise serializers.ValidationError("REJECTED_OPERATION_MULTIPLE_DETAILS")
+            
 
         return value
 

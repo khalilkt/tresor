@@ -66,11 +66,11 @@ export default function CollectionOpearionDetailDialog({ id }: { id: number }) {
   if (data) {
     data.details.forEach((detail) => {
       let index = groupedDetails.findIndex(
-        (group) => group.bank_name === detail.banq_name
+        (group) => group.bank_name === detail.account_data.name
       );
       if (index === -1) {
         groupedDetails.push({
-          bank_name: detail.banq_name,
+          bank_name: detail.account_data.name,
           total: detail.montant,
         });
       } else {
@@ -82,7 +82,9 @@ export default function CollectionOpearionDetailDialog({ id }: { id: number }) {
   const filteredDetails =
     selectedBank === "all"
       ? data?.details
-      : data?.details.filter((detail) => detail.banq_name === selectedBank);
+      : data?.details.filter(
+          (detail) => detail.account_data.name === selectedBank
+        );
 
   const banks_names = groupedDetails.map((detail) => detail.bank_name);
 
@@ -121,7 +123,7 @@ export default function CollectionOpearionDetailDialog({ id }: { id: number }) {
             <span>{data.ref}</span>
           </div>
 
-          {data.type === "operation" && (
+          {(data.type === "operation" || data.type === "versement") && (
             <>
               <div className="flex col-span-2 w-full justify-end gap-x-2">
                 <Select
@@ -145,15 +147,17 @@ export default function CollectionOpearionDetailDialog({ id }: { id: number }) {
                     Fichier
                   </OutlinedButton>
                 )}
-                <FilledButton
-                  onClick={() => {
-                    handlePrint();
-                  }}
-                  className="self-end flex gap-x-2"
-                >
-                  <PrintIcon />
-                  Imprimer
-                </FilledButton>
+                {data.type === "operation" && (
+                  <FilledButton
+                    onClick={() => {
+                      handlePrint();
+                    }}
+                    className="self-end flex gap-x-2"
+                  >
+                    <PrintIcon />
+                    Imprimer
+                  </FilledButton>
+                )}
               </div>
 
               <div className="col-span-2 overflow-auto w-full overscroll-y-scroll max-h-[400px]">

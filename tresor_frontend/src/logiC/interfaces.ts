@@ -35,10 +35,10 @@ export interface CollectionOperationDetail {
   montant: number;
   name: string;
   banq_name: string;
-  created_at: string;
   cheque_number: string;
-
   destination_account: number;
+
+  created_at: string;
   account_data: AccountInterface;
 }
 

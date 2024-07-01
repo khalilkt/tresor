@@ -6,7 +6,7 @@ import {
 import { AuthContext } from "../App";
 import { rootUrl } from "../constants";
 import { Td, Tr } from "./table";
-import axios from "axios";
+import axios, { all } from "axios";
 import { FilledButton, OutlinedButton } from "./buttons";
 import { PrintIcon } from "./icons";
 import { useReactToPrint } from "react-to-print";
@@ -86,8 +86,22 @@ export default function DisbursementOperationDetailDialog({
     selectedBank === "all"
       ? data?.details
       : data?.details.filter((detail) => detail.banq_name === selectedBank);
-
   const banks_names = groupedDetails.map((detail) => detail.bank_name);
+
+  const allBanksFilteredDetails: {} = data?.details.reduce(
+    (acc: any, detail: DisbursementOperationDetail) => {
+      if (!acc[detail.banq_name]) {
+        acc[detail.banq_name] = {
+          bank_name: detail.banq_name,
+          total: detail.montant,
+        };
+      } else {
+        acc[detail.banq_name].total += detail.montant;
+      }
+      return acc;
+    },
+    {}
+  );
 
   const tableHeaders =
     selectedBank === "all"
@@ -199,6 +213,18 @@ export default function DisbursementOperationDetailDialog({
             ref={printRef}
             className="absolute print:opacity-100 opacity-0 -z-50 pointer-events-none"
           >
+            {/* {
+              //each bank has a print pagge
+
+              Object.entries(allBanksFilteredDetails).map(
+                ([bank_name, bank_details]) => {
+                  return <PrintPage key={bank_name} >
+
+                  
+                  </PrintPage>;
+                }
+              )
+            } */}
             <PrintPage>
               {selectedBank === "all" && (
                 <div className="mt-2 mb-5 w-full text-center flex-col gap-y-2 items-center ">

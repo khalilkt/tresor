@@ -1,7 +1,7 @@
 import rim from "../assets/rim.png";
 import qrcode from "../assets/qr_code.jpg";
 import joumhouria from "../assets/joumhouria_image.png";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 function formatDate(date: string) {
   const year = date.slice(0, 4);
@@ -17,11 +17,11 @@ export function PrintPage({
 } & React.HTMLProps<HTMLDivElement> & {
     divProps?: React.HTMLProps<HTMLDivElement>;
   }) {
-  // const [height, setHeight] = useState<number | null>(null);
+  const printComponentRef = useRef<HTMLTableElement>(null);
 
   const handleResize = () => {
     const PAGE_HEIGHT = 29.7 * 37.7952755906;
-    const printElement = document.getElementById("print-component");
+    const printElement = printComponentRef.current;
 
     if (printElement) {
       printElement.style.height = `auto`;
@@ -52,7 +52,7 @@ export function PrintPage({
 
   return (
     <table
-      id="print-component"
+      ref={printComponentRef}
       className={` table w-[21cm] 
          flex-col overflow-x-clip ${divProps.className}}`}
     >

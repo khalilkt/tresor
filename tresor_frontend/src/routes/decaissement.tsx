@@ -399,6 +399,7 @@ export default function DecaissementPage() {
 
   async function load() {
     let params = new URLSearchParams(searchParams);
+    params.set("type", "operation");
     try {
       const response = await axios.get(rootUrl + "disbursements", {
         headers: {
@@ -531,9 +532,11 @@ export default function DecaissementPage() {
       <table className="hidden w-full text-center text-lg lg:table">
         <thead className="">
           <tr className="font-bold text-gray">
-            <th className="text-medium w-[30%] py-3 text-start text-base">
+            <th className="text-medium w-[25%] py-3 text-start text-base">
               Motif
             </th>
+            <th className="text-medium py-3 text-start text-base">Ref</th>
+
             <th className="text-medium py-3 text-start text-base">
               Compte d'opération
             </th>
@@ -553,6 +556,9 @@ export default function DecaissementPage() {
               <Tr>
                 <Td className="p-0 px-0 pl-0 text-start">
                   {disbursementOperation.motif}
+                </Td>
+                <Td className="p-0 px-0 pl-0 font-medium text-start">
+                  {disbursementOperation.ref}
                 </Td>
                 <Td className="p-0 px-0 pl-0 text-start">
                   {disbursementOperation.account_name}

@@ -214,31 +214,29 @@ export default function AccountsPage() {
       </MDialog>
 
       <Title>Comptes</Title>
-      <div className="flex justify-between w-full">
-        <SearchBar
+      <div className="flex justify-end w-full gap-x-2 ">
+        {/* <SearchBar
           id="search-bar"
           onChange={onSearchChange}
           placeholder="Chercher"
           className="w-full flex-1 lg:w-[300px]"
-        />
-        <div className=" flex gap-x-2">
-          <OutlinedButton
-            className="rounded-lg p-2"
-            onClick={() => {
-              handlePrint();
-            }}
-          >
-            Imprimer
-          </OutlinedButton>
-          <FilledButton
-            className="rounded-lg bg-primary p-2 text-white"
-            onClick={() => {
-              setDialogState({ state: "adding" });
-            }}
-          >
-            Ajouter
-          </FilledButton>
-        </div>
+        /> */}
+        <OutlinedButton
+          className="rounded-lg p-2"
+          onClick={() => {
+            handlePrint();
+          }}
+        >
+          Imprimer
+        </OutlinedButton>
+        <FilledButton
+          className="rounded-lg bg-primary p-2 text-white"
+          onClick={() => {
+            setDialogState({ state: "adding" });
+          }}
+        >
+          Ajouter
+        </FilledButton>
       </div>
       <table className="hidden w-full text-center text-lg lg:table">
         <thead className="">
@@ -259,9 +257,7 @@ export default function AccountsPage() {
               <Tr>
                 <Td className="p-0 px-0 pl-0 text-left">{account.name}</Td>
                 <Td className="font-medium">{account.number}</Td>
-                <Td className="font-medium">
-                  {account.balance.toString() + " MRU"}
-                </Td>
+                <Td className="font-medium">{formatAmount(account.balance)}</Td>
                 <Td className="font-medium">
                   <button
                     onClick={() => {

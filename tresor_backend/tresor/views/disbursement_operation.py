@@ -9,7 +9,7 @@ class DisbursementOperationListCreateView(ListCreateAPIView):
     permission_classes = [IsAuthenticated]
     
     serializer_class = DisbursementOperationSerializer
-    filterset_fields = ['account', 'created_by']
+    filterset_fields = ['account', 'created_by', 'type']
     search_fields = ['motif', 'beneficiaire']
     ordering_fields = ['date', 'motif', 'beneficiaire']
     ordering = ['-date', "-created_at"]

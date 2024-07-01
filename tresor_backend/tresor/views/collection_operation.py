@@ -9,7 +9,7 @@ from rest_framework.permissions import IsAdminUser, IsAuthenticated
 class CollectionOperationListCreateView(ListCreateAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = CollectionOperationSerializer
-    filterset_fields = ['created_by']
+    filterset_fields = ['created_by', 'type']
     search_fields = ['motif', 'beneficiaire']
     ordering_fields = ['date', 'motif', 'beneficiaire']
     ordering = ['-date', '-created_at']
