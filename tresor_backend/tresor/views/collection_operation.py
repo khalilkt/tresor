@@ -1,8 +1,10 @@
 from tresor.utils import filter_query_by_date
 from ..models.collection_operation import CollectionOperation, CollectionOperationSerializer
-from rest_framework.generics import ListCreateAPIView, RetrieveAPIView, RetrieveUpdateAPIView
+from rest_framework.generics import ListCreateAPIView, RetrieveAPIView, RetrieveUpdateAPIView, RetrieveUpdateDestroyAPIView
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.permissions import IsAdminUser, IsAuthenticated
+from rest_framework.response import Response
+from ..models.account import Account
 
 
 
@@ -36,10 +38,27 @@ class CollectionOperationListCreateView(ListCreateAPIView):
     
 
 
-class CollectionOperationDetail(RetrieveUpdateAPIView):
+class CollectionOperationDetail(RetrieveUpdateDestroyAPIView):
     permission_classes = [IsAuthenticated]
     queryset = CollectionOperation.objects.all()
     serializer_class = CollectionOperationSerializer
+
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        account_changes = {}
+        # instance has detail and each one has a destination account, the account balance should be updated but the balance should positive
+        for detail in instance.details.all():
+            account = detail.destination_account
+            account_changes[account] = account_changes.get(account, 0) + detail.montant
+        for account, amount in account_changes.items():
+            if account.balance - amount < 0:
+                return Response("NOT_ENOUGH_BALANCE")
+        for account, amount in account_changes.items():
+            account.balance -= amount
+            account.save()
+        
+        instance.delete()
+        return Response("DELETED")
     
         
 

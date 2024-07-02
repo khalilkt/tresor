@@ -219,12 +219,12 @@ export default function CollectionOpearionDetailDialog({ id }: { id: number }) {
                           <>
                             <Td>{detail.name}</Td>
                             <Td>{detail.cheque_number}</Td>
-                            <Td>{detail.montant}</Td>
+                            <Td>{formatAmount(detail.montant)}</Td>
                           </>
                         ) : (
                           <>
                             <Td>{detail.bank_name}</Td>
-                            <Td>{detail.total}</Td>
+                            <Td>{formatAmount(detail.total)}</Td>
                           </>
                         )}
                       </Tr>
@@ -274,15 +274,19 @@ export default function CollectionOpearionDetailDialog({ id }: { id: number }) {
                           <td className="border  text-center">
                             {detail.cheque_number}
                           </td>
-                          <td className="border  text-end">{detail.montant}</td>
+                          <td className="border  text-end">
+                            {formatAmount(detail.montant)}
+                          </td>
                         </tr>
                       ))}
                       <tr className="">
                         <td className="" colSpan={2}></td>
                         <td className="border  text-end">
-                          {group.details.reduce(
-                            (acc, curr) => acc + curr.montant,
-                            0
+                          {formatAmount(
+                            group.details.reduce(
+                              (acc, curr) => acc + curr.montant,
+                              0
+                            )
                           )}
                         </td>
                       </tr>
@@ -357,7 +361,7 @@ export default function CollectionOpearionDetailDialog({ id }: { id: number }) {
                               {detail.cheque_number}
                             </td>
                             <td className="border-r border-l  text-center">
-                              {detail.montant}
+                              {formatAmount(detail.montant)}
                             </td>
                           </>
                         ) : (
@@ -367,7 +371,7 @@ export default function CollectionOpearionDetailDialog({ id }: { id: number }) {
                             </td>
 
                             <td className="border-r border-l  text-end">
-                              {detail.total}
+                              {formatAmount(detail.total)}
                             </td>
                           </>
                         )}

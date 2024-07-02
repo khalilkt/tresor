@@ -15,6 +15,7 @@ import { AuthContext } from "../App";
 import { useSearchParams } from "react-router-dom";
 import * as XLSX from "xlsx";
 import {
+  DeleteIcon,
   LoadingIcon,
   MdpIcon,
   MoreIcon,
@@ -399,6 +400,8 @@ function ExcelImportDialog({
 
 export default function DecaissementPage() {
   const [isExportDialogOpen, setIsExportDialogOpen] = useState(false);
+  const [deletingId, setDeletingId] = useState<number | null>(null);
+
   const [disbursementsData, setDisbursementsData] =
     useState<PaginatedData<DisbursementOperationInterface> | null>(null);
 
@@ -469,6 +472,7 @@ export default function DecaissementPage() {
       console.log(response.data);
     } catch (e) {
       console.log(e);
+      alert("Une erreur s'est produite. Veuillez réessayer.");
     }
   }
 
@@ -532,6 +536,36 @@ export default function DecaissementPage() {
             await createDisbursementOperation(data);
           }}
         />
+      </MDialog>
+      <MDialog
+        isOpen={deletingId !== null}
+        title="Supprimer l'opération de décaissement"
+        onClose={() => {
+          setDeletingId(null);
+        }}
+      >
+        <div className="flex flex-col gap-y-4">
+          <p>Voulez-vous vraiment supprimer cette opération ?</p>
+          <div className="flex gap-x-4">
+            <FilledButton
+              onClick={() => {
+                if (deletingId) {
+                  deleteDisbursement(deletingId);
+                  setDeletingId(null);
+                }
+              }}
+            >
+              Oui
+            </FilledButton>
+            <FilledButton
+              onClick={() => {
+                setDeletingId(null);
+              }}
+            >
+              Non
+            </FilledButton>
+          </div>
+        </div>
       </MDialog>
       <MDialog
         isOpen={searchParams.has("selected_id")}
@@ -610,19 +644,28 @@ export default function DecaissementPage() {
                   </Td>
                 )}
                 <Td className="p-0 px-0 pl-0">
-                  <button
-                    onClick={() => {
-                      setSearchParams((params) => {
-                        params.set(
-                          "selected_id",
-                          disbursementOperation.id.toString()
-                        );
-                        return params;
-                      });
-                    }}
-                  >
-                    <ViewIcon />
-                  </button>
+                  <div className="flex gap-x-2">
+                    <button
+                      onClick={() => {
+                        setSearchParams((params) => {
+                          params.set(
+                            "selected_id",
+                            disbursementOperation.id.toString()
+                          );
+                          return params;
+                        });
+                      }}
+                    >
+                      <ViewIcon />
+                    </button>
+                    <button
+                      onClick={() => {
+                        setDeletingId(disbursementOperation.id);
+                      }}
+                    >
+                      <DeleteIcon />
+                    </button>
+                  </div>
                 </Td>
               </Tr>
             ))}

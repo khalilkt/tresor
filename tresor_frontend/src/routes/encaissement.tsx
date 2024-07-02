@@ -14,7 +14,7 @@ import { AuthContext } from "../App";
 import { useSearchParams } from "react-router-dom";
 import * as XLSX from "xlsx";
 import DisbursementOperationDetailDialog from "../components/disbusement_operation_dialog";
-import { LoadingIcon, ViewIcon } from "../components/icons";
+import { DeleteIcon, LoadingIcon, ViewIcon } from "../components/icons";
 import CollectionOpearionDetailDialog from "../components/collection_operation_dialog";
 import { ALLOWED_BANK_NAMES } from "./decaissement";
 
@@ -447,6 +447,7 @@ export default function EncaissementPage() {
   const token = useContext(AuthContext).authData!.token;
   const searchTimer = useRef<NodeJS.Timeout>();
   const isAdmin = useContext(AuthContext).authData!.user.is_admin;
+  const [deletingId, setDeletingId] = useState<number | null>(null);
 
   useEffect(() => {
     load();
@@ -506,6 +507,15 @@ export default function EncaissementPage() {
       console.log(response.data);
     } catch (e) {
       console.log(e);
+      // check if e is an axios error
+      if (axios.isAxiosError(e)) {
+        const data = e.response?.data;
+        if (data === "NOT_ENOUGH_BALANCE") {
+          alert("Le solde de l'agent est insuffisant.");
+        }
+      } else {
+        alert("Une erreur s'est produite. Veuillez réessayer.");
+      }
     }
   }
 
@@ -577,6 +587,36 @@ export default function EncaissementPage() {
           }}
         />
       </MDialog>
+      <MDialog
+        isOpen={deletingId !== null}
+        title="Supprimer l'opération de décaissement"
+        onClose={() => {
+          setDeletingId(null);
+        }}
+      >
+        <div className="flex flex-col gap-y-4">
+          <p>Voulez-vous vraiment supprimer cette opération ?</p>
+          <div className="flex gap-x-4">
+            <FilledButton
+              onClick={() => {
+                if (deletingId) {
+                  deleteOperation(deletingId);
+                  setDeletingId(null);
+                }
+              }}
+            >
+              Oui
+            </FilledButton>
+            <FilledButton
+              onClick={() => {
+                setDeletingId(null);
+              }}
+            >
+              Non
+            </FilledButton>
+          </div>
+        </div>
+      </MDialog>
       <Title>Opération d'encaissement</Title>
       <div className="flex justify-between w-full">
         <SearchBar
@@ -635,19 +675,28 @@ export default function EncaissementPage() {
                   </Td>
                 )}
                 <Td className="p-0 px-0 pl-0">
-                  <button
-                    onClick={() => {
-                      setSearchParams((params) => {
-                        params.set(
-                          "selected_id",
-                          collectionOperation.id.toString()
-                        );
-                        return params;
-                      });
-                    }}
-                  >
-                    <ViewIcon />
-                  </button>
+                  <div className="flex gap-x-2">
+                    <button
+                      onClick={() => {
+                        setSearchParams((params) => {
+                          params.set(
+                            "selected_id",
+                            collectionOperation.id.toString()
+                          );
+                          return params;
+                        });
+                      }}
+                    >
+                      <ViewIcon />
+                    </button>
+                    <button
+                      onClick={() => {
+                        setDeletingId(collectionOperation.id);
+                      }}
+                    >
+                      <DeleteIcon />
+                    </button>
+                  </div>
                 </Td>
               </Tr>
             ))}

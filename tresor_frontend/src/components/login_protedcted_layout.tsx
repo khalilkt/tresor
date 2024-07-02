@@ -11,10 +11,13 @@ import axios from "axios";
 function FileDownloadDialog() {
   // 2024-04
   const [selectedDate, setSelectedDate] = React.useState<string | null>(null);
+  const [selectedOption, setSelectedOption] = React.useState<
+    "collection" | "disbursement"
+  >("collection");
   const [total, setTotal] = React.useState<number | null>(null);
 
   function downloadFile() {
-    const url = `${rootUrl}files/${selectedDate!.replace("-", "/")}?count=false`;
+    const url = `${rootUrl}files/${selectedDate!.replace("-", "/")}?count=false&type=${selectedOption}`;
     const a = document.createElement("a");
     a.href = url;
     a.download = url;
@@ -25,7 +28,7 @@ function FileDownloadDialog() {
 
   async function updateTotal() {
     setTotal(null);
-    const url = `${rootUrl}files/${selectedDate!.replace("-", "/")}?count=true`;
+    const url = `${rootUrl}files/${selectedDate!.replace("-", "/")}?count=true&type=${selectedOption}`;
     const response = await axios.get(url);
     setTotal(response.data);
   }
@@ -34,10 +37,26 @@ function FileDownloadDialog() {
     if (selectedDate) {
       updateTotal();
     }
-  }, [selectedDate]);
+  }, [selectedDate, selectedOption]);
 
   return (
     <div className="flex flex-col gap-y-4 w-[500px]">
+      <div className="flex gap-x-3">
+        {["collection", "disbursement"].map((option) => (
+          <button
+            className={`flex-1 p-2 rounded-lg ${
+              option === selectedOption
+                ? "bg-primary text-white"
+                : "bg-gray-200"
+            }`}
+            onClick={() => {
+              setSelectedOption(option as "collection" | "disbursement");
+            }}
+          >
+            {option === "collection" ? "Encaissement" : "Décaissement"}
+          </button>
+        ))}
+      </div>
       <div className="flex flex-col gap-y-2">
         <label className="text-medium text-gray">Date</label>
         <input

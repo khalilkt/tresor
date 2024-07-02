@@ -217,13 +217,13 @@ export default function DisbursementOperationDetailDialog({
                         {"name" in detail ? (
                           <>
                             <Td>{detail.name}</Td>
-                            <Td>{detail.montant}</Td>
+                            <Td>{formatAmount(detail.montant)}</Td>
                             <Td>{detail.banq_number}</Td>
                           </>
                         ) : (
                           <>
                             <Td>{detail.bank_name}</Td>
-                            <Td>{detail.total}</Td>
+                            <Td>{formatAmount(detail.total)}</Td>
                           </>
                         )}
                       </Tr>
@@ -277,9 +277,11 @@ export default function DisbursementOperationDetailDialog({
                       <tr className="">
                         <td className="" colSpan={2}></td>
                         <td className="border  text-end">
-                          {group.details.reduce(
-                            (acc, curr) => acc + curr.montant,
-                            0
+                          {formatAmount(
+                            group.details.reduce(
+                              (acc, curr) => acc + curr.montant,
+                              0
+                            )
                           )}
                         </td>
                       </tr>
@@ -354,7 +356,7 @@ export default function DisbursementOperationDetailDialog({
                               {detail.name}
                             </td>
                             <td className="border-r border-l text-center">
-                              {detail.montant}
+                              {formatAmount(detail.montant)}
                             </td>
 
                             <td className="border-r border-l text-right">
@@ -367,7 +369,7 @@ export default function DisbursementOperationDetailDialog({
                               {detail.bank_name}
                             </td>
                             <td className="border-r border-l text-right">
-                              {detail.total}
+                              {formatAmount(detail.total)}
                             </td>
                           </>
                         )}

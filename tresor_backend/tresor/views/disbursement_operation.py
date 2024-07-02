@@ -34,9 +34,18 @@ class DisbursementOperationListCreateView(ListCreateAPIView):
         return super().pagination_class
     
 
-class DisbursementOperationDetails(RetrieveUpdateAPIView):
+class DisbursementOperationDetails(RetrieveUpdateDestroyAPIView):
     permission_classes = [IsAuthenticated]
     queryset = DisbursementOperation.objects.all()
     serializer_class = DisbursementOperationSerializer
+
+    # when deleting a disbursement operation we need to update the account balance
+    def perform_destroy(self, instance):
+        account = instance.account
+        account.balance += instance.total
+        account.save()
+        instance.delete()
+
+
 
 
