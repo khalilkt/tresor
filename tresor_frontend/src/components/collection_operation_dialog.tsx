@@ -260,20 +260,22 @@ export default function CollectionOpearionDetailDialog({ id }: { id: number }) {
                   <table className="text-center w-full">
                     <thead>
                       <tr className="font-semibold bg-slate-100 text-center border">
+                        <th className="py-1 border  text-center ">N° CHEQUE</th>
+
                         <th className="py-1 border  text-center ">
                           PARTIE VERSEMENT
                         </th>
-                        <th className="py-1 border  text-center ">N° CHEQUE</th>
                         <th className="py-1 border  text-center ">MONTANT</th>
                       </tr>
                     </thead>
                     <tbody className=" text-start ">
                       {group.details.map((detail, i) => (
                         <tr className="" key={i}>
-                          <td className="border ">{detail.name}</td>
                           <td className="border  text-center">
                             {detail.cheque_number}
                           </td>
+                          <td className="border ">{detail.name}</td>
+
                           <td className="border  text-end">
                             {formatAmount(detail.montant)}
                           </td>

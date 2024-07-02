@@ -618,7 +618,7 @@ export default function DecaissementPage() {
           </tr>
         </thead>
         {!disbursementsData ? (
-          <TableBodySquelette columnCount={3} />
+          <TableBodySquelette columnCount={isAdmin ? 7 : 6} />
         ) : (
           <tbody>
             {disbursementsData.data?.map((disbursementOperation, i) => (
@@ -658,13 +658,15 @@ export default function DecaissementPage() {
                     >
                       <ViewIcon />
                     </button>
-                    <button
-                      onClick={() => {
-                        setDeletingId(disbursementOperation.id);
-                      }}
-                    >
-                      <DeleteIcon />
-                    </button>
+                    {isAdmin && (
+                      <button
+                        onClick={() => {
+                          setDeletingId(disbursementOperation.id);
+                        }}
+                      >
+                        <DeleteIcon />
+                      </button>
+                    )}
                   </div>
                 </Td>
               </Tr>

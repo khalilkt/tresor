@@ -1,7 +1,14 @@
 import React, { useEffect } from "react";
 import { AuthContext } from "../App";
 import { Link, Navigate, Outlet, useLocation } from "react-router-dom";
-import { StatsIcon } from "./icons";
+import {
+  AgentsIcon,
+  BankIcon,
+  CollectionIcon,
+  DisbursementIcon,
+  FileIcon,
+  StatsIcon,
+} from "./icons";
 import { DisconnectButton, FilledButton } from "./buttons";
 import logo from "../assets/rim.png";
 import { MDialog } from "./dialog";
@@ -170,18 +177,22 @@ export default function LoginProtectedLayout() {
             <NavItem isOpen={isOpen} to="/" icon={<StatsIcon />}>
               Tableau de bord
             </NavItem>
-            <NavItem isOpen={isOpen} to="/agents" icon={<StatsIcon />}>
+            <NavItem isOpen={isOpen} to="/agents" icon={<AgentsIcon />}>
               Agents
             </NavItem>
-            <NavItem isOpen={isOpen} to="/accounts" icon={<StatsIcon />}>
+            <NavItem isOpen={isOpen} to="/accounts" icon={<BankIcon />}>
               Comptes
             </NavItem>
           </>
         )}
-        <NavItem isOpen={isOpen} to="/encaissements" icon={<StatsIcon />}>
+        <NavItem isOpen={isOpen} to="/encaissements" icon={<CollectionIcon />}>
           Opération d'encaissement
         </NavItem>
-        <NavItem isOpen={isOpen} to="/decaissements" icon={<StatsIcon />}>
+        <NavItem
+          isOpen={isOpen}
+          to="/decaissements"
+          icon={<DisbursementIcon />}
+        >
           Opérration de décaissement
         </NavItem>
 
@@ -191,8 +202,8 @@ export default function LoginProtectedLayout() {
           }}
           className={`flex cursor-pointer flex-row gap-x-2 overflow-x-clip text-ellipsis rounded-md p-3 text-sm font-semibold transition-all duration-100 bg-transparent text-gray`}
         >
-          <span className={`fill-gray`}>
-            <StatsIcon />
+          <span className={``}>
+            <FileIcon />
           </span>
           <span>Fichiers</span>
         </span>

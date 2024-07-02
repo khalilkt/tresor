@@ -651,7 +651,7 @@ export default function EncaissementPage() {
           </tr>
         </thead>
         {!collectionsData ? (
-          <TableBodySquelette columnCount={3} />
+          <TableBodySquelette columnCount={isAdmin ? 6 : 5} />
         ) : (
           <tbody>
             {collectionsData.data?.map((collectionOperation, i) => (
@@ -689,13 +689,15 @@ export default function EncaissementPage() {
                     >
                       <ViewIcon />
                     </button>
-                    <button
-                      onClick={() => {
-                        setDeletingId(collectionOperation.id);
-                      }}
-                    >
-                      <DeleteIcon />
-                    </button>
+                    {isAdmin && (
+                      <button
+                        onClick={() => {
+                          setDeletingId(collectionOperation.id);
+                        }}
+                      >
+                        <DeleteIcon />
+                      </button>
+                    )}
                   </div>
                 </Td>
               </Tr>
