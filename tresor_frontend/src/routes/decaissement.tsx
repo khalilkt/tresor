@@ -95,14 +95,23 @@ function ExcelImportDialog({
         header: 1,
       });
       const extractedData = processExcelData(jsonData);
-      extractedData?.forEach((data) => {
-        if (!ALLOWED_BANK_NAMES.includes(data.banq_name)) {
-          alert(`Le nom de la banque "${data.banq_name}" n'est pas autorisé.`);
-          return;
-        }
-      });
+
       if (extractedData) {
-        setFormData({ ...formData, details: extractedData, file: file });
+        // check if the bank name is allowed
+
+        const bankNames = extractedData.map((data) => data.banq_name);
+        const invalidBankNames = bankNames.filter(
+          (name) => !ALLOWED_BANK_NAMES.includes(name)
+        );
+        if (invalidBankNames.length > 0) {
+          alert(
+            "Les banques suivantes ne sont pas autorisées : " +
+              invalidBankNames.join(", ")
+          );
+          return;
+        } else {
+          setFormData({ ...formData, details: extractedData, file: file });
+        }
       }
     };
 

@@ -45,6 +45,7 @@ urlpatterns = [
     path('accounts/<int:pk>/releve/', AccountReleve.as_view(), name='account-releve'),
 
     path('files/<int:year>/<int:month>/', download_files, name='download_files'),
+    
 
 ]
 

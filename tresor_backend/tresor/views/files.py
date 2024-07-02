@@ -18,8 +18,6 @@ def download_files(request, year, month, *args, **kwargs):
 
     if is_count_request == "true":
         return HttpResponse(len(collections) + len(disbursements))
-    
-    
  
     response = HttpResponse(content_type='application/zip')
     zip_file = zipfile.ZipFile(response, 'w')
