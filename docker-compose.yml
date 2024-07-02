@@ -11,6 +11,8 @@ services:
       - ./.env
     depends_on:
       - db
+    volumes:
+      - backend_media:/app/media
 
   nginx:
     build:
@@ -59,3 +61,4 @@ services:
 
 volumes:
   pg_data:
+  backend_media:
