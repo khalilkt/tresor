@@ -1,5 +1,6 @@
 import { useContext, useEffect, useRef, useState } from "react";
 import {
+  AccountInterface,
   CollectionOperationDetail,
   CollectionOperationInterface,
 } from "../logiC/interfaces";
@@ -62,6 +63,39 @@ export default function CollectionOpearionDetailDialog({ id }: { id: number }) {
     bank_name: string;
     total: number;
   }[] = [];
+
+  let groupedByBank: {
+    account_data: AccountInterface;
+    details: {
+      name: string;
+      cheque_number: string;
+      montant: number;
+    }[];
+  }[] = [];
+
+  for (const detail of data?.details || []) {
+    let index = groupedByBank.findIndex(
+      (group) => group.account_data.name === detail.account_data.name
+    );
+    if (index === -1) {
+      groupedByBank.push({
+        account_data: detail.account_data,
+        details: [
+          {
+            name: detail.name,
+            cheque_number: detail.cheque_number,
+            montant: detail.montant,
+          },
+        ],
+      });
+    } else {
+      groupedByBank[index].details.push({
+        name: detail.name,
+        cheque_number: detail.cheque_number,
+        montant: detail.montant,
+      });
+    }
+  }
 
   if (data) {
     data.details.forEach((detail) => {
@@ -198,7 +232,64 @@ export default function CollectionOpearionDetailDialog({ id }: { id: number }) {
                 : ""
             }
           >
-            <PrintPage>
+            {groupedByBank
+              .filter(
+                (group) =>
+                  selectedBank === "all" ||
+                  group.account_data.name === selectedBank
+              )
+              .map((group) => (
+                <PrintPage>
+                  <div className="flex flex-col gap-y-3 pt-8 pb-6">
+                    <h3 className="text-base font-medium">
+                      Borderau d'envoi des chèques N° {data.ref}
+                    </h3>
+                    <div className="flex gap-x-1">
+                      <span className="font-medium">BANQUE:</span>
+                      <span>{group.account_data.name}</span>
+                      <span className="font-medium ml-32">N° DE COMPTE: </span>
+                      <span>{group.account_data.number}</span>
+                    </div>
+                  </div>
+
+                  <table className="text-center w-full">
+                    <thead>
+                      <tr className="font-semibold bg-slate-100 text-center border">
+                        <th className="py-1 border  text-center ">
+                          PARTIE VERSEMENT
+                        </th>
+                        <th className="py-1 border  text-center ">N° CHEQUE</th>
+                        <th className="py-1 border  text-center ">MONTANT</th>
+                      </tr>
+                    </thead>
+                    <tbody className=" text-start ">
+                      {group.details.map((detail, i) => (
+                        <tr className="" key={i}>
+                          <td className="border ">{detail.name}</td>
+                          <td className="border  text-center">
+                            {detail.cheque_number}
+                          </td>
+                          <td className="border  text-end">{detail.montant}</td>
+                        </tr>
+                      ))}
+                      <tr className="">
+                        <td className="" colSpan={2}></td>
+                        <td className="border  text-end">
+                          {group.details.reduce(
+                            (acc, curr) => acc + curr.montant,
+                            0
+                          )}
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                  <div className="mt-4 self-end text-centerr flex flex-col font-semibold items-end">
+                    <span className="text-center mr-5">Le Directeur</span>
+                    <span className="text-center">Mohamed ZEIDANE</span>
+                  </div>
+                </PrintPage>
+              ))}
+            {/* <PrintPage>
               {selectedBank === "all" && (
                 <div className="mt-2 mb-5 w-full text-center flex-col gap-y-2 items-center ">
                   <h3 className=" text-2xl font-semibold text-center">
@@ -278,7 +369,7 @@ export default function CollectionOpearionDetailDialog({ id }: { id: number }) {
                 <span className="text-center mr-5">Le Directeur</span>
                 <span className="text-center">Mohamed ZEIDANE</span>
               </div>
-            </PrintPage>
+            </PrintPage> */}
           </div>
         </>
       ) : (
