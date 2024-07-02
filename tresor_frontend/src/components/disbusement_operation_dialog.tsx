@@ -20,7 +20,9 @@ export default function DisbursementOperationDetailDialog({
   id: number;
 }) {
   const printRef = useRef<HTMLDivElement>(null);
-  const [selectedBank, setSelectedBank] = useState<string>("all");
+  const [selectedOption, setSelectedOption] = useState<
+    "all" | "detail" | string
+  >("all");
 
   const handlePrint = useReactToPrint({
     onBeforeGetContent() {},
@@ -73,6 +75,39 @@ export default function DisbursementOperationDetailDialog({
       }
     });
   }
+  let groupedByBank: {
+    bank_name: string;
+    details: {
+      name: string;
+      banq_number: string;
+      montant: number;
+    }[];
+  }[] = [];
+
+  for (const detail of data?.details || []) {
+    let index = groupedByBank.findIndex(
+      (group) => group.bank_name === detail.banq_name
+    );
+    if (index === -1) {
+      groupedByBank.push({
+        bank_name: detail.banq_name,
+        details: [
+          {
+            name: detail.name,
+            banq_number: detail.banq_number,
+            montant: detail.montant,
+          },
+        ],
+      });
+    } else {
+      groupedByBank[index].details.push({
+        name: detail.name,
+        banq_number: detail.banq_number,
+        montant: detail.montant,
+      });
+    }
+  }
+
   function donwloadFile(file: string) {
     const a = document.createElement("a");
     a.href = file;
@@ -83,31 +118,19 @@ export default function DisbursementOperationDetailDialog({
   }
 
   const filteredDetails =
-    selectedBank === "all"
+    selectedOption === "all" || selectedOption === "detail"
       ? data?.details
-      : data?.details.filter((detail) => detail.banq_name === selectedBank);
+      : data?.details.filter((detail) => detail.banq_name === selectedOption);
   const banks_names = groupedDetails.map((detail) => detail.bank_name);
 
-  const allBanksFilteredDetails: {} = data?.details.reduce(
-    (acc: any, detail: DisbursementOperationDetail) => {
-      if (!acc[detail.banq_name]) {
-        acc[detail.banq_name] = {
-          bank_name: detail.banq_name,
-          total: detail.montant,
-        };
-      } else {
-        acc[detail.banq_name].total += detail.montant;
-      }
-      return acc;
-    },
-    {}
-  );
-
   const tableHeaders =
-    selectedBank === "all"
+    selectedOption === "all" || selectedOption === "detail"
       ? ["Banque", "Montant"]
       : ["Nom", "Montant", "Numéro de compte"];
-  const detailsData = selectedBank === "all" ? groupedDetails : filteredDetails;
+  const detailsData =
+    selectedOption === "all" || selectedOption === "detail"
+      ? groupedDetails
+      : filteredDetails;
 
   return (
     <div className="grid grid-cols-2 flex-col gap-y-3 w-[600px]">
@@ -148,12 +171,13 @@ export default function DisbursementOperationDetailDialog({
               <div className="flex col-span-2 w-full justify-end gap-x-2">
                 <Select
                   className="w-min"
-                  value={selectedBank}
+                  value={selectedOption}
                   onChange={(e) => {
-                    setSelectedBank(e.target.value);
+                    setSelectedOption(e.target.value);
                   }}
                 >
-                  <option value="all">Toutes les banques</option>
+                  <option value="all">Ordre</option>
+                  <option value="detail">Détails</option>
                   {banks_names.map((name) => (
                     <option value={name}>{name}</option>
                   ))}
@@ -213,110 +237,154 @@ export default function DisbursementOperationDetailDialog({
             ref={printRef}
             className="absolute print:opacity-100 opacity-0 -z-50 pointer-events-none"
           >
-            {/* {
-              //each bank has a print pagge
-
-              Object.entries(allBanksFilteredDetails).map(
-                ([bank_name, bank_details]) => {
-                  return <PrintPage key={bank_name} >
-
-                  
-                  </PrintPage>;
-                }
-              )
-            } */}
-            <PrintPage>
-              {selectedBank === "all" && (
-                <div className="mt-2 mb-5 w-full text-center flex-col gap-y-2 items-center ">
-                  <h3 className=" text-2xl font-semibold text-center">
-                    Ordre
-                    {" de décaissement "}
-                    N° {data.ref}
-                  </h3>
-                  <h6 className="text-center">
-                    Compte trésor N°: {data.account_data.number}
-                    {"  "}
-                    {data.account_name}
-                  </h6>
-                </div>
-              )}
-              <div className="flex flex-col gap-y-3 pt-8 pb-6">
-                {selectedBank === "all" ? (
-                  <>
-                    <div className="flex gap-x-1">
-                      <span className="font-semibold">Montant:</span>
-                      <span>{formatAmount(data.total) + " MRU"}</span>
-                    </div>
-                    <div className="flex gap-x-1">
-                      <span className="font-semibold">Motif:</span>
-                      <span>{data.motif}</span>
-                    </div>
-                    <div className="flex gap-x-1">
-                      <span className="font-semibold">Bénéficiaire:</span>
-                      <span>{data.beneficiaire}</span>
-                    </div>
-                  </>
-                ) : (
-                  <>
-                    <h3 className="text-base font-semibold">
+            {selectedOption === "detail" &&
+              groupedByBank.map((group) => (
+                <PrintPage>
+                  <div className="flex flex-col gap-y-3 pt-8 pb-6">
+                    <h3 className="text-base font-medium">
                       Ordre
                       {" de décaissement "}
                       N° {data.ref}
                     </h3>
                     <div className="flex gap-x-1">
-                      <span className="font-semibold">BANQUE:</span>
-                      <span>{selectedBank}</span>
+                      <span className="font-medium">BANQUE:</span>
+                      <span>{group.bank_name}</span>
                     </div>
-                  </>
-                )}
-              </div>
-              <table className="text-center w-full">
-                <thead>
-                  <tr className="font-bold bg-slate-100 text-center border-t border-r border-l">
-                    {tableHeaders.map((header, i) => (
-                      <th className="py-1 border-r  text-center">{header}</th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody className=" text-start ">
-                  {detailsData?.map((detail, i) => (
-                    <tr className="last:border-b" key={i}>
-                      {"name" in detail ? (
-                        <>
-                          <td className="border-r border-l text-left">
-                            {detail.name}
-                          </td>
-                          <td className="border-r border-l text-center">
+                  </div>
+
+                  <table className="text-center w-full">
+                    <thead>
+                      <tr className="font-semibold bg-slate-100 text-center border">
+                        <th className="py-1 border  text-center ">Nom</th>
+                        <th className="py-1 border  text-center ">MONTANT</th>
+                        <th className="py-1 border  text-center ">
+                          Numéro de compte
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody className=" text-start ">
+                      {group.details.map((detail, i) => (
+                        <tr className="" key={i}>
+                          <td className="border ">{detail.name}</td>
+                          <td className="border  text-center">
                             {detail.montant}
                           </td>
-
-                          <td className="border-r border-l text-right">
+                          <td className="border  text-end">
                             {detail.banq_number}
                           </td>
-                        </>
-                      ) : (
-                        <>
-                          <td className="border-r border-l text-left">
-                            {detail.bank_name}
-                          </td>
-                          <td className="border-r border-l text-right">
-                            {detail.total}
-                          </td>
-                        </>
-                      )}
+                        </tr>
+                      ))}
+                      <tr className="">
+                        <td className="" colSpan={2}></td>
+                        <td className="border  text-end">
+                          {group.details.reduce(
+                            (acc, curr) => acc + curr.montant,
+                            0
+                          )}
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                  <div className="mt-4 self-end text-centerr flex flex-col font-semibold items-end">
+                    <span className="text-center mr-5">Le Directeur</span>
+                    <span className="text-center">Mohamed ZEIDANE</span>
+                  </div>
+                </PrintPage>
+              ))}
+            {selectedOption !== "detail" && (
+              <PrintPage>
+                {selectedOption === "all" && (
+                  <div className="mt-2 mb-5 w-full text-center flex-col gap-y-2 items-center ">
+                    <h3 className=" text-2xl font-semibold text-center">
+                      Ordre
+                      {" de décaissement "}
+                      N° {data.ref}
+                    </h3>
+                    <h6 className="text-center">
+                      Compte trésor N°: {data.account_data.number}
+                      {"  "}
+                      {data.account_name}
+                    </h6>
+                  </div>
+                )}
+                <div className="flex flex-col gap-y-3 pt-8 pb-6">
+                  {selectedOption === "all" ? (
+                    <>
+                      <div className="flex gap-x-1">
+                        <span className="font-semibold">Montant:</span>
+                        <span>{formatAmount(data.total) + " MRU"}</span>
+                      </div>
+                      <div className="flex gap-x-1">
+                        <span className="font-semibold">Motif:</span>
+                        <span>{data.motif}</span>
+                      </div>
+                      <div className="flex gap-x-1">
+                        <span className="font-semibold">Bénéficiaire:</span>
+                        <span>{data.beneficiaire}</span>
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <h3 className="text-base font-semibold">
+                        Ordre
+                        {" de décaissement "}
+                        N° {data.ref}
+                      </h3>
+                      <div className="flex gap-x-1">
+                        <span className="font-semibold">BANQUE:</span>
+                        <span>{selectedOption}</span>
+                      </div>
+                    </>
+                  )}
+                </div>
+                <table className="text-center w-full">
+                  <thead>
+                    <tr className="font-bold bg-slate-100 text-center border-t border-r border-l">
+                      {tableHeaders.map((header, i) => (
+                        <th className="py-1 border-r  text-center">{header}</th>
+                      ))}
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-              <div className="pt-4">
-                Arrêté le présent ordre à la somme de{" : "}{" "}
-                {numberToFrench(data.total) + " MRU"}
-              </div>
-              <div className="mt-4 self-end text-centerr flex flex-col font-semibold items-end">
-                <span className="text-center mr-5">Le Directeur</span>
-                <span className="text-center">Mohamed ZEIDANE</span>
-              </div>
-            </PrintPage>
+                  </thead>
+                  <tbody className=" text-start ">
+                    {detailsData?.map((detail, i) => (
+                      <tr className="last:border-b" key={i}>
+                        {"name" in detail ? (
+                          <>
+                            <td className="border-r border-l text-left">
+                              {detail.name}
+                            </td>
+                            <td className="border-r border-l text-center">
+                              {detail.montant}
+                            </td>
+
+                            <td className="border-r border-l text-right">
+                              {detail.banq_number}
+                            </td>
+                          </>
+                        ) : (
+                          <>
+                            <td className="border-r border-l text-left">
+                              {detail.bank_name}
+                            </td>
+                            <td className="border-r border-l text-right">
+                              {detail.total}
+                            </td>
+                          </>
+                        )}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+                <div className="pt-4">
+                  Arrêté le présent ordre à la somme de{" : "}{" "}
+                  {numberToFrench(data.total) + " MRU"}
+                </div>
+                <div className="mt-4 self-end text-centerr flex flex-col font-semibold items-end">
+                  <span className="text-center mr-5">Le Directeur</span>
+                  <span className="text-center">Mohamed ZEIDANE</span>
+                </div>
+              </PrintPage>
+            )}
           </div>
         </>
       ) : (

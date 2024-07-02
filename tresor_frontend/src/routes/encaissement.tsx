@@ -16,6 +16,7 @@ import * as XLSX from "xlsx";
 import DisbursementOperationDetailDialog from "../components/disbusement_operation_dialog";
 import { LoadingIcon, ViewIcon } from "../components/icons";
 import CollectionOpearionDetailDialog from "../components/collection_operation_dialog";
+import { ALLOWED_BANK_NAMES } from "./decaissement";
 
 type CollectionDetailForm = Omit<
   CollectionOperationDetail,
@@ -71,6 +72,12 @@ function ExcelImportDialog({
         header: 1,
       });
       const extractedData = processExcelData(jsonData);
+      extractedData?.forEach((data) => {
+        if (!ALLOWED_BANK_NAMES.includes(data.banq_name)) {
+          alert(`Le nom de la banque "${data.banq_name}" n'est pas autorisé.`);
+          return;
+        }
+      });
       if (extractedData) {
         setFormData({ ...formData, details: extractedData, file: file });
       }

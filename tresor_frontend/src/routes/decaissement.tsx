@@ -23,7 +23,7 @@ import {
 } from "../components/icons";
 import DisbursementOperationDetailDialog from "../components/disbusement_operation_dialog";
 
-const ALLOWED_BANK_NAMES = [
+export const ALLOWED_BANK_NAMES = [
   "ATTIJARI BANK",
   "AUB",
   "BAMIS",
