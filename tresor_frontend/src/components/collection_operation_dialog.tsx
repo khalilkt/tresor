@@ -17,7 +17,9 @@ import { formatAmount, numberToFrench } from "../logiC/utils";
 
 export default function CollectionOpearionDetailDialog({ id }: { id: number }) {
   const printRef = useRef<HTMLDivElement>(null);
-  const [selectedBank, setSelectedBank] = useState<string>("all");
+  const [selectedOption, setSelectedOption] = useState<
+    "all" | "detail" | string
+  >("all");
 
   const handlePrint = useReactToPrint({
     onBeforeGetContent() {},
@@ -114,19 +116,22 @@ export default function CollectionOpearionDetailDialog({ id }: { id: number }) {
   }
 
   const filteredDetails =
-    selectedBank === "all"
+    selectedOption === "all" || selectedOption === "detail"
       ? data?.details
       : data?.details.filter(
-          (detail) => detail.account_data.name === selectedBank
+          (detail) => detail.account_data.name === selectedOption
         );
 
   const banks_names = groupedDetails.map((detail) => detail.bank_name);
 
   const tableHeaders =
-    selectedBank === "all"
+    selectedOption === "all" || selectedOption === "detail"
       ? ["BANQUE", "MOTANT"]
       : ["PARTIE VERSANT", "N° CHEQUE", "MONTANT"];
-  const detailsData = selectedBank === "all" ? groupedDetails : filteredDetails;
+  const detailsData =
+    selectedOption === "all" || selectedOption === "detail"
+      ? groupedDetails
+      : filteredDetails;
 
   return (
     <div className="grid grid-cols-2 flex-col gap-y-3 w-[600px]">
@@ -164,12 +169,14 @@ export default function CollectionOpearionDetailDialog({ id }: { id: number }) {
               <div className="flex col-span-2 w-full justify-end gap-x-2">
                 <Select
                   className="w-min"
-                  value={selectedBank}
+                  value={selectedOption}
                   onChange={(e) => {
-                    setSelectedBank(e.target.value);
+                    setSelectedOption(e.target.value);
                   }}
                 >
-                  <option value="all">Toutes les banques</option>
+                  <option value="all">Ordre</option>
+                  <option value="detail">Détails</option>
+
                   {banks_names.map((name) => (
                     <option value={name}>{name}</option>
                   ))}
@@ -235,13 +242,8 @@ export default function CollectionOpearionDetailDialog({ id }: { id: number }) {
                 : ""
             }
           >
-            {/* {groupedByBank
-              .filter(
-                (group) =>
-                  selectedBank === "all" ||
-                  group.account_data.name === selectedBank
-              )
-              .map((group) => (
+            {selectedOption === "detail" &&
+              groupedByBank.map((group) => (
                 <PrintPage>
                   <div className="flex flex-col gap-y-3 pt-8 pb-6">
                     <h3 className="text-base font-medium">
@@ -291,94 +293,98 @@ export default function CollectionOpearionDetailDialog({ id }: { id: number }) {
                     <span className="text-center">Mohamed ZEIDANE</span>
                   </div>
                 </PrintPage>
-              ))} */}
-            <PrintPage>
-              {selectedBank === "all" && (
-                <div className="mt-2 mb-5 w-full text-center flex-col gap-y-2 items-center ">
-                  <h3 className=" text-2xl font-semibold text-center">
-                    Ordre
-                    {" d'encaissement "}
-                    N° {data.ref}
-                  </h3>
-                </div>
-              )}
-              <div className="flex flex-col gap-y-3 pt-8 pb-6">
-                {selectedBank === "all" ? (
-                  <>
-                    <div className="flex gap-x-1">
-                      <span className="font-semibold">Montant:</span>
-                      <span>{formatAmount(data.total) + " MRU"}</span>
-                    </div>
-                    <div className="flex gap-x-1">
-                      <span className="font-semibold">Motif:</span>
-                      <span>{data.motif}</span>
-                    </div>
-                    <div className="flex gap-x-1">
-                      <span className="font-semibold">Bénéficiaire:</span>
-                      <span>{data.beneficiaire}</span>
-                    </div>
-                  </>
-                ) : (
-                  <>
-                    <h3 className="text-base font-semibold">
+              ))}
+            {selectedOption !== "detail" && (
+              <PrintPage>
+                {selectedOption === "all" && (
+                  <div className="mt-2 mb-5 w-full text-center flex-col gap-y-2 items-center ">
+                    <h3 className=" text-2xl font-semibold text-center">
                       Ordre
                       {" d'encaissement "}
                       N° {data.ref}
                     </h3>
-                    <div className="flex gap-x-1">
-                      <span className="font-semibold">BANQUE:</span>
-                      <span>{selectedBank}</span>
-                    </div>
-                  </>
+                  </div>
                 )}
-              </div>
-              <table className="text-center w-full">
-                <thead>
-                  <tr className="font-semibold bg-slate-100 text-center border-t border-r border-l">
-                    {tableHeaders.map((header, i) => (
-                      <th className="py-1 border-r  text-center ">{header}</th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody className=" text-start ">
-                  {detailsData?.map((detail, i) => (
-                    <tr className="last:border-b" key={i}>
-                      {"name" in detail ? (
-                        <>
-                          <td className="border-r border-l text-center">
-                            {detail.name}
-                          </td>
-                          <td className="border-r border-l  text-center">
-                            {detail.cheque_number}
-                          </td>
-                          <td className="border-r border-l  text-center">
-                            {detail.montant}
-                          </td>
-                        </>
-                      ) : (
-                        <>
-                          <td className="border-r border-l ">
-                            {detail.bank_name}
-                          </td>
-
-                          <td className="border-r border-l  text-end">
-                            {detail.total}
-                          </td>
-                        </>
-                      )}
+                <div className="flex flex-col gap-y-3 pt-8 pb-6">
+                  {selectedOption === "all" ? (
+                    <>
+                      <div className="flex gap-x-1">
+                        <span className="font-semibold">Montant:</span>
+                        <span>{formatAmount(data.total) + " MRU"}</span>
+                      </div>
+                      <div className="flex gap-x-1">
+                        <span className="font-semibold">Motif:</span>
+                        <span>{data.motif}</span>
+                      </div>
+                      <div className="flex gap-x-1">
+                        <span className="font-semibold">Bénéficiaire:</span>
+                        <span>{data.beneficiaire}</span>
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <h3 className="text-base font-semibold">
+                        Ordre
+                        {" d'encaissement "}
+                        N° {data.ref}
+                      </h3>
+                      <div className="flex gap-x-1">
+                        <span className="font-semibold">BANQUE:</span>
+                        <span>{selectedOption}</span>
+                      </div>
+                    </>
+                  )}
+                </div>
+                <table className="text-center w-full">
+                  <thead>
+                    <tr className="font-semibold bg-slate-100 text-center border-t border-r border-l">
+                      {tableHeaders.map((header, i) => (
+                        <th className="py-1 border-r  text-center ">
+                          {header}
+                        </th>
+                      ))}
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-              <div className="pt-4">
-                Arrêté le présent ordre à la somme de{" : "}{" "}
-                {numberToFrench(data.total) + " ouguiyas"}
-              </div>
-              <div className="mt-4 self-end text-centerr flex flex-col font-semibold items-end">
-                <span className="text-center mr-5">Le Directeur</span>
-                <span className="text-center">Mohamed ZEIDANE</span>
-              </div>
-            </PrintPage>
+                  </thead>
+                  <tbody className=" text-start ">
+                    {detailsData?.map((detail, i) => (
+                      <tr className="last:border-b" key={i}>
+                        {"name" in detail ? (
+                          <>
+                            <td className="border-r border-l text-center">
+                              {detail.name}
+                            </td>
+                            <td className="border-r border-l  text-center">
+                              {detail.cheque_number}
+                            </td>
+                            <td className="border-r border-l  text-center">
+                              {detail.montant}
+                            </td>
+                          </>
+                        ) : (
+                          <>
+                            <td className="border-r border-l ">
+                              {detail.bank_name}
+                            </td>
+
+                            <td className="border-r border-l  text-end">
+                              {detail.total}
+                            </td>
+                          </>
+                        )}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+                <div className="pt-4">
+                  Arrêté le présent ordre à la somme de{" : "}{" "}
+                  {numberToFrench(data.total) + " ouguiyas"}
+                </div>
+                <div className="mt-4 self-end text-centerr flex flex-col font-semibold items-end">
+                  <span className="text-center mr-5">Le Directeur</span>
+                  <span className="text-center">Mohamed ZEIDANE</span>
+                </div>
+              </PrintPage>
+            )}
           </div>
         </>
       ) : (
