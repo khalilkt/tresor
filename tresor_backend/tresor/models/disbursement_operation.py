@@ -18,7 +18,7 @@ class DisbursementOperation(models.Model):
     account = models.ForeignKey('Account', on_delete=models.CASCADE, related_name='disbursement_operations') 
     motif = models.CharField(max_length=255)
     beneficiaire = models.CharField(max_length=255)
-    ref = models.CharField(max_length=20, unique=True, editable=False)
+    ref = models.CharField(max_length=20, editable=False)
     type = models.CharField(max_length=255, choices=[('frais', 'Frais'), ('operation', 'Operation')], default='operation')
     file = models.FileField(upload_to='disbursement_files/%Y/%m/%d/', null=True, blank=True)
 
@@ -30,11 +30,18 @@ class DisbursementOperation(models.Model):
     objects = DisbursementOperationManager()
 
     def save(self, *args, **kwargs):
-        if not self.pk:  # Only set ref if the object is being created for the first time
-            year = self.date.year
-            count = DisbursementOperation.objects.filter(date__year=year).count() + 1
-            self.ref = f"{count:04d}/{year}/DTNDB"  # Format as 2024-0013
-
+        if not self.pk:
+            if self.type != "operation":
+                self.ref = "-"
+            else:
+                last = DisbursementOperation.objects.filter(date__year=self.date.year, type="operation").order_by('created_at').last()
+                ref_number = 1
+                if last and len(last.ref.split("/")) > 1:
+                    last_ref = last.ref.split('/')[0]
+                    ref_number = int(last_ref) + 1
+                if self.date.year == 2024 and ref_number <= 464:
+                    ref_number = 465
+                self.ref = f"{ref_number:04d}/{self.date.year}/DTNCR"  
         super().save(*args, **kwargs)
 
 class DisbursementOperationDetail(models.Model):

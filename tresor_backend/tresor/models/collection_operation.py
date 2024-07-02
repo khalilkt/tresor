@@ -16,7 +16,7 @@ class CollectionOperation(models.Model):
     date = models.DateField()
     motif = models.CharField(max_length=255)
     beneficiaire = models.CharField(max_length=255)
-    ref = models.CharField(max_length=20, unique=True, editable=False)
+    ref = models.CharField(max_length=20,  editable=False)
     type = models.CharField(max_length=255, choices=[('rejected', 'Rejected'), ('versement', 'Versement'), ('operation', 'Operation')], default='operation')
     file = models.FileField(upload_to='collection_files/%Y/%m/%d/', null=True, blank=True)
 
@@ -24,14 +24,24 @@ class CollectionOperation(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     created_by = models.ForeignKey('authentication.User', on_delete=models.PROTECT, related_name='collection_operations')
 
-    def save(self, *args, **kwargs):
-        if not self.pk:  # Only set ref if the object is being created for the first time
-            year = self.date.year
-            count = CollectionOperation.objects.filter(date__year=year).count() + 1
-            self.ref = f"{count:04d}/{year}/DTNDB"  # Format as 2024-0013
-
-        super().save(*args, **kwargs)
     objects = CollectionOperationManager()
+
+    def save(self, *args, **kwargs):
+        if not self.pk:
+            if self.type != "operation":
+                self.ref = "-"
+            else:
+                last = CollectionOperation.objects.filter(date__year=self.date.year, type="operation").order_by('created_at').last()
+                ref_number = 1
+                if last and len(last.ref.split("/")) > 1:
+                    # 0023/2024/DTNCR
+                    
+                    last_ref = last.ref.split('/')[0]
+                    ref_number = int(last_ref) + 1
+                if self.date.year == 2024 and ref_number <= 215:
+                    ref_number = 216
+                self.ref = f"{ref_number:04d}/{self.date.year}/DTNCR"  
+        super().save(*args, **kwargs)
 
 class CollectionOperationDetail(models.Model):
     parent = models.ForeignKey(CollectionOperation, on_delete=models.CASCADE, related_name='details')

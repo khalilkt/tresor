@@ -190,10 +190,11 @@ export function BankStatementDialog({
                   <td colSpan={2} className="  border px-1 text-end span">
                     Total Débit/Total Crédit
                   </td>
+
                   <td className=" border px-1 text-end">
                     {formatAmount(
                       data?.data.reduce((acc, cur) => {
-                        return cur.type === "collection"
+                        return cur.type === "disbursement"
                           ? acc + cur.amount
                           : acc;
                       }, 0) || 0
@@ -202,7 +203,7 @@ export function BankStatementDialog({
                   <td className=" border px-1 text-end">
                     {formatAmount(
                       data?.data.reduce((acc, cur) => {
-                        return cur.type === "disbursement"
+                        return cur.type === "collection"
                           ? acc + cur.amount
                           : acc;
                       }, 0) || 0

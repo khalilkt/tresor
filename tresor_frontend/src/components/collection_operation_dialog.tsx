@@ -123,7 +123,9 @@ export default function CollectionOpearionDetailDialog({ id }: { id: number }) {
   const banks_names = groupedDetails.map((detail) => detail.bank_name);
 
   const tableHeaders =
-    selectedBank === "all" ? ["BANQUE", "MOTANT"] : ["NOM", "MONTANT"];
+    selectedBank === "all"
+      ? ["BANQUE", "MOTANT"]
+      : ["PARTIE VERSANT", "N° CHEQUE", "MONTANT"];
   const detailsData = selectedBank === "all" ? groupedDetails : filteredDetails;
 
   return (
@@ -209,6 +211,7 @@ export default function CollectionOpearionDetailDialog({ id }: { id: number }) {
                         {"name" in detail ? (
                           <>
                             <Td>{detail.name}</Td>
+                            <Td>{detail.cheque_number}</Td>
                             <Td>{detail.montant}</Td>
                           </>
                         ) : (
@@ -232,7 +235,7 @@ export default function CollectionOpearionDetailDialog({ id }: { id: number }) {
                 : ""
             }
           >
-            {groupedByBank
+            {/* {groupedByBank
               .filter(
                 (group) =>
                   selectedBank === "all" ||
@@ -288,8 +291,8 @@ export default function CollectionOpearionDetailDialog({ id }: { id: number }) {
                     <span className="text-center">Mohamed ZEIDANE</span>
                   </div>
                 </PrintPage>
-              ))}
-            {/* <PrintPage>
+              ))} */}
+            <PrintPage>
               {selectedBank === "all" && (
                 <div className="mt-2 mb-5 w-full text-center flex-col gap-y-2 items-center ">
                   <h3 className=" text-2xl font-semibold text-center">
@@ -342,7 +345,12 @@ export default function CollectionOpearionDetailDialog({ id }: { id: number }) {
                     <tr className="last:border-b" key={i}>
                       {"name" in detail ? (
                         <>
-                          <td className="border-r border-l ">{detail.name}</td>
+                          <td className="border-r border-l text-center">
+                            {detail.name}
+                          </td>
+                          <td className="border-r border-l  text-center">
+                            {detail.cheque_number}
+                          </td>
                           <td className="border-r border-l  text-center">
                             {detail.montant}
                           </td>
@@ -352,6 +360,7 @@ export default function CollectionOpearionDetailDialog({ id }: { id: number }) {
                           <td className="border-r border-l ">
                             {detail.bank_name}
                           </td>
+
                           <td className="border-r border-l  text-end">
                             {detail.total}
                           </td>
@@ -369,7 +378,7 @@ export default function CollectionOpearionDetailDialog({ id }: { id: number }) {
                 <span className="text-center mr-5">Le Directeur</span>
                 <span className="text-center">Mohamed ZEIDANE</span>
               </div>
-            </PrintPage> */}
+            </PrintPage>
           </div>
         </>
       ) : (

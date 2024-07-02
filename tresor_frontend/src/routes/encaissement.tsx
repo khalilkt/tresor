@@ -584,7 +584,7 @@ export default function EncaissementPage() {
             <th className="text-medium w-[25%] py-3 text-start text-base">
               Motif
             </th>
-            <th className="text-medium py-3 text-start text-base">Ref</th>
+            <th className="text-medium py-3 text-start text-base">OE</th>
 
             <th className="text-medium py-3 text-start text-base">Montant</th>
             <th className="text-medium py-3 text-start text-base">Date</th>
@@ -604,7 +604,7 @@ export default function EncaissementPage() {
                   {collectionOperation.motif}
                 </Td>
                 <Td className="p-0 px-0 pl-0 text-start">
-                  {collectionOperation.ref}
+                  {collectionOperation.ref.split("/")[0]}
                 </Td>
 
                 <Td className="p-0 px-0 pl-0 font-medium text-start">

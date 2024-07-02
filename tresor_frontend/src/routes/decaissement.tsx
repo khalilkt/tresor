@@ -23,6 +23,30 @@ import {
 } from "../components/icons";
 import DisbursementOperationDetailDialog from "../components/disbusement_operation_dialog";
 
+const ALLOWED_BANK_NAMES = [
+  "ATTIJARI BANK",
+  "AUB",
+  "BAMIS",
+  "BCI",
+  "BCM",
+  "BEA",
+  "BFI",
+  "BIM",
+  "BMCI",
+  "BMI",
+  "BMS",
+  "BNM",
+  "BPM",
+  "CCP",
+  "CHINGUITTI BANK",
+  "DFI",
+  "GBM",
+  "IBM",
+  "NBM",
+  "ORABANK",
+  "SGM",
+  "TRESOR",
+];
 type DisbursementOperationForm = Omit<
   DisbursementOperationInterface,
   | "id"
@@ -71,6 +95,12 @@ function ExcelImportDialog({
         header: 1,
       });
       const extractedData = processExcelData(jsonData);
+      extractedData?.forEach((data) => {
+        if (!ALLOWED_BANK_NAMES.includes(data.banq_name)) {
+          alert(`Le nom de la banque "${data.banq_name}" n'est pas autorisé.`);
+          return;
+        }
+      });
       if (extractedData) {
         setFormData({ ...formData, details: extractedData, file: file });
       }
@@ -171,6 +201,7 @@ function ExcelImportDialog({
               type: "operation",
               details: [],
               beneficiaire: "",
+              file: null,
             })
           }
         >
@@ -194,6 +225,7 @@ function ExcelImportDialog({
                 },
               ],
               beneficiaire: "-",
+              file: null,
             });
           }}
         >
@@ -435,12 +467,6 @@ export default function DecaissementPage() {
     try {
       const file = data.file;
 
-      if (!file) {
-        alert("Veuillez importer un fichier.");
-        return;
-      }
-
-      alert("file :" + file.name);
       const response = await axios.post(
         rootUrl + "disbursements/",
         {
@@ -535,7 +561,7 @@ export default function DecaissementPage() {
             <th className="text-medium w-[25%] py-3 text-start text-base">
               Motif
             </th>
-            <th className="text-medium py-3 text-start text-base">Ref</th>
+            <th className="text-medium py-3 text-start text-base">OD</th>
 
             <th className="text-medium py-3 text-start text-base">
               Compte d'opération
@@ -558,7 +584,7 @@ export default function DecaissementPage() {
                   {disbursementOperation.motif}
                 </Td>
                 <Td className="p-0 px-0 pl-0 font-medium text-start">
-                  {disbursementOperation.ref}
+                  {disbursementOperation.ref.split("/")[0]}
                 </Td>
                 <Td className="p-0 px-0 pl-0 text-start">
                   {disbursementOperation.account_name}
