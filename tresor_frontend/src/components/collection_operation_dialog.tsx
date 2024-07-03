@@ -296,6 +296,12 @@ export default function CollectionOpearionDetailDialog({ id }: { id: number }) {
                       </tr>
                     </tbody>
                   </table>
+                  <div className="pt-4">
+                    Arrêté le présent ordre à la somme de{" : "}{" "}
+                    {numberToFrench(
+                      group.details.reduce((acc, curr) => acc + curr.montant, 0)
+                    ) + " ouguiyas"}
+                  </div>
                   <div className="mt-4 self-end text-centerr flex flex-col font-semibold items-end">
                     <span className="text-center mr-5">Le Directeur</span>
                     <span className="text-center">Mohamed ZEIDANE</span>

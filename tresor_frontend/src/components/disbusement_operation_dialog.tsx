@@ -256,21 +256,22 @@ export default function DisbursementOperationDetailDialog({
                     <thead>
                       <tr className="font-semibold bg-slate-100 text-center border">
                         <th className="py-1 border  text-center ">Nom</th>
-                        <th className="py-1 border  text-center ">MONTANT</th>
                         <th className="py-1 border  text-center ">
                           Numéro de compte
                         </th>
+                        <th className="py-1 border  text-center ">MONTANT</th>
                       </tr>
                     </thead>
                     <tbody className=" text-start ">
                       {group.details.map((detail, i) => (
                         <tr className="" key={i}>
                           <td className="border ">{detail.name}</td>
+
                           <td className="border  text-center">
-                            {detail.montant}
+                            {detail.banq_number}
                           </td>
                           <td className="border  text-end">
-                            {detail.banq_number}
+                            {formatAmount(detail.montant)}
                           </td>
                         </tr>
                       ))}
@@ -287,6 +288,12 @@ export default function DisbursementOperationDetailDialog({
                       </tr>
                     </tbody>
                   </table>
+                  <div className="pt-4">
+                    Arrêté le présent ordre à la somme de{" : "}{" "}
+                    {numberToFrench(
+                      group.details.reduce((acc, curr) => acc + curr.montant, 0)
+                    ) + " ouguiyas"}
+                  </div>
                   <div className="mt-4 self-end text-centerr flex flex-col font-semibold items-end">
                     <span className="text-center mr-5">Le Directeur</span>
                     <span className="text-center">Mohamed ZEIDANE</span>
@@ -355,7 +362,7 @@ export default function DisbursementOperationDetailDialog({
                             <td className="border-r border-l text-left">
                               {detail.name}
                             </td>
-                            <td className="border-r border-l text-right">
+                            <td className="border-r border-l text-center">
                               {detail.banq_number}
                             </td>
                             <td className="border-r border-l text-center">
@@ -378,7 +385,7 @@ export default function DisbursementOperationDetailDialog({
                 </table>
                 <div className="pt-4">
                   Arrêté le présent ordre à la somme de{" : "}{" "}
-                  {numberToFrench(data.total) + " MRU"}
+                  {numberToFrench(data.total) + " ouguiyas"}
                 </div>
                 <div className="mt-4 self-end text-centerr flex flex-col font-semibold items-end">
                   <span className="text-center mr-5">Le Directeur</span>
