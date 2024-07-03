@@ -40,7 +40,7 @@ class CollectionOperation(models.Model):
                     ref_number = int(last_ref) + 1
                 if self.date.year == 2024 and ref_number <= 215:
                     ref_number = 216
-                self.ref = f"{ref_number:04d}/{self.date.year}/DTNCR"  
+                self.ref = f"{ref_number:04d}/{self.date.year}/DTNDB"  
         super().save(*args, **kwargs)
 
 class CollectionOperationDetail(models.Model):

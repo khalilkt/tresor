@@ -117,20 +117,20 @@ export default function DisbursementOperationDetailDialog({
     document.body.removeChild(a);
   }
 
-  const filteredDetails =
-    selectedOption === "all" || selectedOption === "detail"
-      ? data?.details
-      : data?.details.filter((detail) => detail.banq_name === selectedOption);
+  // const filteredDetails =
+  //   selectedOption === "all" || selectedOption === "detail"
+  //     ? data?.details
+  //     : data?.details.filter((detail) => detail.banq_name === selectedOption);
   const banks_names = groupedDetails.map((detail) => detail.bank_name);
 
   const tableHeaders =
     selectedOption === "all" || selectedOption === "detail"
       ? ["Banque", "Montant"]
       : ["Nom", "Numéro de compte", "Montant"];
-  const detailsData =
-    selectedOption === "all" || selectedOption === "detail"
-      ? groupedDetails
-      : filteredDetails;
+  // const detailsData =
+  //   selectedOption === "all" || selectedOption === "detail"
+  //     ? groupedDetails
+  //     : filteredDetails;
 
   return (
     <div className="grid grid-cols-2 flex-col gap-y-3 w-[600px]">
@@ -212,22 +212,28 @@ export default function DisbursementOperationDetailDialog({
                     </tr>
                   </thead>
                   <tbody>
-                    {detailsData?.map((detail, i) => (
-                      <Tr key={i}>
-                        {"name" in detail ? (
-                          <>
-                            <Td>{detail.name}</Td>
-                            <Td>{detail.banq_number}</Td>
-                            <Td>{formatAmount(detail.montant)}</Td>
-                          </>
-                        ) : (
-                          <>
-                            <Td>{detail.bank_name}</Td>
-                            <Td>{formatAmount(detail.total)}</Td>
-                          </>
-                        )}
-                      </Tr>
-                    ))}
+                    {selectedOption === "all" || selectedOption === "detail"
+                      ? groupedDetails.map((detail, i) => {
+                          return (
+                            <Tr key={i}>
+                              <Td>{detail.bank_name}</Td>
+                              <Td>{formatAmount(detail.total)}</Td>
+                            </Tr>
+                          );
+                        })
+                      : groupedByBank
+                          .find(
+                            (detail) => detail.bank_name === selectedOption
+                          )!
+                          .details.map((detail, i) => {
+                            return (
+                              <Tr key={i}>
+                                <Td>{detail.name}</Td>
+                                <Td>{detail.banq_number}</Td>
+                                <Td>{formatAmount(detail.montant)}</Td>
+                              </Tr>
+                            );
+                          })}
                   </tbody>
                 </table>
               </div>
@@ -237,70 +243,79 @@ export default function DisbursementOperationDetailDialog({
             ref={printRef}
             className="absolute print:opacity-100 opacity-0 -z-50 pointer-events-none"
           >
-            {selectedOption === "detail" &&
-              groupedByBank.map((group) => (
-                <PrintPage>
-                  <div className="flex flex-col gap-y-3 pt-8 pb-6">
-                    <h3 className="text-base font-medium">
-                      Ordre
-                      {" de décaissement "}
-                      N° {data.ref}
-                    </h3>
-                    <div className="flex gap-x-1">
-                      <span className="font-medium">BANQUE:</span>
-                      <span>{group.bank_name}</span>
+            {selectedOption !== "all" &&
+              groupedByBank
+                .filter(
+                  (detail) =>
+                    selectedOption === "detail" ||
+                    detail.bank_name === selectedOption
+                )
+                .map((group) => (
+                  <PrintPage>
+                    <div className="flex flex-col gap-y-3 pt-8 pb-6">
+                      <h3 className="text-base font-medium">
+                        Ordre
+                        {" de décaissement "}
+                        N° {data.ref}
+                      </h3>
+                      <div className="flex gap-x-1">
+                        <span className="font-medium">BANQUE:</span>
+                        <span>{group.bank_name}</span>
+                      </div>
                     </div>
-                  </div>
 
-                  <table className="text-center w-full">
-                    <thead>
-                      <tr className="font-semibold bg-slate-100 text-center border">
-                        <th className="py-1 border  text-center ">Nom</th>
-                        <th className="py-1 border  text-center ">
-                          Numéro de compte
-                        </th>
-                        <th className="py-1 border  text-center ">MONTANT</th>
-                      </tr>
-                    </thead>
-                    <tbody className=" text-start ">
-                      {group.details.map((detail, i) => (
-                        <tr className="" key={i}>
-                          <td className="border ">{detail.name}</td>
+                    <table className="text-center w-full">
+                      <thead>
+                        <tr className="font-semibold bg-slate-100 text-center border">
+                          <th className="py-1 border  text-center ">Nom</th>
+                          <th className="py-1 border  text-center ">
+                            Numéro de compte
+                          </th>
+                          <th className="py-1 border  text-center ">MONTANT</th>
+                        </tr>
+                      </thead>
+                      <tbody className=" text-start ">
+                        {group.details.map((detail, i) => (
+                          <tr className="" key={i}>
+                            <td className="border ">{detail.name}</td>
 
-                          <td className="border  text-center">
-                            {detail.banq_number}
-                          </td>
+                            <td className="border  text-center">
+                              {detail.banq_number}
+                            </td>
+                            <td className="border  text-end">
+                              {formatAmount(detail.montant)}
+                            </td>
+                          </tr>
+                        ))}
+                        <tr className="">
+                          <td className="" colSpan={2}></td>
                           <td className="border  text-end">
-                            {formatAmount(detail.montant)}
+                            {formatAmount(
+                              group.details.reduce(
+                                (acc, curr) => acc + curr.montant,
+                                0
+                              )
+                            )}
                           </td>
                         </tr>
-                      ))}
-                      <tr className="">
-                        <td className="" colSpan={2}></td>
-                        <td className="border  text-end">
-                          {formatAmount(
-                            group.details.reduce(
-                              (acc, curr) => acc + curr.montant,
-                              0
-                            )
-                          )}
-                        </td>
-                      </tr>
-                    </tbody>
-                  </table>
-                  <div className="pt-4">
-                    Arrêté le présent ordre à la somme de{" : "}{" "}
-                    {numberToFrench(
-                      group.details.reduce((acc, curr) => acc + curr.montant, 0)
-                    ) + " ouguiyas"}
-                  </div>
-                  <div className="mt-4 self-end text-centerr flex flex-col font-semibold items-end">
-                    <span className="text-center mr-5">Le Directeur</span>
-                    <span className="text-center">Mohamed ZEIDANE</span>
-                  </div>
-                </PrintPage>
-              ))}
-            {selectedOption !== "detail" && (
+                      </tbody>
+                    </table>
+                    <div className="pt-4">
+                      Arrêté le présent ordre à la somme de{" : "}{" "}
+                      {numberToFrench(
+                        group.details.reduce(
+                          (acc, curr) => acc + curr.montant,
+                          0
+                        )
+                      ) + " ouguiyas"}
+                    </div>
+                    <div className="mt-4 self-end text-centerr flex flex-col font-semibold items-end">
+                      <span className="text-center mr-5">Le Directeur</span>
+                      <span className="text-center">Mohamed ZEIDANE</span>
+                    </div>
+                  </PrintPage>
+                ))}
+            {selectedOption === "all" && (
               <PrintPage>
                 {selectedOption === "all" && (
                   <div className="mt-2 mb-5 w-full text-center flex-col gap-y-2 items-center ">
@@ -355,21 +370,9 @@ export default function DisbursementOperationDetailDialog({
                     </tr>
                   </thead>
                   <tbody className=" text-start ">
-                    {detailsData?.map((detail, i) => (
+                    {groupedDetails.map((detail, i) => (
                       <tr className="last:border-b" key={i}>
-                        {"name" in detail ? (
-                          <>
-                            <td className="border-r border-l text-left">
-                              {detail.name}
-                            </td>
-                            <td className="border-r border-l text-center">
-                              {detail.banq_number}
-                            </td>
-                            <td className="border-r border-l text-center">
-                              {formatAmount(detail.montant)}
-                            </td>
-                          </>
-                        ) : (
+                        {
                           <>
                             <td className="border-r border-l text-left">
                               {detail.bank_name}
@@ -378,7 +381,7 @@ export default function DisbursementOperationDetailDialog({
                               {formatAmount(detail.total)}
                             </td>
                           </>
-                        )}
+                        }
                       </tr>
                     ))}
                   </tbody>

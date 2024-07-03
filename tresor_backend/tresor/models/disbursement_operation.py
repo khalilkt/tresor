@@ -41,7 +41,7 @@ class DisbursementOperation(models.Model):
                     ref_number = int(last_ref) + 1
                 if self.date.year == 2024 and ref_number <= 464:
                     ref_number = 465
-                self.ref = f"{ref_number:04d}/{self.date.year}/DTNCR"  
+                self.ref = f"{ref_number:04d}/{self.date.year}/DTNDB"  
         super().save(*args, **kwargs)
 
 class DisbursementOperationDetail(models.Model):

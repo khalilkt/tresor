@@ -115,23 +115,19 @@ export default function CollectionOpearionDetailDialog({ id }: { id: number }) {
     });
   }
 
-  const filteredDetails =
-    selectedOption === "all" || selectedOption === "detail"
-      ? data?.details
-      : data?.details.filter(
-          (detail) => detail.account_data.name === selectedOption
-        );
+  // const filteredDetails =
+  //   selectedOption === "all" || selectedOption === "detail"
+  //     ? data?.details
+  //     : data?.details.filter(
+  //         (detail) => detail.account_data.name === selectedOption
+  //       );
 
   const banks_names = groupedDetails.map((detail) => detail.bank_name);
 
   const tableHeaders =
     selectedOption === "all" || selectedOption === "detail"
-      ? ["BANQUE", "MOTANT"]
-      : ["N° CHEQUE", "PARTIE VERSANT", "MONTANT"];
-  const detailsData =
-    selectedOption === "all" || selectedOption === "detail"
-      ? groupedDetails
-      : filteredDetails;
+      ? ["BANQUE", "MONTANT"]
+      : ["N° CHEQUE", "PARTIE VERSANTE", "MONTANT"];
 
   return (
     <div className="grid grid-cols-2 flex-col gap-y-3 w-[600px]">
@@ -213,7 +209,29 @@ export default function CollectionOpearionDetailDialog({ id }: { id: number }) {
                     </tr>
                   </thead>
                   <tbody>
-                    {detailsData?.map((detail, i) => (
+                    {selectedOption === "all" || selectedOption === "detail"
+                      ? groupedDetails.map((detail, i) => {
+                          return (
+                            <Tr key={i}>
+                              <Td>{detail.bank_name}</Td>
+                              <Td>{formatAmount(detail.total)}</Td>
+                            </Tr>
+                          );
+                        })
+                      : groupedByBank
+                          .find(
+                            (bank) => bank.account_data.name === selectedOption
+                          )!
+                          .details.map((detail, i) => {
+                            return (
+                              <Tr key={i}>
+                                <Td>{detail.cheque_number}</Td>
+                                <Td>{detail.name}</Td>
+                                <Td>{formatAmount(detail.montant)}</Td>
+                              </Tr>
+                            );
+                          })}
+                    {/* {detailsData?.map((detail, i) => (
                       <Tr key={i}>
                         {"name" in detail ? (
                           <>
@@ -228,7 +246,7 @@ export default function CollectionOpearionDetailDialog({ id }: { id: number }) {
                           </>
                         )}
                       </Tr>
-                    ))}
+                    ))} */}
                   </tbody>
                 </table>
               </div>
@@ -242,73 +260,86 @@ export default function CollectionOpearionDetailDialog({ id }: { id: number }) {
                 : ""
             }
           >
-            {selectedOption === "detail" &&
-              groupedByBank.map((group) => (
-                <PrintPage>
-                  <div className="flex flex-col gap-y-3 pt-8 pb-6">
-                    <h3 className="text-base font-medium">
-                      Ordre
-                      {" d'encaissement "}
-                      N° {data.ref}
-                    </h3>
-                    <div className="flex gap-x-1">
-                      <span className="font-medium">BANQUE:</span>
-                      <span>{group.account_data.name}</span>
-                      <span className="font-medium ml-32">N° DE COMPTE: </span>
-                      <span>{group.account_data.number}</span>
+            {selectedOption !== "all" &&
+              groupedByBank
+                .filter(
+                  (detail) =>
+                    selectedOption === "detail" ||
+                    detail.account_data.name === selectedOption
+                )
+                .map((group) => (
+                  <PrintPage>
+                    <div className="flex flex-col gap-y-3 pt-8 pb-6">
+                      <h3 className="text-base font-medium">
+                        Ordre
+                        {" d'encaissement "}
+                        N° {data.ref}
+                      </h3>
+                      <div className="flex gap-x-1">
+                        <span className="font-medium">BANQUE:</span>
+                        <span>{group.account_data.name}</span>
+                        <span className="font-medium ml-32">
+                          N° DE COMPTE:{" "}
+                        </span>
+                        <span>{group.account_data.number}</span>
+                      </div>
                     </div>
-                  </div>
 
-                  <table className="text-center w-full">
-                    <thead>
-                      <tr className="font-semibold bg-slate-100 text-center border">
-                        <th className="py-1 border  text-center ">N° CHEQUE</th>
+                    <table className="text-center w-full">
+                      <thead>
+                        <tr className="font-semibold bg-slate-100 text-center border">
+                          <th className="py-1 border  text-start ">
+                            N° CHEQUE
+                          </th>
 
-                        <th className="py-1 border  text-center ">
-                          PARTIE VERSEMENT
-                        </th>
-                        <th className="py-1 border  text-center ">MONTANT</th>
-                      </tr>
-                    </thead>
-                    <tbody className=" text-start ">
-                      {group.details.map((detail, i) => (
-                        <tr className="" key={i}>
-                          <td className="border  text-center">
-                            {detail.cheque_number}
-                          </td>
-                          <td className="border ">{detail.name}</td>
+                          <th className="py-1 border  text-start ">
+                            PARTIE VERSANTE
+                          </th>
+                          <th className="py-1 border  text-center ">MONTANT</th>
+                        </tr>
+                      </thead>
+                      <tbody className=" text-start ">
+                        {group.details.map((detail, i) => (
+                          <tr className="" key={i}>
+                            <td className="border text-start">
+                              {detail.cheque_number}
+                            </td>
+                            <td className="border ">{detail.name}</td>
 
-                          <td className="border  text-end">
-                            {formatAmount(detail.montant)}
+                            <td className="border  text-center">
+                              {formatAmount(detail.montant)}
+                            </td>
+                          </tr>
+                        ))}
+                        <tr className="">
+                          <td className="" colSpan={2}></td>
+                          <td className="border text-center">
+                            {formatAmount(
+                              group.details.reduce(
+                                (acc, curr) => acc + curr.montant,
+                                0
+                              )
+                            )}
                           </td>
                         </tr>
-                      ))}
-                      <tr className="">
-                        <td className="" colSpan={2}></td>
-                        <td className="border  text-end">
-                          {formatAmount(
-                            group.details.reduce(
-                              (acc, curr) => acc + curr.montant,
-                              0
-                            )
-                          )}
-                        </td>
-                      </tr>
-                    </tbody>
-                  </table>
-                  <div className="pt-4">
-                    Arrêté le présent ordre à la somme de{" : "}{" "}
-                    {numberToFrench(
-                      group.details.reduce((acc, curr) => acc + curr.montant, 0)
-                    ) + " ouguiyas"}
-                  </div>
-                  <div className="mt-4 self-end text-centerr flex flex-col font-semibold items-end">
-                    <span className="text-center mr-5">Le Directeur</span>
-                    <span className="text-center">Mohamed ZEIDANE</span>
-                  </div>
-                </PrintPage>
-              ))}
-            {selectedOption !== "detail" && (
+                      </tbody>
+                    </table>
+                    <div className="pt-4">
+                      Arrêté le présent ordre à la somme de{" : "}{" "}
+                      {numberToFrench(
+                        group.details.reduce(
+                          (acc, curr) => acc + curr.montant,
+                          0
+                        )
+                      ) + " ouguiyas"}
+                    </div>
+                    <div className="mt-4 self-end text-centerr flex flex-col font-semibold items-end">
+                      <span className="text-center mr-5">Le Directeur</span>
+                      <span className="text-center">Mohamed ZEIDANE</span>
+                    </div>
+                  </PrintPage>
+                ))}
+            {selectedOption === "all" && (
               <PrintPage>
                 {selectedOption === "all" && (
                   <div className="mt-2 mb-5 w-full text-center flex-col gap-y-2 items-center ">
@@ -374,38 +405,26 @@ export default function CollectionOpearionDetailDialog({ id }: { id: number }) {
                     </tr>
                   </thead>
                   <tbody className=" text-start ">
-                    {detailsData?.map((detail, i) => (
+                    {groupedDetails?.map((detail, i) => (
                       <tr className="last:border-b" key={i}>
-                        {"name" in detail ? (
-                          <>
-                            <td className="border-r border-l  text-center">
-                              {detail.cheque_number}
-                            </td>
-                            <td className="border-r border-l text-center">
-                              {detail.name}
-                            </td>
-                            <td className="border-r border-l  text-center">
-                              {formatAmount(detail.montant)}
-                            </td>
-                          </>
-                        ) : (
-                          <>
-                            <td className="border-r border-l ">
-                              {detail.bank_name}
-                            </td>
+                        <>
+                          <td className="border-r border-l ">
+                            {detail.bank_name}
+                          </td>
 
-                            <td className="border-r border-l  text-end">
-                              {formatAmount(detail.total)}
-                            </td>
-                          </>
-                        )}
+                          <td className="border-r border-l  text-end">
+                            {formatAmount(detail.total)}
+                          </td>
+                        </>
                       </tr>
                     ))}
                   </tbody>
                 </table>
                 <div className="pt-4">
                   Arrêté le présent ordre à la somme de{" : "}{" "}
-                  {numberToFrench(data.total) + " ouguiyas"}
+                  {numberToFrench(
+                    groupedDetails.reduce((acc, curr) => acc + curr.total, 0)
+                  ) + " ouguiyas"}
                 </div>
                 <div className="mt-4 self-end text-centerr flex flex-col font-semibold items-end">
                   <span className="text-center mr-5">Le Directeur</span>
