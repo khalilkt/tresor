@@ -12,7 +12,7 @@ class CollectionOperationListCreateView(ListCreateAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = CollectionOperationSerializer
     filterset_fields = ['created_by', 'type']
-    search_fields = ['motif', 'beneficiaire']
+    search_fields = ['ref']
     ordering_fields = ['date', 'motif', 'beneficiaire']
     ordering = ['-date', '-created_at']
 

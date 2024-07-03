@@ -127,7 +127,7 @@ export default function CollectionOpearionDetailDialog({ id }: { id: number }) {
   const tableHeaders =
     selectedOption === "all" || selectedOption === "detail"
       ? ["BANQUE", "MOTANT"]
-      : ["PARTIE VERSANT", "N° CHEQUE", "MONTANT"];
+      : ["N° CHEQUE", "PARTIE VERSANT", "MONTANT"];
   const detailsData =
     selectedOption === "all" || selectedOption === "detail"
       ? groupedDetails
@@ -217,8 +217,8 @@ export default function CollectionOpearionDetailDialog({ id }: { id: number }) {
                       <Tr key={i}>
                         {"name" in detail ? (
                           <>
-                            <Td>{detail.name}</Td>
                             <Td>{detail.cheque_number}</Td>
+                            <Td>{detail.name}</Td>
                             <Td>{formatAmount(detail.montant)}</Td>
                           </>
                         ) : (
@@ -247,7 +247,9 @@ export default function CollectionOpearionDetailDialog({ id }: { id: number }) {
                 <PrintPage>
                   <div className="flex flex-col gap-y-3 pt-8 pb-6">
                     <h3 className="text-base font-medium">
-                      Borderau d'envoi des chèques N° {data.ref}
+                      Ordre
+                      {" d'encaissement "}
+                      N° {data.ref}
                     </h3>
                     <div className="flex gap-x-1">
                       <span className="font-medium">BANQUE:</span>
@@ -356,11 +358,11 @@ export default function CollectionOpearionDetailDialog({ id }: { id: number }) {
                       <tr className="last:border-b" key={i}>
                         {"name" in detail ? (
                           <>
-                            <td className="border-r border-l text-center">
-                              {detail.name}
-                            </td>
                             <td className="border-r border-l  text-center">
                               {detail.cheque_number}
+                            </td>
+                            <td className="border-r border-l text-center">
+                              {detail.name}
                             </td>
                             <td className="border-r border-l  text-center">
                               {formatAmount(detail.montant)}

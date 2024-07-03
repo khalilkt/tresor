@@ -17,6 +17,7 @@ import DisbursementOperationDetailDialog from "../components/disbusement_operati
 import { DeleteIcon, LoadingIcon, ViewIcon } from "../components/icons";
 import CollectionOpearionDetailDialog from "../components/collection_operation_dialog";
 import { ALLOWED_BANK_NAMES } from "./decaissement";
+import { formatAmount } from "../logiC/utils";
 
 type CollectionDetailForm = Omit<
   CollectionOperationDetail,
@@ -664,7 +665,7 @@ export default function EncaissementPage() {
                 </Td>
 
                 <Td className="p-0 px-0 pl-0 font-medium text-start">
-                  {collectionOperation.total.toString() + " MRU"}
+                  {formatAmount(collectionOperation.total)}
                 </Td>
                 <Td className="p-0 px-0 pl-0 font-medium text-start">
                   {collectionOperation.date.toString()}

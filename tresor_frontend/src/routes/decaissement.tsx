@@ -23,6 +23,7 @@ import {
   ViewIcon,
 } from "../components/icons";
 import DisbursementOperationDetailDialog from "../components/disbusement_operation_dialog";
+import { formatAmount } from "../logiC/utils";
 
 export const ALLOWED_BANK_NAMES = [
   "ATTIJARI BANK",
@@ -633,7 +634,7 @@ export default function DecaissementPage() {
                   {disbursementOperation.account_name}
                 </Td>
                 <Td className="p-0 px-0 pl-0 font-medium text-start">
-                  {disbursementOperation.total.toString() + " MRU"}
+                  {formatAmount(disbursementOperation.total)}
                 </Td>
                 <Td className="p-0 px-0 pl-0 font-medium text-start">
                   {disbursementOperation.date.toString()}
