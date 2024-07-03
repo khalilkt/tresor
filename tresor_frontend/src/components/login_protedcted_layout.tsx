@@ -14,6 +14,7 @@ import logo from "../assets/rim.png";
 import { MDialog } from "./dialog";
 import { rootUrl } from "../constants";
 import axios from "axios";
+import { numberToFrench } from "../logiC/utils";
 
 function FileDownloadDialog() {
   // 2024-04

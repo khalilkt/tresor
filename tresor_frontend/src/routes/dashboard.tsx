@@ -4,6 +4,7 @@ import { useSearchParams } from "react-router-dom";
 import axios from "axios";
 import { AuthContext } from "../App";
 import { rootUrl } from "../constants";
+import { numberToFrench } from "../logiC/utils";
 
 export default function DashboardPage() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -51,7 +52,10 @@ export default function DashboardPage() {
 
   return (
     <div className="flex flex-col items-start gap-y-10 px-8 pb-12 pt-12 lg:px-10 lg:pb-0 lg:pt-20l">
-      <Title className="text-2xl">Tableau de bord</Title>
+      <Title className="text-2xl">
+        Tableau de bord
+        {/* {numberToFrench(4382147.23)} */}
+      </Title>
       <div className="flex gap-x-4">
         <Select
           onChange={(e) => {

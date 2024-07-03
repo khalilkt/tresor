@@ -48,6 +48,18 @@ export function numberToFrench(n: number): string {
   if (n === 0) return "zéro";
   if (n < 0) return "moins " + numberToFrench(-n);
 
+  //check if the number has a decimal value
+  if (n % 1 !== 0) {
+    let [integer, decimal] = n.toString().split(".");
+    //remove trailing zeros
+    decimal = decimal.replace(/0+$/, "");
+
+    return (
+      numberToFrench(parseInt(integer)) +
+      " virgule " +
+      numberToFrench(parseInt(decimal))
+    );
+  }
   let words = "";
 
   if (Math.floor(n / 1000000) > 0) {
