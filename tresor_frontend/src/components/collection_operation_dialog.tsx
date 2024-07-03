@@ -254,8 +254,8 @@ export default function CollectionOpearionDetailDialog({ id }: { id: number }) {
                     <div className="flex gap-x-1">
                       <span className="font-medium">BANQUE:</span>
                       <span>{group.account_data.name}</span>
-                      {/* <span className="font-medium ml-32">N° DE COMPTE: </span>
-                      <span>{group.account_data.number}</span> */}
+                      <span className="font-medium ml-32">N° DE COMPTE: </span>
+                      <span>{group.account_data.number}</span>
                     </div>
                   </div>
 
@@ -340,6 +340,20 @@ export default function CollectionOpearionDetailDialog({ id }: { id: number }) {
                         <span className="font-semibold">BANQUE:</span>
                         <span>{selectedOption}</span>
                       </div>
+                      {selectedOption !== "all" &&
+                        selectedOption !== "detail" && (
+                          <div className="flex gap-x-1">
+                            <span className="font-medium">N° DE COMPTE: </span>
+                            <span>
+                              {
+                                data.details.find(
+                                  (detail) =>
+                                    detail.account_data.name === selectedOption
+                                )?.account_data.number
+                              }
+                            </span>
+                          </div>
+                        )}
                     </>
                   )}
                 </div>
