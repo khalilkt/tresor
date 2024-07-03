@@ -126,7 +126,7 @@ export default function DisbursementOperationDetailDialog({
   const tableHeaders =
     selectedOption === "all" || selectedOption === "detail"
       ? ["Banque", "Montant"]
-      : ["Nom", "Montant", "Numéro de compte"];
+      : ["Nom", "Numéro de compte", "Montant"];
   const detailsData =
     selectedOption === "all" || selectedOption === "detail"
       ? groupedDetails
@@ -217,8 +217,8 @@ export default function DisbursementOperationDetailDialog({
                         {"name" in detail ? (
                           <>
                             <Td>{detail.name}</Td>
-                            <Td>{formatAmount(detail.montant)}</Td>
                             <Td>{detail.banq_number}</Td>
+                            <Td>{formatAmount(detail.montant)}</Td>
                           </>
                         ) : (
                           <>
@@ -355,12 +355,11 @@ export default function DisbursementOperationDetailDialog({
                             <td className="border-r border-l text-left">
                               {detail.name}
                             </td>
-                            <td className="border-r border-l text-center">
-                              {formatAmount(detail.montant)}
-                            </td>
-
                             <td className="border-r border-l text-right">
                               {detail.banq_number}
+                            </td>
+                            <td className="border-r border-l text-center">
+                              {formatAmount(detail.montant)}
                             </td>
                           </>
                         ) : (
