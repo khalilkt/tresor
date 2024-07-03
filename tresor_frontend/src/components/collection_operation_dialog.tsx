@@ -254,8 +254,8 @@ export default function CollectionOpearionDetailDialog({ id }: { id: number }) {
                     <div className="flex gap-x-1">
                       <span className="font-medium">BANQUE:</span>
                       <span>{group.account_data.name}</span>
-                      <span className="font-medium ml-32">N° DE COMPTE: </span>
-                      <span>{group.account_data.number}</span>
+                      {/* <span className="font-medium ml-32">N° DE COMPTE: </span>
+                      <span>{group.account_data.number}</span> */}
                     </div>
                   </div>
 
