@@ -48,6 +48,10 @@ export default function CollectionOpearionDetailDialog({ id }: { id: number }) {
   }
 
   function donwloadFile(file: string) {
+    //if http is in the file url, we should remove it and replace it with https
+    if (file.includes("http://")) {
+      file = file.replace("http://", "https://");
+    }
     const a = document.createElement("a");
     a.href = file;
     a.download = file;

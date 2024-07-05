@@ -109,6 +109,9 @@ export default function DisbursementOperationDetailDialog({
   }
 
   function donwloadFile(file: string) {
+    if (file.includes("http://")) {
+      file = file.replace("http://", "https://");
+    }
     const a = document.createElement("a");
     a.href = file;
     a.download = file;
