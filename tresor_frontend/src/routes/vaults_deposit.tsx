@@ -23,7 +23,20 @@ import {
   ViewIcon,
 } from "../components/icons";
 import { formatAmount, formatDate } from "../logiC/utils";
-
+export const VAULT_GROUPS = [
+  {
+    id: 1,
+    name: "CAISSE CENTRALE TR NDB",
+  },
+  {
+    id: 2,
+    name: "CAISSE DGI/DGD",
+  },
+  {
+    id: 3,
+    name: "COMMUNES et CONSEIL REGIONAUX",
+  },
+];
 export const ALLOWED_BANK_NAMES = [
   "ATTIJARI BANK",
   "AUB",
@@ -50,32 +63,38 @@ export const ALLOWED_BANK_NAMES = [
 ];
 type VaultDepositForm = Omit<
   VaultDepositInterface,
-  "id" | "created_at" | "vault_name" | "vault"
+  "id" | "created_at" | "vault_name" | "vault" | "versement_number"
 > & {
   vault: number | null;
+  versement_number: string | null;
 };
 
 function CreateVaultDialog({
   onSubmit,
+  selectedGroup,
 }: {
   onSubmit: (data: VaultDepositForm) => Promise<void>;
+  selectedGroup: number;
 }) {
   const accounts = useContext(AuthContext).authData!.accounts;
-
   const [isSubmitting, setIsSubmitting] = useState(false);
-
   const [vaults, setVaults] = useState<VaultInterface[] | null>(null);
-
   const [formData, setFormData] = useState<VaultDepositForm>({
     vault: null,
     amount: 0,
     motif: "",
+    versement_number: "",
   });
+
+  const [type, setType] = useState<"normal" | "banq">("normal");
 
   const token = useContext(AuthContext).authData!.token;
 
   const isReadyToSubmit =
-    formData.vault !== null && formData.amount > 0 && formData.motif.length > 0;
+    formData.vault !== null &&
+    formData.amount > 0 &&
+    formData.motif.length > 0 &&
+    (type === "normal" || (formData.versement_number?.length ?? 0) > 0);
   function loadVaults() {
     axios
       .get(rootUrl + "vaults/", {
@@ -84,7 +103,11 @@ function CreateVaultDialog({
         },
       })
       .then((response) => {
-        setVaults(response.data);
+        setVaults(
+          (response.data as VaultInterface[]).filter(
+            (vault) => vault.group === selectedGroup
+          )
+        );
       })
       .catch((e) => {
         console.log(e);
@@ -97,6 +120,30 @@ function CreateVaultDialog({
 
   return (
     <div className="flex w-full flex-col gap-y-4 lg:w-[400px]">
+      {selectedGroup === 1 && (
+        <div className="w-full justify-center flex gap-x-3">
+          <button
+            onClick={() => {
+              setType("normal");
+              setFormData({
+                ...formData,
+                versement_number: "",
+              });
+            }}
+            className={`py-2 px-3 rounded font-medium transition-all ${type === "normal" ? "bg-primary text-white" : ""}`}
+          >
+            Espèce
+          </button>
+          <button
+            onClick={() => {
+              setType("banq");
+            }}
+            className={`py-2 px-3 rounded font-medium transition-all ${type === "banq" ? "bg-primary text-white" : ""}`}
+          >
+            Virement bancaire
+          </button>
+        </div>
+      )}
       <Select
         value={formData.vault ?? ""}
         onChange={(e) =>
@@ -138,6 +185,19 @@ function CreateVaultDialog({
         }}
       />
 
+      {type === "banq" && (
+        <Input
+          placeholder="Numéro du versement"
+          value={formData.versement_number ?? ""}
+          onChange={(e) => {
+            setFormData({
+              ...formData,
+              versement_number: e.target.value,
+            });
+          }}
+        />
+      )}
+
       <FilledButton
         className="rounded-lg bg-primary p-2 text-white disabled:opacity-50"
         disabled={!isReadyToSubmit || isSubmitting}
@@ -145,7 +205,11 @@ function CreateVaultDialog({
           if (isReadyToSubmit) {
             setIsSubmitting(true);
             try {
-              await onSubmit(formData);
+              await onSubmit({
+                ...formData,
+                versement_number:
+                  type === "banq" ? formData.versement_number : null,
+              });
             } catch (e) {}
             setIsSubmitting(false);
           }
@@ -205,6 +269,10 @@ export default function VaultDepositsPage() {
 
   async function load() {
     let params = new URLSearchParams(searchParams);
+    if (!params.has("group")) {
+      params.set("group", "1");
+      params.set("page", "1");
+    }
     try {
       const response = await axios.get(rootUrl + "vaults/deposit", {
         headers: {
@@ -288,6 +356,7 @@ export default function VaultDepositsPage() {
           onSubmit={async function (data) {
             await createVaultDeposit(data);
           }}
+          selectedGroup={parseInt(searchParams.get("group") ?? "1")}
         />
       </MDialog>
       <MDialog
@@ -322,6 +391,23 @@ export default function VaultDepositsPage() {
       </MDialog>
 
       <Title>Operation de depots</Title>
+
+      <div className="flex justify-center gap-x-2 w-full">
+        {VAULT_GROUPS.map((group) => (
+          <button
+            onClick={() => {
+              setSearchParams((params) => {
+                params.set("group", group.id.toString());
+                params.set("page", "1");
+                return params;
+              });
+            }}
+            className={`py-2 px-3 rounded font-medium ${parseInt(searchParams.get("group") ?? "1") === group.id ? "bg-primary text-white" : ""}`}
+          >
+            {group.name}
+          </button>
+        ))}
+      </div>
       <div className="flex justify-between w-full">
         <SearchBar
           id="search-bar"

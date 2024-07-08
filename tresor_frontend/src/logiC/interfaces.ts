@@ -101,6 +101,7 @@ export interface VaultDepositInterface {
   amount: number;
   motif: string;
   created_at: string;
+  versement_number: string;
 }
 
 export interface VaultWithdrawalInterface {

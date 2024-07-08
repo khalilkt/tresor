@@ -23,6 +23,7 @@ import {
   ViewIcon,
 } from "../components/icons";
 import { formatAmount, formatDate } from "../logiC/utils";
+import { VAULT_GROUPS } from "./vaults_deposit";
 
 export const ALLOWED_BANK_NAMES = [
   "ATTIJARI BANK",
@@ -58,15 +59,17 @@ type VaultWithdrawalForm = Omit<
 
 function CreateVaultWithdrawalDialog({
   onSubmit,
+  selectedGroup,
 }: {
   onSubmit: (data: VaultWithdrawalForm) => Promise<void>;
+  selectedGroup: number;
 }) {
   const accounts = useContext(AuthContext).authData!.accounts;
+  const [type, setType] = useState<"normal" | "fund_transfer">("normal");
 
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [vaults, setVaults] = useState<VaultInterface[] | null>(null);
-  const [isFundTransfer, setIsFundTransfer] = useState(false);
 
   const [formData, setFormData] = useState<VaultWithdrawalForm>({
     account: null,
@@ -81,7 +84,7 @@ function CreateVaultWithdrawalDialog({
     formData.vault !== null && formData.amount > 0 && formData.motif.length > 0;
   const selectedVault =
     vaults?.find((vault) => vault.id === formData.vault) ?? null;
-  if (selectedVault?.can_fund_transfer && isFundTransfer) {
+  if (selectedVault?.can_fund_transfer && type === "fund_transfer") {
     isReadyToSubmit = isReadyToSubmit && formData.account !== null;
   }
   function loadVaults() {
@@ -92,7 +95,11 @@ function CreateVaultWithdrawalDialog({
         },
       })
       .then((response) => {
-        setVaults(response.data);
+        setVaults(
+          (response.data as VaultInterface[]).filter(
+            (vault) => vault.group === selectedGroup
+          )
+        );
       })
       .catch((e) => {
         console.log(e);
@@ -105,6 +112,30 @@ function CreateVaultWithdrawalDialog({
 
   return (
     <div className="flex w-full flex-col gap-y-4 lg:w-[400px]">
+      {selectedGroup === 1 && (
+        <div className="w-full justify-center flex gap-x-3">
+          <button
+            onClick={() => {
+              setType("normal");
+              setFormData({
+                ...formData,
+                account: null,
+              });
+            }}
+            className={`py-2 px-3 rounded font-medium transition-all ${type === "normal" ? "bg-primary text-white" : ""}`}
+          >
+            Paiement espèces
+          </button>
+          <button
+            onClick={() => {
+              setType("fund_transfer");
+            }}
+            className={`py-2 px-3 rounded font-medium transition-all ${type === "fund_transfer" ? "bg-primary text-white" : ""}`}
+          >
+            Dégagemnt de fonds
+          </button>
+        </div>
+      )}
       <Select
         value={formData.vault ?? ""}
         onChange={(e) => {
@@ -113,7 +144,6 @@ function CreateVaultWithdrawalDialog({
             vault: parseInt(e.target.value),
             account: null,
           });
-          setIsFundTransfer(false);
         }}
       >
         <option value="" disabled>
@@ -123,22 +153,24 @@ function CreateVaultWithdrawalDialog({
           <option value={vault.id}>{vault.name}</option>
         ))}
       </Select>
-      {/* <Select
-        value={formData.account ?? ""}
-        onChange={(e) => {
-          setFormData({
-            ...formData,
-            account: parseInt(e.target.value),
-          });
-        }}
-      >
-        <option value="" disabled>
-          Compte
-        </option>
-        {accounts.map((account) => (
-          <option value={account.id}>{account.name}</option>
-        ))}
-      </Select> */}
+      {type === "fund_transfer" && (
+        <Select
+          value={formData.account ?? ""}
+          onChange={(e) => {
+            setFormData({
+              ...formData,
+              account: parseInt(e.target.value),
+            });
+          }}
+        >
+          <option value="" disabled>
+            Compte
+          </option>
+          {accounts.map((account) => (
+            <option value={account.id}>{account.name}</option>
+          ))}
+        </Select>
+      )}
       <Textarea
         placeholder="Motif"
         value={formData.motif}
@@ -163,36 +195,6 @@ function CreateVaultWithdrawalDialog({
           });
         }}
       />
-      {selectedVault?.can_fund_transfer && (
-        <div className="flex gap-x-1">
-          <input
-            type="checkbox"
-            checked={isFundTransfer}
-            onChange={(e) => {
-              setIsFundTransfer(e.target.checked);
-            }}
-          ></input>
-          <label>Dégagement des fonds</label>
-        </div>
-      )}
-      {selectedVault?.can_fund_transfer && isFundTransfer && (
-        <Select
-          value={formData.account ?? ""}
-          onChange={(e) => {
-            setFormData({
-              ...formData,
-              account: parseInt(e.target.value),
-            });
-          }}
-        >
-          <option value="" disabled>
-            Compte
-          </option>
-          {accounts.map((account) => (
-            <option value={account.id}>{account.name}</option>
-          ))}
-        </Select>
-      )}
 
       <FilledButton
         className="rounded-lg bg-primary p-2 text-white disabled:opacity-50"
@@ -201,7 +203,7 @@ function CreateVaultWithdrawalDialog({
           if (isReadyToSubmit) {
             setIsSubmitting(true);
             try {
-              if (!selectedVault!.can_fund_transfer) {
+              if (type !== "fund_transfer") {
                 formData.account = null;
               }
               await onSubmit(formData);
@@ -265,6 +267,10 @@ export default function VaultWithdrawalsPage() {
   async function load() {
     let params = new URLSearchParams(searchParams);
     try {
+      if (!params.has("group")) {
+        params.set("group", "1");
+        params.set("page", "1");
+      }
       const response = await axios.get(rootUrl + "vaults/withdrawal", {
         headers: {
           Authorization: "Token " + token,
@@ -334,6 +340,7 @@ export default function VaultWithdrawalsPage() {
       }
     }
   }
+
   return (
     <div className="flex flex-col items-start gap-y-10 px-8 pb-12 pt-12 lg:px-10 lg:pb-0 lg:pt-20l">
       <MDialog
@@ -347,6 +354,7 @@ export default function VaultWithdrawalsPage() {
           onSubmit={async function (data) {
             await createVaultWithdrawal(data);
           }}
+          selectedGroup={parseInt(searchParams.get("group") ?? "1")}
         />
       </MDialog>
       <MDialog
@@ -381,6 +389,22 @@ export default function VaultWithdrawalsPage() {
       </MDialog>
 
       <Title>Opérations de retrait</Title>
+      <div className="flex justify-center gap-x-2 w-full">
+        {VAULT_GROUPS.map((group) => (
+          <button
+            onClick={() => {
+              setSearchParams((params) => {
+                params.set("group", group.id.toString());
+                params.set("page", "1");
+                return params;
+              });
+            }}
+            className={`py-2 px-3 rounded font-medium ${parseInt(searchParams.get("group") ?? "1") === group.id ? "bg-primary text-white" : ""}`}
+          >
+            {group.name}
+          </button>
+        ))}
+      </div>
       <div className="flex justify-between w-full">
         <SearchBar
           id="search-bar"

@@ -59,10 +59,6 @@ class UserSerializer(serializers.ModelSerializer):
         return obj.disbursement_operations.count()
     
     def create(self, validated_data):
-        # if "is_admin" in validated_data and  validated_data['is_admin']:
-        #     user = User.objects.create_superuser(username=validated_data['username'], password=validated_data['password'], name=validated_data['name'])
-        #     user.save()
-        #     return user
         user = User.objects.create_user(username=validated_data['username'], password=validated_data['password'], name=validated_data['name'])
         user.is_admin = validated_data.get('is_admin', False)
         user.has_accounts_access = validated_data.get('has_accounts_access', True)

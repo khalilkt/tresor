@@ -160,8 +160,8 @@ export default function LoginProtectedLayout() {
 
       <ul
         className={
-          "relative flex flex-col gap-y-2 border-r-2 border-r-primaryBorder bg-white px-6 pt-20 transition-all duration-150 " +
-          (isOpen ? "w-[15%]" : "w-[100px]")
+          "relative flex flex-col gap-y-2 border-r-2 border-r-primaryBorder bg-white px-6 pt-10 transition-all duration-150 " +
+          (isOpen ? "w-[290px]" : "w-[100px]")
         }
       >
         <img src={logo} alt="logo" className="mb-6 h-20 w-fit self-center" />
@@ -210,10 +210,10 @@ export default function LoginProtectedLayout() {
               Caisses
             </NavItem>
             <NavItem isOpen={isOpen} to="/depots" icon={<CollectionIcon />}>
-              Dépôts
+              Opérations de recettes
             </NavItem>
             <NavItem isOpen={isOpen} to="/retraits" icon={<DisbursementIcon />}>
-              Retrait
+              Opérations des dépenses
             </NavItem>
           </>
         )}

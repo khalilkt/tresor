@@ -36,6 +36,8 @@ type CollectionOperationForm = Omit<
   | "file"
 > & { details: CollectionDetailForm[]; file: File | null };
 
+type CollectionOperationType = "operation" | "versement" | "rejected";
+
 function ExcelImportDialog({
   onSubmit,
 }: {
@@ -482,7 +484,9 @@ export default function EncaissementPage() {
 
   async function load() {
     let params = new URLSearchParams(searchParams);
-    params.set("type", "operation");
+    if (!params.get("type")) {
+      params.set("type", selectedType);
+    }
     try {
       const response = await axios.get(rootUrl + "collections", {
         headers: {
@@ -558,6 +562,9 @@ export default function EncaissementPage() {
     }
   }
 
+  const selectedType = (searchParams.get("type") ??
+    "operation") as CollectionOperationType;
+
   return (
     <div className="flex flex-col items-start gap-y-10 px-8 pb-12 pt-12 lg:px-10 lg:pb-0 lg:pt-20l">
       <MDialog
@@ -619,6 +626,22 @@ export default function EncaissementPage() {
         </div>
       </MDialog>
       <Title>Opération d'encaissement</Title>
+      <div className="flex justify-center gap-x-4 w-full">
+        {["operation", "versement", "rejected"].map((type) => (
+          <button
+            onClick={() => {
+              setSearchParams((params) => {
+                params.set("type", type);
+                params.set("page", "1");
+                return params;
+              });
+            }}
+            className={`py-2 px-3 rounded font-medium transition-all ${selectedType === type ? "bg-primary text-white" : ""}`}
+          >
+            {(type === "rejected" ? "rejet" : type).toUpperCase()}
+          </button>
+        ))}
+      </div>
       <div className="flex justify-between w-full">
         <SearchBar
           id="search-bar"

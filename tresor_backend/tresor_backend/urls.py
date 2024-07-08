@@ -23,7 +23,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 from tresor.views.files import download_files
 
-from tresor.views.vault import VaultListView, VaultDetailView, VaultDepositViewSet, VaultWithdrawalViewSet
+from tresor.views.vault import VaultListView, VaultDetailView, VaultDepositViewSet, VaultWithdrawalViewSet, VaultGroupListView
 
 
 router = DefaultRouter()
@@ -40,7 +40,6 @@ urlpatterns = [
     path('auth/login/', LoginView.as_view(), name="login"),
     path('users/<int:user_id>/update_password/', PasswordUpdateView.as_view(), name="password-update"),
 
-
     path('collections/', CollectionOperationListCreateView.as_view(), name="collections"),
     path('collections/<int:pk>/', CollectionOperationDetail.as_view(), name="collection-details"),
 
@@ -51,6 +50,7 @@ urlpatterns = [
 
     path('files/<int:year>/<int:month>/', download_files, name='download_files'),
 
+    path("vault_groups/", VaultGroupListView.as_view(), name="vaults_groups"),
     path('vaults/', VaultListView.as_view(), name="vaults"),
     path('vaults/<int:pk>/', VaultDetailView.as_view(), name="vault-details"),
     

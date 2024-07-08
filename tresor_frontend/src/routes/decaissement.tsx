@@ -399,10 +399,11 @@ function ExcelImportDialog({
   );
 }
 
+type DisbursementOperationType = "operation" | "frais";
+
 export default function DecaissementPage() {
   const [isExportDialogOpen, setIsExportDialogOpen] = useState(false);
   const [deletingId, setDeletingId] = useState<number | null>(null);
-
   const [disbursementsData, setDisbursementsData] =
     useState<PaginatedData<DisbursementOperationInterface> | null>(null);
 
@@ -444,7 +445,9 @@ export default function DecaissementPage() {
 
   async function load() {
     let params = new URLSearchParams(searchParams);
-    params.set("type", "operation");
+    if (!params.get("type")) {
+      params.set("type", selectedType);
+    }
     try {
       const response = await axios.get(rootUrl + "disbursements", {
         headers: {
@@ -523,6 +526,10 @@ export default function DecaissementPage() {
       }
     }
   }
+
+  const selectedType: DisbursementOperationType = (searchParams.get("type") ??
+    "operation") as DisbursementOperationType;
+
   return (
     <div className="flex flex-col items-start gap-y-10 px-8 pb-12 pt-12 lg:px-10 lg:pb-0 lg:pt-20l">
       <MDialog
@@ -582,7 +589,24 @@ export default function DecaissementPage() {
           id={parseInt(searchParams.get("selected_id")!)}
         />
       </MDialog>
+
       <Title>Operation de Décaissement</Title>
+      <div className="flex justify-center gap-x-4 w-full">
+        {["operation", "frais"].map((type) => (
+          <button
+            onClick={() => {
+              setSearchParams((params) => {
+                params.set("type", type);
+                params.set("page", "1");
+                return params;
+              });
+            }}
+            className={`py-2 px-3 rounded font-medium transition-all ${selectedType === type ? "bg-primary text-white" : ""}`}
+          >
+            {type.toUpperCase()}
+          </button>
+        ))}
+      </div>
       <div className="flex justify-between w-full">
         <SearchBar
           id="search-bar"
