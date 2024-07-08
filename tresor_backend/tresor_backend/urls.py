@@ -23,9 +23,14 @@ from django.conf import settings
 from django.conf.urls.static import static
 from tresor.views.files import download_files
 
+from tresor.views.vault import VaultListView, VaultDetailView, VaultDepositViewSet, VaultWithdrawalViewSet
+
+
 router = DefaultRouter()
 router.register(r'accounts', AccountViewSet)
 router.register(r'users', UsersViewSet, basename="users")
+router.register(r'vaults/deposit', VaultDepositViewSet, basename="vaults-deposit")
+router.register(r'vaults/withdrawal', VaultWithdrawalViewSet, basename="vaults-withdrawal")
 
 urlpatterns = [
     path('stats/', StatsView.as_view(), name="stats"),
@@ -45,6 +50,9 @@ urlpatterns = [
     path('accounts/<int:pk>/releve/', AccountReleve.as_view(), name='account-releve'),
 
     path('files/<int:year>/<int:month>/', download_files, name='download_files'),
+
+    path('vaults/', VaultListView.as_view(), name="vaults"),
+    path('vaults/<int:pk>/', VaultDetailView.as_view(), name="vault-details"),
     
 
 ]

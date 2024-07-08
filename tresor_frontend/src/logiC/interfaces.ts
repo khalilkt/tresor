@@ -79,4 +79,37 @@ export interface UserInterface {
   is_superuser: boolean;
   total_collection_operations: number;
   total_disbursement_operations: number;
+  has_accounts_access: boolean;
+  has_vaults_access: boolean;
+}
+
+export interface VaultInterface {
+  id: number;
+  name: string;
+  code: string;
+  balance: number;
+  group: number;
+
+  can_fund_transfer: boolean;
+
+  group_name: string;
+}
+export interface VaultDepositInterface {
+  id: number;
+  vault: number;
+  vault_name: string;
+  amount: number;
+  motif: string;
+  created_at: string;
+}
+
+export interface VaultWithdrawalInterface {
+  id: number;
+  vault: number;
+  vault_name: string;
+  account: number | null;
+  account_name: string | null;
+  amount: number;
+  motif: string;
+  created_at: string;
 }

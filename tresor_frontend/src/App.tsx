@@ -18,18 +18,13 @@ import { DisconnectButton } from "./components/buttons";
 import { StatsIcon } from "./components/icons";
 import AccountsPage from "./routes/accounts";
 import EncaissementPage from "./routes/encaissement";
-import { AccountInterface } from "./logiC/interfaces";
+import { AccountInterface, UserInterface } from "./logiC/interfaces";
 import DecaissementPage from "./routes/decaissement";
 import AgentsPage from "./routes/agents";
 import LoginProtectedLayout from "./components/login_protedcted_layout";
-
-interface UserInterface {
-  id: number;
-  username: string;
-  name: string;
-  is_admin: boolean;
-  is_superuser: boolean;
-}
+import VaultsPage from "./routes/vaults";
+import VaultDepositsPage from "./routes/vaults_deposit";
+import VaultWithdrawalsPage from "./routes/vautls_withdrawal";
 
 export interface AuthData {
   token: string;
@@ -115,28 +110,56 @@ function App() {
               <Route path="/login" element={<LoginPage />} />
 
               <Route path="/" element={<LoginProtectedLayout />}>
-                {user?.is_admin ? (
+                {user?.is_admin && (
                   <>
                     <Route path="/" element={<DashboardPage />} />
                     <Route path="/accounts" element={<AccountsPage />} />
                     <Route path="/agents" element={<AgentsPage />} />
                     <Route path="/*" element={<Navigate to="/" />} />
                   </>
-                ) : (
+                )}
+                {!user?.is_admin && (
                   <>
                     <Route
                       path="/*"
-                      element={<Navigate to="/encaissements" />}
+                      element={
+                        <Navigate
+                          to={`${user?.has_vaults_access ? "/depots" : "/encaissements"}`}
+                        />
+                      }
                     />
                     <Route
                       path="/"
-                      element={<Navigate to="/encaissements" />}
-                    />{" "}
+                      element={
+                        <Navigate
+                          to={`${user?.has_vaults_access ? "/depots" : "/encaissements"}`}
+                        />
+                      }
+                    />
                   </>
                 )}
-
-                <Route path="/encaissements" element={<EncaissementPage />} />
-                <Route path="/decaissements" element={<DecaissementPage />} />
+                {(user?.is_admin || user?.has_accounts_access) && (
+                  <>
+                    <Route
+                      path="/encaissements"
+                      element={<EncaissementPage />}
+                    />
+                    <Route
+                      path="/decaissements"
+                      element={<DecaissementPage />}
+                    />
+                  </>
+                )}
+                {(user?.is_admin || user?.has_vaults_access) && (
+                  <>
+                    <Route path="/caisses" element={<VaultsPage />} />
+                    <Route path="/depots" element={<VaultDepositsPage />} />
+                    <Route
+                      path="/retraits"
+                      element={<VaultWithdrawalsPage />}
+                    />
+                  </>
+                )}
               </Route>
             </Routes>
           )}

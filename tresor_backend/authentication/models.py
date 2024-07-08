@@ -36,6 +36,8 @@ class User(AbstractBaseUser):
     name = models.CharField(max_length=255)
     is_admin = models.BooleanField(default=False)
     is_superuser = models.BooleanField(default=False)
+    has_vaults_access = models.BooleanField(default=False)
+    has_accounts_access = models.BooleanField(default=True)
     is_active = models.BooleanField(default=True)
     REQUIRED_FIELDS = ['name']
     USERNAME_FIELD = 'username'
@@ -63,6 +65,8 @@ class UserSerializer(serializers.ModelSerializer):
         #     return user
         user = User.objects.create_user(username=validated_data['username'], password=validated_data['password'], name=validated_data['name'])
         user.is_admin = validated_data.get('is_admin', False)
+        user.has_accounts_access = validated_data.get('has_accounts_access', True)
+        user.has_vaults_access = validated_data.get('has_vaults_access', False)
         user.save()
         return user
 
@@ -70,6 +74,8 @@ class UserSerializer(serializers.ModelSerializer):
         instance.name = validated_data.get('name', instance.name)
         instance.username = validated_data.get('username', instance.username)   
         instance.is_superuser = validated_data.get('is_superuser', instance.is_superuser)
+        instance.has_accounts_access = validated_data.get('has_accounts_access', instance.has_accounts_access)
+        instance.has_vaults_access = validated_data.get('has_vaults_access', instance.has_vaults_access)
         if "password" in validated_data:
             instance.set_password(validated_data['password'])
         instance.save()

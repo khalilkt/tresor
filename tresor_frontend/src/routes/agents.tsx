@@ -242,6 +242,16 @@ export default function AgentsPage() {
                 type="password"
               />
             )}
+            <div className="flex justify-between col-span-2 px-10">
+              <div className="flex items-center gap-x-3 ">
+                <input id="has_vaults_access" type="checkbox" className="" />
+                <label className="text-medium text-gray">Accès Caisses</label>
+              </div>
+              <div className="flex items-center gap-x-3 ">
+                <input id="has_accounts_access" type="checkbox" className="" />
+                <label className="text-medium text-gray">Accès Comptes</label>
+              </div>
+            </div>
             <FilledButton
               onClick={() => {
                 setDialogState({ state: "none", payload: null });
@@ -264,12 +274,24 @@ export default function AgentsPage() {
                   document.getElementById(PASSWORD_INPUT_ID) as HTMLInputElement
                 ).value;
 
+                const hasVaultsAccess = (
+                  document.getElementById(
+                    "has_vaults_access"
+                  ) as HTMLInputElement
+                ).checked;
+                const hasAccountsAccess = (
+                  document.getElementById(
+                    "has_accounts_access"
+                  ) as HTMLInputElement
+                ).checked;
                 createUser({
                   name,
                   username,
                   password,
                   is_admin: false,
                   is_superuser: false,
+                  has_accounts_access: hasAccountsAccess,
+                  has_vaults_access: hasVaultsAccess,
                 });
               }}
               className="col-span-1"

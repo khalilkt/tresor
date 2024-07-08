@@ -186,17 +186,37 @@ export default function LoginProtectedLayout() {
             </NavItem>
           </>
         )}
-        <NavItem isOpen={isOpen} to="/encaissements" icon={<CollectionIcon />}>
-          Opération d'encaissement
-        </NavItem>
-        <NavItem
-          isOpen={isOpen}
-          to="/decaissements"
-          icon={<DisbursementIcon />}
-        >
-          Opérration de décaissement
-        </NavItem>
-
+        {(user?.is_admin || user?.has_accounts_access) && (
+          <>
+            <NavItem
+              isOpen={isOpen}
+              to="/encaissements"
+              icon={<CollectionIcon />}
+            >
+              Opération d'encaissement
+            </NavItem>
+            <NavItem
+              isOpen={isOpen}
+              to="/decaissements"
+              icon={<DisbursementIcon />}
+            >
+              Opérration de décaissement
+            </NavItem>
+          </>
+        )}
+        {(user?.is_admin || user?.has_vaults_access) && (
+          <>
+            <NavItem isOpen={isOpen} to="/caisses" icon={<BankIcon />}>
+              Caisses
+            </NavItem>
+            <NavItem isOpen={isOpen} to="/depots" icon={<CollectionIcon />}>
+              Dépôts
+            </NavItem>
+            <NavItem isOpen={isOpen} to="/retraits" icon={<DisbursementIcon />}>
+              Retrait
+            </NavItem>
+          </>
+        )}
         <span
           onClick={() => {
             setIsFileDownloadDialogOpen(true);

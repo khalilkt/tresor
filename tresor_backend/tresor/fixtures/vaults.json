@@ -1,0 +1,132 @@
+[
+    {
+        "model": "tresor.vaultgroup",
+        "pk": 1,
+        "fields": {
+            "name": "CAISSE CENTRALE TR NDB",
+            "can_fund_transfer" : true
+        }
+    },
+    {
+        "model": "tresor.vaultgroup",
+        "pk": 2,
+        "fields": {
+            "name": "CAISSE DGI/DGD"
+        }
+    },
+    {
+        "model": "tresor.vaultgroup",
+        "pk": 3,
+        "fields": {
+            "name": "COMMUNES et CONSEIL REGIONAUX"
+        }
+    },
+    {
+        "model": "tresor.vault",
+        "pk": 1,
+        "fields": {
+            "name": "Caisse Centrale TR NDB",
+            "code": "5612134",
+            "group": 1,
+            "balance": 0,
+            "created_at": "2024-01-01T00:00:00Z",
+            "updated_at": "2024-01-01T00:00:00Z"
+        }
+    },
+    {
+        "model": "tresor.vault",
+        "pk": 2,
+        "fields": {
+            "name": "SAR NDB",
+            "code": "5612303",
+            "group": 2,
+            "balance": 0,
+            "created_at": "2024-01-01T00:00:00Z",
+            "updated_at": "2024-01-01T00:00:00Z"
+        }
+    },
+    {
+        "model": "tresor.vault",
+        "pk": 3,
+        "fields": {
+            "name": "CDI CHAMI",
+            "code": "5612304",
+            "group": 2,
+            "balance": 0,
+            "created_at": "2024-01-01T00:00:00Z",
+            "updated_at": "2024-01-01T00:00:00Z"
+        }
+    },
+    {
+        "model": "tresor.vault",
+        "pk": 4,
+        "fields": {
+            "name": "DOUANES NDB",
+            "code": "5612142",
+            "group": 2,
+            "balance": 0,
+            "created_at": "2024-01-01T00:00:00Z",
+            "updated_at": "2024-01-01T00:00:00Z"
+        }
+    },
+    {
+        "model": "tresor.vault",
+        "pk": 5,
+        "fields": {
+            "name": "DOUANES PK55",
+            "code": "5612402",
+            "group": 2,
+            "balance": 0,
+            "created_at": "2024-01-01T00:00:00Z",
+            "updated_at": "2024-01-01T00:00:00Z"
+        }
+    },
+    {
+        "model": "tresor.vault",
+        "pk": 6,
+        "fields": {
+            "name": "Commune de Nouadhibou",
+            "code": "4,3E+10",
+            "group": 3,
+            "balance": 0,
+            "created_at": "2024-01-01T00:00:00Z",
+            "updated_at": "2024-01-01T00:00:00Z"
+        }
+    },
+    {
+        "model": "tresor.vault",
+        "pk": 7,
+        "fields": {
+            "name": "Commune de Boulenoir",
+            "code": "4,3E+10",
+            "group": 3,
+            "balance": 0,
+            "created_at": "2024-01-01T00:00:00Z",
+            "updated_at": "2024-01-01T00:00:00Z"
+        }
+    },
+    {
+        "model": "tresor.vault",
+        "pk": 8,
+        "fields": {
+            "name": "Commune d'inal",
+            "code": "4,3E+10",
+            "group": 3,
+            "balance": 0,
+            "created_at": "2024-01-01T00:00:00Z",
+            "updated_at": "2024-01-01T00:00:00Z"
+        }
+    },
+    {
+        "model": "tresor.vault",
+        "pk": 9,
+        "fields": {
+            "name": "Conseil Régional",
+            "code": "43002108",
+            "group": 3,
+            "balance": 0,
+            "created_at": "2024-01-01T00:00:00Z",
+            "updated_at": "2024-01-01T00:00:00Z"
+        }
+    }
+]

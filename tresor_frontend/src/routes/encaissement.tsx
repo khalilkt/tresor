@@ -512,7 +512,7 @@ export default function EncaissementPage() {
       if (axios.isAxiosError(e)) {
         const data = e.response?.data;
         if (data === "NOT_ENOUGH_BALANCE") {
-          alert("Le solde de l'agent est insuffisant.");
+          alert("Le solde est insuffisant.");
         }
       } else {
         alert("Une erreur s'est produite. Veuillez réessayer.");

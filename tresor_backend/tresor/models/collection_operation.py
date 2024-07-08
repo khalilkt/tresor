@@ -74,8 +74,6 @@ class CollectionOperationSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("EMPTY_DETAILS")
         if type == "rejected" and len(value) > 1:
             raise serializers.ValidationError("REJECTED_OPERATION_MULTIPLE_DETAILS")
-            
-
         return value
 
     class Meta:
@@ -83,7 +81,6 @@ class CollectionOperationSerializer(serializers.ModelSerializer):
         fields = '__all__'
         read_only_fields = ['created_by']
 
-    
 
     def create(self, validated_data):
         validated_data['created_by'] = self.context['request'].user
