@@ -80,7 +80,7 @@ export interface UserInterface {
   total_collection_operations: number;
   total_disbursement_operations: number;
   has_accounts_access: boolean;
-  has_vaults_access: boolean;
+  assigned_vault_groups: number[];
 }
 
 export interface VaultInterface {

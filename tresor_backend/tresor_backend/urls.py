@@ -16,14 +16,14 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from tresor.views import AccountViewSet , AccountReleve, CollectionOperationListCreateView, DisbursementOperationListCreateView, DisbursementOperationDetails, CollectionOperationDetail, StatsView
+from tresor.views import AccountViewSet, AccountReleve, CollectionOperationListCreateView, DisbursementOperationListCreateView, DisbursementOperationDetails, CollectionOperationDetail, StatsView
 from authentication.views import LoginTokenView, LoginView, PasswordUpdateView, UsersViewSet
 from rest_framework.routers import DefaultRouter
 from django.conf import settings
 from django.conf.urls.static import static
 from tresor.views.files import download_files
 
-from tresor.views.vault import VaultListView, VaultDetailView, VaultDepositViewSet, VaultWithdrawalViewSet, VaultGroupListView
+from tresor.views.vault import VaultListView, VaultDetailView, VaultDepositViewSet, VaultWithdrawalViewSet, VaultGroupListView, VaultReleve
 
 
 router = DefaultRouter()
@@ -47,6 +47,7 @@ urlpatterns = [
     path('disbursements/<int:pk>/', DisbursementOperationDetails.as_view(), name="disbursement-details"),
 
     path('accounts/<int:pk>/releve/', AccountReleve.as_view(), name='account-releve'),
+    path("vaults/<int:pk>/releve/", VaultReleve.as_view(), name="vault-releve"), 
 
     path('files/<int:year>/<int:month>/', download_files, name='download_files'),
 

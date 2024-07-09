@@ -124,7 +124,7 @@ function App() {
                       path="/*"
                       element={
                         <Navigate
-                          to={`${user?.has_vaults_access ? "/depots" : "/encaissements"}`}
+                          to={`${user && user!.assigned_vault_groups.length > 0 ? "/depots" : "/encaissements"}`}
                         />
                       }
                     />
@@ -132,7 +132,7 @@ function App() {
                       path="/"
                       element={
                         <Navigate
-                          to={`${user?.has_vaults_access ? "/depots" : "/encaissements"}`}
+                          to={`${user && user!.assigned_vault_groups.length > 0 ? "/depots" : "/encaissements"}`}
                         />
                       }
                     />
@@ -150,7 +150,8 @@ function App() {
                     />
                   </>
                 )}
-                {(user?.is_admin || user?.has_vaults_access) && (
+                {(user?.is_admin ||
+                  (user && user!.assigned_vault_groups.length > 0)) && (
                   <>
                     <Route path="/caisses" element={<VaultsPage />} />
                     <Route path="/depots" element={<VaultDepositsPage />} />

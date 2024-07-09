@@ -35,14 +35,13 @@ function AddEditAccountDialog({
   return (
     <div className="flex flex-col">
       <div className="flex w-full flex-col gap-y-4 lg:w-[400px]">
-        {
-          <Input
-            type="text"
-            id="name"
-            placeholder="Banque"
-            className={`border-gray-300 border p-2 ${account ? "hidden" : ""}`}
-          />
-        }
+        <Input
+          type="text"
+          id="name"
+          placeholder="Banque"
+          className={`border-gray-300 border p-2 ${account ? "hidden" : ""}`}
+        />
+
         <Input
           type="number"
           id="balance"
@@ -275,7 +274,7 @@ export default function AccountsPage() {
           setDialogState({ state: "none" });
         }}
       >
-        <BankStatementDialog account={dialogState.payload} />
+        <BankStatementDialog account={dialogState.payload} type="account" />
       </MDialog>
 
       <Title>Comptes</Title>
@@ -354,7 +353,7 @@ export default function AccountsPage() {
       </table>
       <div
         ref={printRef}
-        className="absolute print:opacity-100 opacity-0 -z-50 scale-0 print:scale-100 pointer-events-none"
+        className="absolute print:opacity-100 opacity-0 -z-50 scale-0 print:scale-100 pointer-events-none text-sm"
       >
         <PrintPage>
           <h1 className="text-center text-2xl font-medium my-10">

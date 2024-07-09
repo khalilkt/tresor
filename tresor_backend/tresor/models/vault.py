@@ -27,6 +27,16 @@ class Vault(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    def get_solde_at_date(self, date):
+        deposits = self.deposits.filter(created_at__gt=date)
+        withdrawals = self.withdrawals.filter(created_at__gt=date)
+        solde = self.balance
+        for deposit in deposits:
+            solde -= deposit.amount
+        for withdrawal in withdrawals:
+            solde += withdrawal.amount
+        return solde
+
 class VaultSerializer(serializers.ModelSerializer):
     can_fund_transfer = serializers.BooleanField(read_only=True)
     group_name = serializers.CharField(read_only=True)
@@ -36,7 +46,7 @@ class VaultSerializer(serializers.ModelSerializer):
         
 
 class VaultDeposit(models.Model):
-    vault = models.ForeignKey(Vault, on_delete=models.CASCADE)
+    vault = models.ForeignKey(Vault, on_delete=models.CASCADE, related_name="deposits")
     amount = models.DecimalField(max_digits=10, decimal_places=2)
     motif = models.TextField()
     versement_number = models.CharField(max_length=255, null=True, blank=True)
@@ -58,10 +68,10 @@ class VaultDepositSerializer(serializers.ModelSerializer):
         return instance
 
 class VaultWithdrawal(models.Model):
-    vault = models.ForeignKey(Vault, on_delete=models.CASCADE)
+    vault = models.ForeignKey(Vault, on_delete=models.CASCADE, related_name="withdrawals")
     amount = models.DecimalField(max_digits=10, decimal_places=2)
     motif = models.TextField()
-    account = models.ForeignKey(Account, on_delete=models.CASCADE, null=True, blank=True)#if account is not null => degagement de fonds
+    account = models.ForeignKey(Account, on_delete=models.CASCADE, null=True, blank=True, related_name="fund_transfers")#if account is not null => degagement de fonds
     
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

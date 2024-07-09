@@ -16,10 +16,13 @@ class Account(models.Model):
         # we will get all the collection operations details and disbursement operations
         collection_operations_details = self.collection_operations_details.filter(parent__date__gt=date)
         disbursement_operations = self.disbursement_operations.filter(date__gt=date)
+        fund_transfers = self.fund_transfers.filter(created_at__gt=date)
 
         solde = self.balance
         for operation_detail in collection_operations_details:
             solde -= operation_detail.montant
+        for fund_transfer in fund_transfers:
+            solde -= fund_transfer.amount
         for operation in disbursement_operations:
             solde += operation.total
         return solde

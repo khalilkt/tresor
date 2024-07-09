@@ -64,8 +64,10 @@ type DisbursementOperationForm = Omit<
 
 function ExcelImportDialog({
   onSubmit,
+  type,
 }: {
   onSubmit: (data: DisbursementOperationForm) => Promise<void>;
+  type: DisbursementOperationType;
 }) {
   const accounts = useContext(AuthContext).authData!.accounts;
 
@@ -80,6 +82,26 @@ function ExcelImportDialog({
     type: "operation",
     file: null,
   });
+
+  useEffect(() => {
+    if (type === "frais") {
+      setFormData({
+        ...formData,
+        type: type,
+        details: [
+          {
+            montant: 0,
+            name: "-",
+            banq_name: "-",
+            banq_number: "-",
+            created_at: new Date().toISOString(),
+          },
+        ],
+        beneficiaire: "-",
+        file: null,
+      });
+    }
+  }, []);
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -199,7 +221,7 @@ function ExcelImportDialog({
 
   return (
     <div className="flex w-full flex-col gap-y-4 lg:w-[400px]">
-      <div className="flex gap-x-2">
+      <div className="gap-x-2 hidden">
         <button
           className={`flex-1 p-2 rounded-lg ${
             formData.type === "operation"
@@ -243,7 +265,7 @@ function ExcelImportDialog({
           Frais
         </button>
       </div>
-      <hr className="w-32 self-center mb-2" />
+      {/* <hr className="w-32 self-center mb-2" /> */}
       {formData.type === "operation" && (
         <div className="flex items-center justify-center w-full">
           <label
@@ -543,6 +565,7 @@ export default function DecaissementPage() {
           onSubmit={async function (data) {
             await createDisbursementOperation(data);
           }}
+          type={selectedType}
         />
       </MDialog>
       <MDialog

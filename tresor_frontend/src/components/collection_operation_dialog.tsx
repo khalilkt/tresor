@@ -273,7 +273,7 @@ export default function CollectionOpearionDetailDialog({ id }: { id: number }) {
                 )
                 .map((group) => (
                   <PrintPage>
-                    <div className="flex flex-col gap-y-3 pt-8 pb-6">
+                    <div className="flex flex-col gap-y-3 pt-8 pb-6 text-sm">
                       <h3 className="text-base font-medium">
                         Ordre
                         {" d'encaissement "}
@@ -299,7 +299,7 @@ export default function CollectionOpearionDetailDialog({ id }: { id: number }) {
                           <th className="py-1 border  text-start ">
                             PARTIE VERSANTE
                           </th>
-                          <th className="py-1 border  text-center ">MONTANT</th>
+                          <th className="py-1 border text-center ">MONTANT</th>
                         </tr>
                       </thead>
                       <tbody className=" text-start ">
@@ -308,9 +308,9 @@ export default function CollectionOpearionDetailDialog({ id }: { id: number }) {
                             <td className="border text-start">
                               {detail.cheque_number}
                             </td>
-                            <td className="border ">{detail.name}</td>
+                            <td className="border">{detail.name}</td>
 
-                            <td className="border  text-center">
+                            <td className="border text-center">
                               {formatAmount(detail.montant)}
                             </td>
                           </tr>
@@ -337,7 +337,7 @@ export default function CollectionOpearionDetailDialog({ id }: { id: number }) {
                         )
                       ) + " ouguiyas"}
                     </div>
-                    <div className="mt-4 self-end text-centerr flex flex-col font-semibold items-end">
+                    <div className="mt-4 self-end text-center flex flex-col font-semibold items-end">
                       <span className="text-center mr-5">Le Directeur</span>
                       <span className="text-center">Mohamed ZEIDANE</span>
                     </div>
@@ -347,7 +347,7 @@ export default function CollectionOpearionDetailDialog({ id }: { id: number }) {
               <PrintPage>
                 {selectedOption === "all" && (
                   <div className="mt-2 mb-5 w-full text-center flex-col gap-y-2 items-center ">
-                    <h3 className=" text-2xl font-semibold text-center">
+                    <h3 className=" text-xl font-semibold text-center">
                       Ordre
                       {" d'encaissement "}
                       N° {data.ref}

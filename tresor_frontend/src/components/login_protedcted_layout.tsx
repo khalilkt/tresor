@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { ReactNode, useEffect } from "react";
 import { AuthContext } from "../App";
 import { Link, Navigate, Outlet, useLocation } from "react-router-dom";
 import {
@@ -106,16 +106,48 @@ function FileDownloadDialog() {
   );
 }
 
+function NavGroup({
+  children,
+  icon,
+  label,
+  isOpen,
+  onClick,
+}: {
+  children: ReactNode;
+  icon: ReactNode;
+  label: string;
+  isOpen: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <li>
+      <div className="flex flex-col">
+        <button
+          onClick={onClick}
+          className="flex flex-row gap-x-2 overflow-x-clip text-ellipsis rounded-md p-3 text-sm font-semibold transition-all duration-100 bg-transparent text-gray"
+        >
+          <span className="fill-gray">{icon}</span>
+          <span>{label}</span>
+        </button>
+        {isOpen && <div className="flex ml-4 flex-col gap-y-1">{children}</div>}
+      </div>
+    </li>
+  );
+}
+
 function NavItem({
   to,
   children,
   icon,
+  onClick,
   isOpen,
 }: {
   to: string;
   icon: React.ReactNode;
   children: React.ReactNode;
   isOpen: boolean;
+  isSubChild?: boolean;
+  onClick?: () => void;
 }) {
   const { pathname } = useLocation();
   const isActive = pathname === to;
@@ -125,6 +157,7 @@ function NavItem({
       <Link
         className={`flex flex-row gap-x-2 overflow-x-clip text-ellipsis rounded-md p-3 text-sm font-semibold transition-all duration-100 ${isActive ? "bg-[#E5EEFF] text-primary" : "bg-transparent text-gray"}`}
         to={to}
+        onClick={onClick}
       >
         <span className={` ${isActive ? "fill-primary " : "fill-gray"}`}>
           {icon}
@@ -137,6 +170,9 @@ function NavItem({
 export default function LoginProtectedLayout() {
   const authContext = React.useContext(AuthContext);
   const [isOpen, setIsOpen] = React.useState<boolean>(true);
+  const [selectedGroup, setSelectedGroup] = React.useState<
+    "accounts" | "vautls" | "none"
+  >("none");
 
   const [isFileDownloadDialogOpen, setIsFileDownloadDialogOpen] =
     React.useState<boolean>(false);
@@ -161,7 +197,7 @@ export default function LoginProtectedLayout() {
       <ul
         className={
           "relative flex flex-col gap-y-2 border-r-2 border-r-primaryBorder bg-white px-6 pt-10 transition-all duration-150 " +
-          (isOpen ? "w-[290px]" : "w-[100px]")
+          (isOpen ? "w-[340px]" : "w-[100px]")
         }
       >
         <img src={logo} alt="logo" className="mb-6 h-20 w-fit self-center" />
@@ -175,21 +211,47 @@ export default function LoginProtectedLayout() {
         </h3>
         {user?.is_admin && (
           <>
-            <NavItem isOpen={isOpen} to="/" icon={<StatsIcon />}>
+            <NavItem
+              onClick={() => {
+                setSelectedGroup("none");
+              }}
+              isOpen={isOpen}
+              to="/"
+              icon={<StatsIcon />}
+            >
               Tableau de bord
             </NavItem>
-            <NavItem isOpen={isOpen} to="/agents" icon={<AgentsIcon />}>
+            <NavItem
+              onClick={() => {
+                setSelectedGroup("none");
+              }}
+              isOpen={isOpen}
+              to="/agents"
+              icon={<AgentsIcon />}
+            >
               Agents
-            </NavItem>
-            <NavItem isOpen={isOpen} to="/accounts" icon={<BankIcon />}>
-              Comptes
             </NavItem>
           </>
         )}
         {(user?.is_admin || user?.has_accounts_access) && (
-          <>
+          <NavGroup
+            isOpen={selectedGroup === "accounts"}
+            icon={<BankIcon />}
+            onClick={() => {
+              if (selectedGroup === "accounts") {
+                setSelectedGroup("none");
+              } else setSelectedGroup("accounts");
+            }}
+            label={"Comptes"}
+          >
+            {user.is_admin && (
+              <NavItem isOpen={isOpen} to="/accounts" icon={<BankIcon />}>
+                Liste des Comptes
+              </NavItem>
+            )}
             <NavItem
               isOpen={isOpen}
+              isSubChild={true}
               to="/encaissements"
               icon={<CollectionIcon />}
             >
@@ -202,12 +264,22 @@ export default function LoginProtectedLayout() {
             >
               Opérration de décaissement
             </NavItem>
-          </>
+          </NavGroup>
         )}
-        {(user?.is_admin || user?.has_vaults_access) && (
-          <>
+
+        {(user?.is_admin || user!.assigned_vault_groups.length > 0) && (
+          <NavGroup
+            isOpen={selectedGroup === "vautls"}
+            icon={<BankIcon />}
+            onClick={() => {
+              if (selectedGroup === "vautls") {
+                setSelectedGroup("none");
+              } else setSelectedGroup("vautls");
+            }}
+            label={"Caisse"}
+          >
             <NavItem isOpen={isOpen} to="/caisses" icon={<BankIcon />}>
-              Caisses
+              Liste des Caisses
             </NavItem>
             <NavItem isOpen={isOpen} to="/depots" icon={<CollectionIcon />}>
               Opérations de recettes
@@ -215,7 +287,7 @@ export default function LoginProtectedLayout() {
             <NavItem isOpen={isOpen} to="/retraits" icon={<DisbursementIcon />}>
               Opérations des dépenses
             </NavItem>
-          </>
+          </NavGroup>
         )}
         <span
           onClick={() => {

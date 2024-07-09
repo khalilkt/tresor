@@ -1,5 +1,5 @@
 import { useContext, useEffect, useState } from "react";
-import { AccountInterface } from "../logiC/interfaces";
+import { AccountInterface, VaultInterface } from "../logiC/interfaces";
 import { Input } from "./comps";
 import axios from "axios";
 import { rootUrl } from "../constants";
@@ -19,17 +19,28 @@ interface ReleveInterface {
     date: string;
     amount: number;
     operation_name: string;
-    type: "disbursement" | "collection";
+    type: OperationType;
     meta_data: {
       [key: string]: string;
     };
   }[];
 }
 
+type OperationType =
+  | "disbursement"
+  | "collection"
+  | "fund_transfer"
+  | "deposit"
+  | "withdrawal";
+
+const debitOperations = ["disbursement", "withdrawal"];
+const creditOperations = ["collection", "fund_transfer", "deposit"];
 export function BankStatementDialog({
   account,
+  type,
 }: {
-  account: AccountInterface;
+  account: AccountInterface | VaultInterface;
+  type: "account" | "vault";
 }) {
   const [data, setData] = useState<ReleveInterface | null>(null);
   const [startDate, setStartDate] = useState<string>("");
@@ -50,12 +61,17 @@ export function BankStatementDialog({
     if (!startDate || !endDate) return;
     setData(null);
     try {
-      const ret = await axios.get(`${rootUrl}accounts/${account.id}/releve`, {
-        params: { start_date: startDate, end_date: endDate },
-        headers: {
-          Authorization: "Token " + token,
-        },
-      });
+      // check if account is account or vault
+
+      const ret = await axios.get(
+        `${rootUrl}${type === "account" ? "accounts" : "vaults"}/${account.id}/releve`,
+        {
+          params: { start_date: startDate, end_date: endDate },
+          headers: {
+            Authorization: "Token " + token,
+          },
+        }
+      );
       setData(ret.data);
     } catch (e) {
       console.log(e);
@@ -124,10 +140,16 @@ export function BankStatementDialog({
                       <Td className="font-medium">{releve.operation_name}</Td>
 
                       <Td className="font-medium">
-                        {releve.type === "disbursement" ? releve.amount : ""}
+                        {debitOperations.includes(releve.type)
+                          ? releve.amount
+                          : ""
+                            ? releve.amount
+                            : ""}
                       </Td>
                       <Td className="font-medium">
-                        {releve.type === "collection" ? releve.amount : ""}
+                        {creditOperations.includes(releve.type)
+                          ? releve.amount
+                          : ""}
                       </Td>
                     </Tr>
                   ))}
@@ -139,12 +161,13 @@ export function BankStatementDialog({
       </div>
       {createPortal(
         <div
-          className="absolute print:opacity-100 opacity-0 -z-50 pointer-events-none"
+          className="absolute print:opacity-100 opacity-0 -z-50 pointer-events-none text-sm"
           ref={printRef}
         >
           <PrintPage>
             <h1 className="text-center text-2xl my-10">
-              Relevé de compte :{account.number} {account.name}
+              Relevé de {type === "account" ? "compte" : "Caisse"} :
+              {"number" in account ? account.number : ""} {account.name}
             </h1>
             <div className="flex justify-between mb-4">
               <span>
@@ -175,12 +198,12 @@ export function BankStatementDialog({
                     </td>
 
                     <td className=" border px-1 text-end">
-                      {detail.type === "disbursement"
+                      {debitOperations.includes(detail.type)
                         ? formatAmount(detail.amount)
                         : ""}
                     </td>
                     <td className=" border px-1 text-end">
-                      {detail.type === "collection"
+                      {creditOperations.includes(detail.type)
                         ? formatAmount(detail.amount)
                         : ""}
                     </td>
@@ -194,7 +217,7 @@ export function BankStatementDialog({
                   <td className=" border px-1 text-end">
                     {formatAmount(
                       data?.data.reduce((acc, cur) => {
-                        return cur.type === "disbursement"
+                        return debitOperations.includes(cur.type)
                           ? acc + cur.amount
                           : acc;
                       }, 0) || 0
@@ -203,7 +226,7 @@ export function BankStatementDialog({
                   <td className=" border px-1 text-end">
                     {formatAmount(
                       data?.data.reduce((acc, cur) => {
-                        return cur.type === "collection"
+                        return creditOperations.includes(cur.type)
                           ? acc + cur.amount
                           : acc;
                       }, 0) || 0

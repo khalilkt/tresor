@@ -40,10 +40,12 @@ type CollectionOperationType = "operation" | "versement" | "rejected";
 
 function ExcelImportDialog({
   onSubmit,
+  type,
 }: {
   // should return a function that we can await
 
   onSubmit: (data: CollectionOperationForm) => Promise<void>;
+  type: CollectionOperationType;
 }) {
   const accounts = useContext(AuthContext).authData!.accounts;
 
@@ -57,6 +59,26 @@ function ExcelImportDialog({
     type: "operation",
     file: null,
   });
+
+  useEffect(() => {
+    if (type !== "operation") {
+      setFormData({
+        ...formData,
+        type: type,
+        details: [
+          {
+            montant: 0,
+            destination_account: accounts[0].id,
+            name: "-",
+            banq_name: "-",
+            cheque_number: "-",
+          },
+        ],
+        beneficiaire: "-",
+        file: null,
+      });
+    }
+  }, []);
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -213,7 +235,7 @@ function ExcelImportDialog({
   return (
     <div className="flex flex-col">
       <div className="flex w-full flex-col gap-y-4 lg:w-[400px]">
-        <div className="flex gap-x-2">
+        {/* <div className="flex gap-x-2">
           <button
             className={`flex-1 p-2 rounded-lg ${
               formData.type === "operation"
@@ -285,7 +307,7 @@ function ExcelImportDialog({
           >
             Rejet
           </button>
-        </div>
+        </div> */}
         {(formData.type === "operation" || formData.type === "versement") && (
           <div className="flex items-center justify-center w-full">
             <label
@@ -593,6 +615,7 @@ export default function EncaissementPage() {
           onSubmit={async function (data) {
             await createCollectionOperation(data);
           }}
+          type={selectedType}
         />
       </MDialog>
       <MDialog

@@ -80,7 +80,7 @@ function CreateVaultDialog({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [vaults, setVaults] = useState<VaultInterface[] | null>(null);
   const [formData, setFormData] = useState<VaultDepositForm>({
-    vault: null,
+    vault: selectedGroup === 1 ? 1 : null,
     amount: 0,
     motif: "",
     versement_number: "",
@@ -120,7 +120,7 @@ function CreateVaultDialog({
 
   return (
     <div className="flex w-full flex-col gap-y-4 lg:w-[400px]">
-      {selectedGroup === 1 && (
+      {/* {selectedGroup === 1 && (
         <div className="w-full justify-center flex gap-x-3">
           <button
             onClick={() => {
@@ -143,7 +143,7 @@ function CreateVaultDialog({
             Virement bancaire
           </button>
         </div>
-      )}
+      )} */}
       <Select
         value={formData.vault ?? ""}
         onChange={(e) =>
@@ -271,7 +271,6 @@ export default function VaultDepositsPage() {
     let params = new URLSearchParams(searchParams);
     if (!params.has("group")) {
       params.set("group", "1");
-      params.set("page", "1");
     }
     try {
       const response = await axios.get(rootUrl + "vaults/deposit", {
@@ -343,6 +342,9 @@ export default function VaultDepositsPage() {
       }
     }
   }
+
+  const user = useContext(AuthContext).authData?.user;
+
   return (
     <div className="flex flex-col items-start gap-y-10 px-8 pb-12 pt-12 lg:px-10 lg:pb-0 lg:pt-20l">
       <MDialog
@@ -393,7 +395,9 @@ export default function VaultDepositsPage() {
       <Title>Operation de depots</Title>
 
       <div className="flex justify-center gap-x-2 w-full">
-        {VAULT_GROUPS.map((group) => (
+        {VAULT_GROUPS.filter((group) =>
+          user?.assigned_vault_groups.includes(group.id)
+        ).map((group) => (
           <button
             onClick={() => {
               setSearchParams((params) => {

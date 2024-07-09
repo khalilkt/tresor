@@ -73,7 +73,7 @@ function CreateVaultWithdrawalDialog({
 
   const [formData, setFormData] = useState<VaultWithdrawalForm>({
     account: null,
-    vault: null,
+    vault: selectedGroup === 1 ? 1 : null,
     amount: 0,
     motif: "",
   });
@@ -132,7 +132,7 @@ function CreateVaultWithdrawalDialog({
             }}
             className={`py-2 px-3 rounded font-medium transition-all ${type === "fund_transfer" ? "bg-primary text-white" : ""}`}
           >
-            Dégagemnt de fonds
+            Dégagement de fonds
           </button>
         </div>
       )}
@@ -269,7 +269,6 @@ export default function VaultWithdrawalsPage() {
     try {
       if (!params.has("group")) {
         params.set("group", "1");
-        params.set("page", "1");
       }
       const response = await axios.get(rootUrl + "vaults/withdrawal", {
         headers: {
@@ -341,6 +340,7 @@ export default function VaultWithdrawalsPage() {
     }
   }
 
+  const user = useContext(AuthContext).authData!.user;
   return (
     <div className="flex flex-col items-start gap-y-10 px-8 pb-12 pt-12 lg:px-10 lg:pb-0 lg:pt-20l">
       <MDialog
@@ -390,7 +390,9 @@ export default function VaultWithdrawalsPage() {
 
       <Title>Opérations de retrait</Title>
       <div className="flex justify-center gap-x-2 w-full">
-        {VAULT_GROUPS.map((group) => (
+        {VAULT_GROUPS.filter((group) =>
+          user?.assigned_vault_groups.includes(group.id)
+        ).map((group) => (
           <button
             onClick={() => {
               setSearchParams((params) => {

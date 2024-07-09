@@ -36,11 +36,11 @@ class User(AbstractBaseUser):
     name = models.CharField(max_length=255)
     is_admin = models.BooleanField(default=False)
     is_superuser = models.BooleanField(default=False)
-    has_vaults_access = models.BooleanField(default=False)
     has_accounts_access = models.BooleanField(default=True)
     is_active = models.BooleanField(default=True)
     REQUIRED_FIELDS = ['name']
     USERNAME_FIELD = 'username'
+    assigned_vault_groups = models.ManyToManyField('tresor.VaultGroup', related_name='assigned_users')
 
     objects = UserManager()
 
@@ -62,7 +62,10 @@ class UserSerializer(serializers.ModelSerializer):
         user = User.objects.create_user(username=validated_data['username'], password=validated_data['password'], name=validated_data['name'])
         user.is_admin = validated_data.get('is_admin', False)
         user.has_accounts_access = validated_data.get('has_accounts_access', True)
-        user.has_vaults_access = validated_data.get('has_vaults_access', False)
+        # update assigned vault groups
+        if 'assigned_vault_groups' in validated_data:
+            user.assigned_vault_groups.set(validated_data['assigned_vault_groups'])
+        
         user.save()
         return user
 
@@ -71,7 +74,8 @@ class UserSerializer(serializers.ModelSerializer):
         instance.username = validated_data.get('username', instance.username)   
         instance.is_superuser = validated_data.get('is_superuser', instance.is_superuser)
         instance.has_accounts_access = validated_data.get('has_accounts_access', instance.has_accounts_access)
-        instance.has_vaults_access = validated_data.get('has_vaults_access', instance.has_vaults_access)
+        if 'assigned_vault_groups' in validated_data:
+            instance.assigned_vault_groups.set(validated_data['assigned_vault_groups'])
         if "password" in validated_data:
             instance.set_password(validated_data['password'])
         instance.save()

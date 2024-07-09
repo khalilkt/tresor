@@ -17,6 +17,7 @@ import {
   ViewIcon,
 } from "../components/icons";
 import DisbursementOperationDetailDialog from "../components/disbusement_operation_dialog";
+import { VAULT_GROUPS } from "./vaults_deposit";
 
 // user form is userinterface without id and with password
 type UserForm = Omit<
@@ -221,6 +222,7 @@ export default function AgentsPage() {
       alert("Une erreur s'est produite. Veuillez réessayer.");
     }
   }
+  const user = useContext(AuthContext).authData?.user;
   return (
     <div className="flex flex-col items-start gap-y-10 px-8 pb-12 pt-12 lg:px-10 lg:pb-0 lg:pt-20l">
       <MDialog
@@ -242,10 +244,20 @@ export default function AgentsPage() {
                 type="password"
               />
             )}
-            <div className="flex justify-between col-span-2 px-10">
-              <div className="flex items-center gap-x-3 ">
-                <input id="has_vaults_access" type="checkbox" className="" />
-                <label className="text-medium text-gray">Accès Caisses</label>
+            <div className="flex flex-col justify-between col-span-2 px-2">
+              <div className="flex flex-col">
+                {VAULT_GROUPS.map((group) => (
+                  <div className="flex items-center gap-x-3 ">
+                    <input
+                      id={`GROUP_ACCESS_${group.id}`}
+                      type="checkbox"
+                      className=""
+                    />
+                    <label className="text-medium text-gray">
+                      {group.name}
+                    </label>
+                  </div>
+                ))}
               </div>
               <div className="flex items-center gap-x-3 ">
                 <input id="has_accounts_access" type="checkbox" className="" />
@@ -274,16 +286,25 @@ export default function AgentsPage() {
                   document.getElementById(PASSWORD_INPUT_ID) as HTMLInputElement
                 ).value;
 
-                const hasVaultsAccess = (
-                  document.getElementById(
-                    "has_vaults_access"
-                  ) as HTMLInputElement
-                ).checked;
                 const hasAccountsAccess = (
                   document.getElementById(
                     "has_accounts_access"
                   ) as HTMLInputElement
                 ).checked;
+
+                const vaultsAccess = VAULT_GROUPS.map((group) => {
+                  return {
+                    group: group.id,
+                    access: (
+                      document.getElementById(
+                        `GROUP_ACCESS_${group.id}`
+                      ) as HTMLInputElement
+                    ).checked,
+                  };
+                });
+                const assigned_groups = vaultsAccess
+                  .filter((group) => group.access)
+                  .map((group) => group.group);
                 createUser({
                   name,
                   username,
@@ -291,7 +312,7 @@ export default function AgentsPage() {
                   is_admin: false,
                   is_superuser: false,
                   has_accounts_access: hasAccountsAccess,
-                  has_vaults_access: hasVaultsAccess,
+                  assigned_vault_groups: assigned_groups,
                 });
               }}
               className="col-span-1"

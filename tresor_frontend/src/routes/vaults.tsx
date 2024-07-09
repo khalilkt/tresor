@@ -13,6 +13,7 @@ import { BankStatementDialog } from "../components/bank_statement_dialog";
 import { PrintPage } from "../components/print_page";
 import { useReactToPrint } from "react-to-print";
 import { formatAmount, numberToFrench } from "../logiC/utils";
+import { VAULT_GROUPS } from "./vaults_deposit";
 
 function EditVaultDialog({
   onSubmit,
@@ -137,6 +138,9 @@ export default function VaultsPage() {
   async function load() {
     let params = new URLSearchParams(searchParams);
 
+    if (!params.get("group")) {
+      params.set("group", "1");
+    }
     try {
       const response = await axios.get(rootUrl + "vaults", {
         headers: {
@@ -188,6 +192,8 @@ export default function VaultsPage() {
     return acc + vault.balance;
   }, 0);
 
+  const user = useContext(AuthContext).authData?.user;
+
   return (
     <div className="flex flex-col items-start gap-y-10 px-8 pb-12 pt-12 lg:px-10 lg:pb-0 lg:pt-20l">
       <MDialog
@@ -209,6 +215,15 @@ export default function VaultsPage() {
           }}
         />
       </MDialog>
+      <MDialog
+        isOpen={dialogState.state === "bank_statement"}
+        title={`Relevé bancaire de ${dialogState.payload?.name}`}
+        onClose={function (): void {
+          setDialogState({ state: "none" });
+        }}
+      >
+        <BankStatementDialog account={dialogState.payload} type="vault" />
+      </MDialog>
       {/* <MDialog
         isOpen={dialogState.state === "bank_statement"}
         title={`Relevé bancaire de ${dialogState.payload?.name}`}
@@ -221,6 +236,24 @@ export default function VaultsPage() {
       </MDialog> */}
 
       <Title>Caisse</Title>
+      <div className="flex justify-center gap-x-2 w-full">
+        {VAULT_GROUPS.filter((group) =>
+          user?.assigned_vault_groups.includes(group.id)
+        ).map((group) => (
+          <button
+            onClick={() => {
+              setSearchParams((params) => {
+                params.set("group", group.id.toString());
+                params.set("page", "1");
+                return params;
+              });
+            }}
+            className={`py-2 px-3 rounded font-medium ${parseInt(searchParams.get("group") ?? "1") === group.id ? "bg-primary text-white" : ""}`}
+          >
+            {group.name}
+          </button>
+        ))}
+      </div>
       <div className="flex justify-end w-full gap-x-2 ">
         {/* <SearchBar
                                         id="search-bar"
@@ -259,7 +292,7 @@ export default function VaultsPage() {
                 <Td className="font-medium">{formatAmount(vault.balance)}</Td>
                 <Td className="font-medium">
                   <div className="gap-x-4 justify-center flex">
-                    {/* <button
+                    <button
                       onClick={() => {
                         setDialogState({
                           state: "bank_statement",
@@ -268,7 +301,7 @@ export default function VaultsPage() {
                       }}
                     >
                       <BankStatementIcon />
-                    </button> */}
+                    </button>
                     <button
                       onClick={() => {
                         setDialogState({
@@ -288,7 +321,7 @@ export default function VaultsPage() {
       </table>
       <div
         ref={printRef}
-        className="absolute print:opacity-100 opacity-0 -z-50 scale-0 print:scale-100 pointer-events-none"
+        className="absolute print:opacity-100 opacity-0 -z-50 scale-0 text-sm print:scale-100 pointer-events-none"
       >
         <PrintPage>
           <h1 className="text-center text-2xl font-medium my-10">

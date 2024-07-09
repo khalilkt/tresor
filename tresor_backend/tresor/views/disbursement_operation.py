@@ -16,8 +16,8 @@ class DisbursementOperationListCreateView(ListCreateAPIView):
 
     def get_queryset(self):
         user = self.request.user
-        if user.is_admin:
-            return DisbursementOperation.objects.all()
+        # if user.is_admin:
+        return DisbursementOperation.objects.all()
         return DisbursementOperation.objects.filter(created_by=user)
 
     def filter_queryset(self, queryset):

@@ -18,8 +18,7 @@ class CollectionOperationListCreateView(ListCreateAPIView):
 
     def get_queryset(self):
         user = self.request.user
-        if user.is_admin:
-            return CollectionOperation.objects.all()
+        return CollectionOperation.objects.all()
         return CollectionOperation.objects.filter(created_by=user)
 
     def filter_queryset(self, queryset):

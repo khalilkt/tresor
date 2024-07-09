@@ -8,6 +8,8 @@ from django.db.models import F , Value
 from ..models import DisbursementOperation, CollectionOperation, CollectionOperationDetail
 from rest_framework import serializers
 from django.db.models import Sum
+from ..models import Vault
+from tresor.models.vault import Vault, VaultDeposit, VaultWithdrawal
 
 class AccountViewSet(ModelViewSet):
     permission_classes = [IsAdminUser]
@@ -38,6 +40,14 @@ class StatsView(APIView):
         disbursements_count = filter_query_by_date(DisbursementOperation.objects, date).count()
         accounts_count = Account.objects.count()
 
+        total_vault_solde = Vault.objects.aggregate(total_solde= Sum('balance'))['total_solde']
+        total_vault_deposit = filter_query_by_date(VaultDeposit.objects, date, "created_at").aggregate(total_deposit= Sum('amount'))['total_deposit'] or 0
+        total_vault_withdrawal = filter_query_by_date(VaultWithdrawal.objects, date, "created_at").aggregate(total_withdrawal= Sum('amount'))['total_withdrawal'] or 0
+        deposits_count = filter_query_by_date(VaultDeposit.objects, date, "created_at").count()
+        withdrawals_count = filter_query_by_date(VaultWithdrawal.objects, date, "created_at").count()
+        vaults_count = Vault.objects.count()
+
+
 
         return Response({
             "total_solde": total_solde,
@@ -45,7 +55,14 @@ class StatsView(APIView):
             "total_collection": total_collection, 
             "collections_count": collections_count,
             "disbursements_count": disbursements_count,
-            "accounts_count": accounts_count
+            "accounts_count": accounts_count,
+
+            "total_vault_solde": total_vault_solde,
+            "total_vault_deposit": total_vault_deposit,
+            "total_vault_withdrawal": total_vault_withdrawal,
+            "deposits_count": deposits_count,
+            "withdrawals_count": withdrawals_count,
+            "vaults_count": vaults_count
         })
     
 
@@ -90,6 +107,16 @@ class AccountReleve(APIView):
                 "type": "disbursement",
                 "meta_data": {
                     "account_name": operation.account.name
+                }
+            })
+        for fund_transfer in account.fund_transfers.filter(created_at__gte=start_date, created_at__lte=end_date):
+            releve.append({
+                "date": fund_transfer.created_at.date(),
+                "amount": fund_transfer.amount, 
+                "operation_name": fund_transfer.motif,
+                "type": "fund_transfer",
+                "meta_data": {
+                    "account_name": fund_transfer.account.name
                 }
             })
         releve.sort(key=lambda x: x['date'])

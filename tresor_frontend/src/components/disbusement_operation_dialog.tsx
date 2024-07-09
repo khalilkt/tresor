@@ -255,7 +255,7 @@ export default function DisbursementOperationDetailDialog({
                 )
                 .map((group) => (
                   <PrintPage>
-                    <div className="flex flex-col gap-y-3 pt-8 pb-6">
+                    <div className="flex flex-col gap-y-3 pt-8 pb-6 text-sm">
                       <h3 className="text-base font-medium">
                         Ordre
                         {" de décaissement "}
@@ -321,7 +321,7 @@ export default function DisbursementOperationDetailDialog({
             {selectedOption === "all" && (
               <PrintPage>
                 {selectedOption === "all" && (
-                  <div className="mt-2 mb-5 w-full text-center flex-col gap-y-2 items-center ">
+                  <div className="mt-2 mb-5 w-full text-center flex-col gap-y-2 items-center text-sm">
                     <h3 className=" text-2xl font-semibold text-center">
                       Ordre
                       {" de décaissement "}

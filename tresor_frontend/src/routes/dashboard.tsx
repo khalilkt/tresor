@@ -1,10 +1,19 @@
-import { useContext, useEffect, useState } from "react";
+import { ReactNode, useContext, useEffect, useState } from "react";
 import { Input, Select, Title } from "../components/comps";
 import { useSearchParams } from "react-router-dom";
 import axios from "axios";
 import { AuthContext } from "../App";
 import { rootUrl } from "../constants";
 import { numberToFrench } from "../logiC/utils";
+
+function Tile({ title, value }: { title: ReactNode; value: ReactNode }) {
+  return (
+    <div className="flex flex-col items-center gap-y-2 p-4 bg-white rounded-lg shadow border border-gray">
+      <h3 className="text-3xl font-semibold text-primary">{value}</h3>
+      <p className="text-gray">{title}</p>
+    </div>
+  );
+}
 
 export default function DashboardPage() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -17,6 +26,13 @@ export default function DashboardPage() {
     collections_count: number;
     disbursements_count: number;
     accounts_count: number;
+
+    total_vault_solde: number;
+    total_vault_deposit: number;
+    total_vault_withdrawal: number;
+    deposits_count: number;
+    withdrawals_count: number;
+    vaults_count: number;
   } | null>(null);
 
   let selectedDateRange: "days" | "months" | "years" | null = null;
@@ -190,6 +206,30 @@ export default function DashboardPage() {
             </h3>
             <p className="text-gray">Nombre de comptes</p>
           </div>
+        )}
+        {!searchParams.get("date") && (
+          <Tile
+            title="Solde des caisses"
+            value={data?.total_vault_solde + " MRU"}
+          />
+        )}
+        <hr className="my-4 col-span-3 border-gray w-[80%] mx-auto" />
+        {
+          <>
+            <Tile
+              title="Total des dépôts"
+              value={data?.total_vault_deposit + " MRU"}
+            />
+            <Tile
+              title="Total des retraits"
+              value={data?.total_vault_withdrawal + " MRU"}
+            />
+            <Tile title="Nombre de dépôts" value={data?.deposits_count} />
+            <Tile title="Nombre de retraits" value={data?.withdrawals_count} />
+          </>
+        }
+        {!searchParams.get("date") && (
+          <Tile title="Nombre de caisses" value={data?.vaults_count} />
         )}
       </div>
     </div>
