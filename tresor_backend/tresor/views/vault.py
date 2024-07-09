@@ -107,8 +107,10 @@ class VaultReleve(APIView):
             return Response({"error": "Vault not found"}, status=404)
         
         releve = []
+        total_change = 0
 
         for deposit in vault.deposits.filter(created_at__gte=start_date, created_at__lte=end_date):
+            total_change += deposit.amount
             releve.append({
                 "date": deposit.created_at,
                 "amount": deposit.amount,
@@ -119,6 +121,7 @@ class VaultReleve(APIView):
                 }
             })
         for withdrawal in vault.withdrawals.filter(created_at__gte=start_date, created_at__lte=end_date):
+            total_change -= withdrawal.amount
             releve.append({
                 "date": withdrawal.created_at,
                 "amount": withdrawal.amount,
@@ -130,11 +133,11 @@ class VaultReleve(APIView):
             })
         
         releve = sorted(releve, key=lambda x: x["date"])
-
+        end_date_balance = vault.get_solde_at_date(end_date)
         return Response(
             { 
-                "start_date_balance": vault.get_solde_at_date(start_date),
-                "end_date_balance" : vault.get_solde_at_date(end_date),
+                "start_date_balance": end_date_balance - total_change,
+                "end_date_balance" : end_date_balance,
                 "data": releve
             }
         )

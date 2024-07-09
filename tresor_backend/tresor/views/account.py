@@ -82,7 +82,9 @@ class AccountReleve(APIView):
             return Response({"error": "Account not found"}, status=404)
 
         releve = []
+        total_change = 0
         for operation_detail in account.collection_operations_details.filter(parent__date__gte=start_date, parent__date__lte=end_date):
+            total_change += operation_detail.montant
             operation_name = operation_detail.parent.motif
             if operation_detail.parent.type == "operation":
                 operation_name =  "Versement de cheque N° " + operation_detail.cheque_number
@@ -100,6 +102,7 @@ class AccountReleve(APIView):
                 "type": "collection"    
             })
         for operation in account.disbursement_operations.filter(date__gte=start_date, date__lte=end_date):
+            total_change -= operation.total
             releve.append({
                 "date": operation.date,
                 "amount": operation.total,
@@ -110,6 +113,7 @@ class AccountReleve(APIView):
                 }
             })
         for fund_transfer in account.fund_transfers.filter(created_at__gte=start_date, created_at__lte=end_date):
+            total_change += fund_transfer.amount
             releve.append({
                 "date": fund_transfer.created_at.date(),
                 "amount": fund_transfer.amount, 
@@ -122,10 +126,11 @@ class AccountReleve(APIView):
         releve.sort(key=lambda x: x['date'])
 
         serializer = ReleveSerializer(releve, many=True)
-    
+
+        end_date_solde = account.get_solde_at_date(end_date)
         return Response(
            { 
-               "start_date_balance": account.get_solde_at_date(start_date),
-             "end_date_balance": account.get_solde_at_date(end_date),
+            "start_date_balance": end_date_solde - total_change,
+            "end_date_balance":  end_date_solde,
             "data": serializer.data}
         )
