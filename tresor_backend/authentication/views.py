@@ -20,9 +20,12 @@ from django_filters.rest_framework import DjangoFilterBackend
 
 def get_response(user : User, token : Token):
     accounts = Account.objects.all()
+    user = UserSerializer(user).data
+    if user['is_admin'] or user['is_superuser']:
+        user["assigned_vault_groups"] = [1,2,3]
     return Response({
         'token': token.key,
-        "user" : UserSerializer(user).data,
+        "user" : user,
         "accounts" : AccountSerializer(accounts, many=True).data
     })
 

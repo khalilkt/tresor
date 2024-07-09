@@ -177,7 +177,9 @@ export default function AgentsPage() {
         },
         params,
       });
-      setUsersData(response.data);
+      const users = response.data;
+
+      setUsersData(users);
     } catch (e) {
       console.log(e);
     }

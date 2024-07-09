@@ -28,8 +28,8 @@ class Vault(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     def get_solde_at_date(self, date):
-        deposits = self.deposits.filter(created_at__gt=date)
-        withdrawals = self.withdrawals.filter(created_at__gt=date)
+        deposits = self.deposits.filter(created_at__gte=date)
+        withdrawals = self.withdrawals.filter(created_at__gte=date)
         solde = self.balance
         for deposit in deposits:
             solde -= deposit.amount

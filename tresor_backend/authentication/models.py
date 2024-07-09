@@ -41,7 +41,7 @@ class User(AbstractBaseUser):
     REQUIRED_FIELDS = ['name']
     USERNAME_FIELD = 'username'
     assigned_vault_groups = models.ManyToManyField('tresor.VaultGroup', related_name='assigned_users')
-
+    
     objects = UserManager()
 
     @property
