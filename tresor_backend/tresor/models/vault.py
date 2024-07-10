@@ -43,7 +43,6 @@ class VaultSerializer(serializers.ModelSerializer):
     class Meta:
         model = Vault
         fields = '__all__'
-        
 
 class VaultDeposit(models.Model):
     vault = models.ForeignKey(Vault, on_delete=models.CASCADE, related_name="deposits")
@@ -51,7 +50,9 @@ class VaultDeposit(models.Model):
     motif = models.TextField()
     versement_number = models.CharField(max_length=255, null=True, blank=True)
     date = models.DateField()
-    ref = models.CharField(max_length=255, default="")
+    ref = models.CharField(max_length=255, default="", blank=True)
+    created_by = models.ForeignKey('authentication.User', on_delete=models.PROTECT, related_name='deposits')
+
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -62,8 +63,10 @@ class VaultDepositSerializer(serializers.ModelSerializer):
     class Meta:
         model = VaultDeposit
         fields = '__all__'
+        read_only_fields = ['created_by']
 
     def create(self, validated_data):
+        validated_data['created_by'] = self.context['request'].user
         instance = super().create(validated_data)
         vault = instance.vault
         vault.balance += instance.amount
@@ -77,6 +80,8 @@ class VaultWithdrawal(models.Model):
     account = models.ForeignKey(Account, on_delete=models.CASCADE, null=True, blank=True, related_name="fund_transfers")#if account is not null => degagement de fonds
     date = models.DateField()
     ref = models.CharField(max_length=255, default="")
+    created_by = models.ForeignKey('authentication.User', on_delete=models.PROTECT, related_name='withdrawals')
+
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -84,9 +89,12 @@ class VaultWithdrawal(models.Model):
 class VaultWithdrawalSerializer(serializers.ModelSerializer):
     vault_name = serializers.CharField(read_only=True)
     account_name = serializers.CharField(read_only=True)
+    
+
     class Meta:
         model = VaultWithdrawal
         fields = '__all__'
+        read_only_fields = ['created_by']
     
     def validate_amount(self, value):
         if value <= 0:
@@ -98,6 +106,8 @@ class VaultWithdrawalSerializer(serializers.ModelSerializer):
         return value
 
     def create(self, validated_data):
+        validated_data['created_by'] = self.context['request'].user
+
         with transaction.atomic():
             instance = super().create(validated_data)
             vault = instance.vault

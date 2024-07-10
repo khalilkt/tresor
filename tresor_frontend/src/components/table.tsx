@@ -16,7 +16,7 @@ export function Td({
   return (
     <td
       {...tdProps}
-      className={`border-b border-b-primaryBorder ${tdProps.className ?? ""} ${isSmall ? "px-4 py-1 print:p-0" : "print-p px-7 py-3"}`}
+      className={`border-b print:border border-b-primaryBorder print:border-black ${tdProps.className ?? ""} ${isSmall ? "px-4 py-1 print:p-0" : "print-p px-7 py-3"}`}
     >
       {children}
     </td>

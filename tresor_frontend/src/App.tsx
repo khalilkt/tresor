@@ -30,6 +30,10 @@ export interface AuthData {
   token: string;
   user: UserInterface;
   accounts: AccountInterface[];
+  users: {
+    id: number;
+    name: string;
+  }[];
 }
 export const AuthContext = React.createContext<{
   inited: boolean;

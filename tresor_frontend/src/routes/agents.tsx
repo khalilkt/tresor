@@ -259,7 +259,9 @@ function AddEditUserDialog({
               });
             }}
           />
-          <label className="text-medium text-gray">Accès Comptes</label>
+          <label className="text-medium text-gray">
+            Accès Comptes Bancaire
+          </label>
         </div>
       </div>
       <FilledButton

@@ -8,7 +8,7 @@ import {
 } from "../logiC/interfaces";
 import { Pagination, TableBodySquelette, Td, Tr } from "../components/table";
 import { Input, SearchBar, Select, Textarea, Title } from "../components/comps";
-import { FilledButton } from "../components/buttons";
+import { FilledButton, OutlinedButton } from "../components/buttons";
 import axios, { AxiosError } from "axios";
 import { rootUrl } from "../constants";
 import { AuthContext } from "../App";
@@ -24,6 +24,9 @@ import {
 } from "../components/icons";
 import { formatAmount, formatDate } from "../logiC/utils";
 import { DateFilter } from "../components/date_filter";
+import { PrintPage } from "../components/print_page";
+import { useReactToPrint } from "react-to-print";
+import React from "react";
 export const VAULT_GROUPS = [
   {
     id: 1,
@@ -248,10 +251,21 @@ export default function VaultDepositsPage() {
   const [deletingId, setDeletingId] = useState<number | null>(null);
   const user = useContext(AuthContext).authData?.user;
 
+  const printRef = React.createRef<HTMLDivElement>();
+
+  const handlePrint = useReactToPrint({
+    onBeforeGetContent() {},
+    content: () => {
+      return printRef.current;
+    },
+    onAfterPrint: () => {},
+  });
+
   const [vaultDepositData, setVaultDepositData] =
     useState<PaginatedData<VaultDepositInterface> | null>(null);
 
   const [searchParams, setSearchParams] = useSearchParams();
+  const userList = useContext(AuthContext).authData!.users;
 
   const token = useContext(AuthContext).authData!.token;
   const searchTimer = useRef<NodeJS.Timeout>();
@@ -454,15 +468,45 @@ export default function VaultDepositsPage() {
               });
             }}
           />
+          <Select
+            value={searchParams.get("created_by") ?? ""}
+            onChange={(e) => {
+              setSearchParams((params) => {
+                if (e.target.value) {
+                  params.set("created_by", e.target.value);
+                } else {
+                  params.delete("created_by");
+                }
+                params.set("page", "1");
+
+                return params;
+              });
+            }}
+          >
+            <option value="">Tous les agents</option>
+            {isAdmin &&
+              userList.map((user) => (
+                <option value={user.id}>{user.name}</option>
+              ))}
+          </Select>
         </div>
-        <FilledButton
-          className="rounded-lg bg-primary p-2 text-white"
-          onClick={() => {
-            setIsVaultCreateDialog(true);
-          }}
-        >
-          Ajouter
-        </FilledButton>
+        <div className="flex gap-x-2">
+          <OutlinedButton
+            onClick={() => {
+              handlePrint();
+            }}
+          >
+            Imprimer
+          </OutlinedButton>
+          <FilledButton
+            className="rounded-lg bg-primary p-2 text-white"
+            onClick={() => {
+              setIsVaultCreateDialog(true);
+            }}
+          >
+            Ajouter
+          </FilledButton>
+        </div>
       </div>
       <table className="hidden w-full text-center text-lg lg:table">
         <thead className="">
@@ -471,12 +515,12 @@ export default function VaultDepositsPage() {
               Motif
             </th>
             <th className="text-medium py-3 text-start text-base">Caisse</th>
-
+            {selectedGroup === 2 && (
+              <th className="text-medium py-3 text-start text-base">AD</th>
+            )}
             <th className="text-medium py-3 text-start text-base">Montant</th>
             <th className="text-medium py-3 text-start text-base">Date</th>
-            {/* {isAdmin && (
-              <th className="text-medium py-3 text-start text-base">Agent</th>
-            )} */}
+
             {isAdmin && (
               <th className="text-medium py-3 text-start text-base">Actions</th>
             )}
@@ -492,6 +536,9 @@ export default function VaultDepositsPage() {
                 <Td className="p-0 px-0 pl-0 text-start">
                   {deposit.vault_name}
                 </Td>
+                {selectedGroup === 2 && (
+                  <Td className="p-0 px-0 pl-0 text-start">{deposit.ref}</Td>
+                )}
                 <Td className="p-0 px-0 pl-0 font-medium text-start">
                   {formatAmount(deposit.amount)}
                 </Td>
@@ -521,6 +568,60 @@ export default function VaultDepositsPage() {
           </tbody>
         )}
       </table>
+      <div
+        ref={printRef}
+        className="-z-50 opacity-0 print:opacity-100 absolute"
+      >
+        <PrintPage>
+          <table className="w-full text-center text-lg">
+            <thead>
+              <tr className="font-bold text-black">
+                <th className="text-medium w-[25%] py-2 text-center text-base">
+                  Motif
+                </th>
+                <th className="text-medium py-2 text-center text-base">
+                  Caisse
+                </th>
+                {selectedGroup === 2 && (
+                  <th className="text-medium py-2 text-center text-base">AD</th>
+                )}
+
+                <th className="text-medium py-2 text-center text-base">
+                  Montant
+                </th>
+                <th className="text-medium py-2 text-center text-base">Date</th>
+              </tr>
+            </thead>
+            {!vaultDepositData ? (
+              <TableBodySquelette columnCount={isAdmin ? 6 : 7} />
+            ) : (
+              <tbody>
+                {vaultDepositData.data?.map((deposit, i) => (
+                  <Tr>
+                    <Td className="p-0 px-0 pl-0 text-start">
+                      {deposit.motif}
+                    </Td>
+                    <Td className="p-0 px-0 pl-0 text-start">
+                      {deposit.vault_name}
+                    </Td>
+                    {selectedGroup === 2 && (
+                      <Td className="p-0 px-0 pl-0 text-start">
+                        {deposit.ref}
+                      </Td>
+                    )}
+                    <Td className="p-0 px-0 pl-0 font-medium text-start">
+                      {formatAmount(deposit.amount)}
+                    </Td>
+                    <Td className="p-0 px-0 pl-0 font-medium text-start">
+                      {formatDate(deposit.date.split("T")[0])}
+                    </Td>
+                  </Tr>
+                ))}
+              </tbody>
+            )}
+          </table>
+        </PrintPage>
+      </div>
       <Pagination
         className="mb-10 mt-6 lg:mt-10"
         onItemClick={(page) => {

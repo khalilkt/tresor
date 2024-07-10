@@ -217,7 +217,7 @@ export default function VaultsPage() {
       </MDialog>
       <MDialog
         isOpen={dialogState.state === "bank_statement"}
-        title={`Relevé bancaire de ${dialogState.payload?.name}`}
+        title={`Relevé de ${dialogState.payload?.name}`}
         onClose={function (): void {
           setDialogState({ state: "none" });
         }}

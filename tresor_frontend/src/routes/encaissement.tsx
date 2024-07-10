@@ -7,7 +7,7 @@ import {
 } from "../logiC/interfaces";
 import { Pagination, TableBodySquelette, Td, Tr } from "../components/table";
 import { Input, SearchBar, Select, Textarea, Title } from "../components/comps";
-import { FilledButton } from "../components/buttons";
+import { FilledButton, OutlinedButton } from "../components/buttons";
 import axios from "axios";
 import { rootUrl } from "../constants";
 import { AuthContext } from "../App";
@@ -19,6 +19,9 @@ import CollectionOpearionDetailDialog from "../components/collection_operation_d
 import { ALLOWED_BANK_NAMES } from "./decaissement";
 import { formatAmount } from "../logiC/utils";
 import { DateFilter } from "../components/date_filter";
+import { PrintPage } from "../components/print_page";
+import { useReactToPrint } from "react-to-print";
+import React from "react";
 
 type CollectionDetailForm = Omit<
   CollectionOperationDetail,
@@ -478,11 +481,21 @@ export default function EncaissementPage() {
     useState<PaginatedData<CollectionOperationInterface> | null>(null);
 
   const [searchParams, setSearchParams] = useSearchParams();
-
+  const userList = useContext(AuthContext).authData!.users;
   const token = useContext(AuthContext).authData!.token;
   const searchTimer = useRef<NodeJS.Timeout>();
   const isAdmin = useContext(AuthContext).authData!.user.is_admin;
   const [deletingId, setDeletingId] = useState<number | null>(null);
+
+  const printRef = React.createRef<HTMLDivElement>();
+
+  const handlePrint = useReactToPrint({
+    onBeforeGetContent() {},
+    content: () => {
+      return printRef.current;
+    },
+    onAfterPrint: () => {},
+  });
 
   useEffect(() => {
     load();
@@ -696,16 +709,47 @@ export default function EncaissementPage() {
               });
             }}
           />
-        </div>
+          <Select
+            value={searchParams.get("created_by") ?? ""}
+            onChange={(e) => {
+              setSearchParams((params) => {
+                if (e.target.value) {
+                  params.set("created_by", e.target.value);
+                } else {
+                  params.delete("created_by");
+                }
+                params.set("page", "1");
 
-        <FilledButton
-          className="rounded-lg bg-primary p-2 text-white"
-          onClick={() => {
-            setIsExportDialogOpen(true);
-          }}
-        >
-          Ajouter
-        </FilledButton>
+                return params;
+              });
+            }}
+          >
+            <option value="">Tous les agents</option>
+            {isAdmin &&
+              userList.map((user) => (
+                <option value={user.id}>{user.name}</option>
+              ))}
+          </Select>
+        </div>
+        <div className="flex gap-x-3">
+          <OutlinedButton
+            className="rounded-lg"
+            onClick={() => {
+              handlePrint();
+            }}
+          >
+            Imprimer
+          </OutlinedButton>
+
+          <FilledButton
+            className="rounded-lg bg-primary p-2 text-white"
+            onClick={() => {
+              setIsExportDialogOpen(true);
+            }}
+          >
+            Ajouter
+          </FilledButton>
+        </div>
       </div>
 
       <table className="hidden w-full text-center text-lg lg:table">
@@ -779,6 +823,55 @@ export default function EncaissementPage() {
           </tbody>
         )}
       </table>
+      <div
+        className="-z-50 opacity-0 print:opacity-100 absolute"
+        ref={printRef}
+      >
+        <PrintPage>
+          <table className="w-full text-center text-lg">
+            <thead className="">
+              <tr className="sfont-semibold">
+                <th className="text-medium w-[25%] py-1 text-center border text-base">
+                  Motif
+                </th>
+                <th className="text-medium py-1 text-center border text-base">
+                  OE
+                </th>
+
+                <th className="text-medium py-1 text-center border text-base">
+                  Montant
+                </th>
+                <th className="text-medium py-1 text-center border text-base">
+                  Date
+                </th>
+              </tr>
+            </thead>
+            {!collectionsData ? (
+              <TableBodySquelette columnCount={isAdmin ? 6 : 5} />
+            ) : (
+              <tbody>
+                {collectionsData.data?.map((collectionOperation, i) => (
+                  <tr>
+                    <td className="p-0 px-0 pl-0 border">
+                      {collectionOperation.motif}
+                    </td>
+                    <td className="p-0 px-0 pl-0 border">
+                      {collectionOperation.ref.split("/")[0]}
+                    </td>
+
+                    <td className="p-0 px-0 pl-0 font-medium border">
+                      {formatAmount(collectionOperation.total)}
+                    </td>
+                    <td className="p-0 px-0 pl-0 font-medium border">
+                      {collectionOperation.date.toString()}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            )}
+          </table>
+        </PrintPage>
+      </div>
       <Pagination
         className="mb-10 mt-6 lg:mt-10"
         onItemClick={(page) => {

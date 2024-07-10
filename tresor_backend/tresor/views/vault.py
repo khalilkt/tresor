@@ -40,6 +40,7 @@ class VaultDepositViewSet(viewsets.ModelViewSet):
     serializer_class = VaultDepositSerializer
     permission_classes = [IsAuthenticated]
     ordering = ["-date", '-created_at']
+    filterset_fields = ['created_by']
     search_fields = ['motif']
 
     def get_queryset(self):
@@ -77,6 +78,8 @@ class VaultWithdrawalViewSet(viewsets.ModelViewSet):
     serializer_class = VaultWithdrawalSerializer
     permission_classes = [IsAuthenticated]
     ordering = ["-date" , '-created_at']
+    filterset_fields = ['created_by']
+
     search_fields = ['motif']
 
     def destroy(self, request, *args, **kwargs):

@@ -8,6 +8,7 @@ import {
   DisbursementIcon,
   FileIcon,
   StatsIcon,
+  VaultIcon,
 } from "./icons";
 import { DisconnectButton, FilledButton } from "./buttons";
 import logo from "../assets/rim.png";
@@ -279,7 +280,7 @@ export default function LoginProtectedLayout() {
             label={"Caisse"}
           >
             {user!.is_admin && (
-              <NavItem isOpen={isOpen} to="/caisses" icon={<BankIcon />}>
+              <NavItem isOpen={isOpen} to="/caisses" icon={<VaultIcon />}>
                 Relevé
               </NavItem>
             )}
