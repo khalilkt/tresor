@@ -5,6 +5,7 @@ import axios from "axios";
 import { AuthContext } from "../App";
 import { rootUrl } from "../constants";
 import { numberToFrench } from "../logiC/utils";
+import { DateFilter } from "../components/date_filter";
 
 function Tile({ title, value }: { title: ReactNode; value: ReactNode }) {
   return (
@@ -27,12 +28,15 @@ export default function DashboardPage() {
     disbursements_count: number;
     accounts_count: number;
 
-    total_vault_solde: number;
-    total_vault_deposit: number;
-    total_vault_withdrawal: number;
-    deposits_count: number;
-    withdrawals_count: number;
-    vaults_count: number;
+    groups_stats: {
+      [key: string]: {
+        total_vault_solde: number;
+        total_vault_deposit: number;
+        total_vault_withdrawal: number;
+        deposits_count: number;
+        withdrawals_count: number;
+      };
+    };
   } | null>(null);
 
   let selectedDateRange: "days" | "months" | "years" | null = null;
@@ -73,95 +77,19 @@ export default function DashboardPage() {
         {/* {numberToFrench(4382147.23)} */}
       </Title>
       <div className="flex gap-x-4">
-        <Select
-          onChange={(e) => {
-            const value = e.target.value;
+        <DateFilter
+          date={searchParams.get("date")}
+          onChange={(date) => {
             setSearchParams((params) => {
-              if (value === "days") {
-                params.set("date", new Date().toISOString().split("T")[0]);
-              } else if (value === "months") {
-                params.set(
-                  "date",
-                  new Date().toISOString().split("-").slice(0, 2).join("-")
-                );
-              } else if (value === "years") {
-                params.set("date", new Date().toISOString().split("-")[0]);
+              if (date) {
+                params.set("date", date);
               } else {
                 params.delete("date");
               }
               return params;
             });
           }}
-          value={selectedDateRange ?? ""}
-          className="w-max py-3"
-        >
-          <option value={""}>Tous</option>
-          <option value={"days"}>Par Jour</option>
-          <option value={"months"}>Par Mois</option>
-          <option value={"years"}>Par Année</option>
-        </Select>
-        {selectedDateRange === "days" && (
-          <Input
-            value={searchParams.get("date") ?? ""}
-            onChange={(e) => {
-              setSearchParams((params) => {
-                params.set("date", e.target.value);
-                return params;
-              });
-            }}
-            className=" hidden lg:block"
-            type="date"
-          />
-        )}
-        {selectedDateRange === "months" && (
-          <Select
-            value={
-              searchParams.get("date")?.split("-")[1].padStart(2, "0") ?? ""
-            }
-            onChange={(e) => {
-              const v = e.target.value;
-              setSearchParams((params) => {
-                const date = params.get("date")?.split("-");
-                params.set("date", date?.[0] + "-" + v);
-                return params;
-              });
-            }}
-            className="hidden w-max py-3 lg:block"
-          >
-            <option value="" disabled>
-              Mois
-            </option>
-            {Array.from({ length: 12 }).map((_, i) => (
-              <option value={(i + 1).toString().padStart(2, "0")}>
-                {i + 1}
-              </option>
-            ))}
-          </Select>
-        )}
-        {(selectedDateRange === "months" || selectedDateRange === "years") && (
-          <Select
-            value={searchParams.get("date")?.split("-")[0] ?? ""}
-            onChange={(e) => {
-              const v = e.target.value;
-              setSearchParams((params) => {
-                if (selectedDateRange === "months") {
-                  const date = params.get("date")?.split("-");
-                  params.set("date", v + "-" + date?.[1]);
-                } else {
-                  params.set("date", v);
-                }
-                return params;
-              });
-            }}
-            className="hidden w-max py-3 lg:block"
-          >
-            <option value="" disabled>
-              Annee
-            </option>
-            <option value="2023">2023</option>
-            <option value="2024">2024</option>
-          </Select>
-        )}
+        />
       </div>
       <div className="grid grid-cols-1 gap-y-6 lg:grid-cols-3 gap-x-8 w-full">
         <div className="flex flex-col items-center gap-y-2 p-4 bg-white rounded-lg shadow border border-gray ">
@@ -207,30 +135,33 @@ export default function DashboardPage() {
             <p className="text-gray">Nombre de comptes</p>
           </div>
         )}
-        {!searchParams.get("date") && (
-          <Tile
-            title="Solde des caisses"
-            value={data?.total_vault_solde + " MRU"}
-          />
-        )}
+
         <hr className="my-4 col-span-3 border-gray w-[80%] mx-auto" />
-        {
-          <>
-            <Tile
-              title="Total des dépôts"
-              value={data?.total_vault_deposit + " MRU"}
-            />
-            <Tile
-              title="Total des retraits"
-              value={data?.total_vault_withdrawal + " MRU"}
-            />
-            <Tile title="Nombre de dépôts" value={data?.deposits_count} />
-            <Tile title="Nombre de retraits" value={data?.withdrawals_count} />
-          </>
-        }
-        {!searchParams.get("date") && (
-          <Tile title="Nombre de caisses" value={data?.vaults_count} />
-        )}
+        <div className="col-span-3 flex flex-col gap-y-10 mb-10">
+          {data?.groups_stats &&
+            Object.entries(data.groups_stats).map(([key, value]) => (
+              <div className="flex flex-col gap-y-4 w-full">
+                <h1 className="font-semibold">{key}</h1>
+                <div className="grid grid-cols-3 gap-x-10">
+                  <Tile
+                    key={key}
+                    title={`Solde`}
+                    value={value.total_vault_solde + " MRU"}
+                  />
+                  <Tile
+                    key={key}
+                    title="Total des reccettes"
+                    value={value.total_vault_deposit + " MRU"}
+                  />
+                  <Tile
+                    key={key}
+                    title="Total des retraits"
+                    value={value.total_vault_withdrawal + " MRU"}
+                  />
+                </div>
+              </div>
+            ))}
+        </div>
       </div>
     </div>
   );

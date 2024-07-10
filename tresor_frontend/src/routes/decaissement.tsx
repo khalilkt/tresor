@@ -24,6 +24,7 @@ import {
 } from "../components/icons";
 import DisbursementOperationDetailDialog from "../components/disbusement_operation_dialog";
 import { formatAmount } from "../logiC/utils";
+import { DateFilter } from "../components/date_filter";
 
 export const ALLOWED_BANK_NAMES = [
   "ATTIJARI BANK",
@@ -375,14 +376,17 @@ function ExcelImportDialog({
         <Input
           placeholder="Montant"
           value={formData.details[0].montant}
+          type="number"
+          step="0.01"
           onChange={(e) => {
-            let value = parseInt(e.target.value);
-            if (isNaN(value)) {
-              value = 0;
-            }
             setFormData({
               ...formData,
-              details: [{ ...formData.details[0], montant: value }],
+              details: [
+                {
+                  ...formData.details[0],
+                  montant: parseFloat(parseFloat(e.target.value).toFixed(2)),
+                },
+              ],
             });
           }}
         />
@@ -631,12 +635,27 @@ export default function DecaissementPage() {
         ))}
       </div>
       <div className="flex justify-between w-full">
-        <SearchBar
-          id="search-bar"
-          onChange={onSearchChange}
-          placeholder="Chercher"
-          className="w-full flex-1 lg:w-[300px]"
-        />
+        <div className="flex gap-x-3">
+          <SearchBar
+            id="search-bar"
+            onChange={onSearchChange}
+            placeholder="Chercher"
+            className="w-full flex-1 lg:w-[300px]"
+          />
+          <DateFilter
+            date={searchParams.get("date")}
+            onChange={(date) => {
+              setSearchParams((params) => {
+                if (date) {
+                  params.set("date", date);
+                } else {
+                  params.delete("date");
+                }
+                return params;
+              });
+            }}
+          />
+        </div>
         <FilledButton
           className="rounded-lg bg-primary p-2 text-white"
           onClick={() => {

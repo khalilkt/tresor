@@ -18,6 +18,7 @@ import { DeleteIcon, LoadingIcon, ViewIcon } from "../components/icons";
 import CollectionOpearionDetailDialog from "../components/collection_operation_dialog";
 import { ALLOWED_BANK_NAMES } from "./decaissement";
 import { formatAmount } from "../logiC/utils";
+import { DateFilter } from "../components/date_filter";
 
 type CollectionDetailForm = Omit<
   CollectionOperationDetail,
@@ -398,6 +399,8 @@ function ExcelImportDialog({
             {!formData.file && (
               <Input
                 placeholder="Montant"
+                type="number"
+                step="0.01"
                 value={formData.details[0].montant}
                 onChange={(e) => {
                   let value = parseInt(e.target.value);
@@ -406,7 +409,14 @@ function ExcelImportDialog({
                   }
                   setFormData({
                     ...formData,
-                    details: [{ ...formData.details[0], montant: value }],
+                    details: [
+                      {
+                        ...formData.details[0],
+                        montant: parseFloat(
+                          parseFloat(e.target.value).toFixed(2)
+                        ),
+                      },
+                    ],
                   });
                 }}
               />
@@ -666,12 +676,28 @@ export default function EncaissementPage() {
         ))}
       </div>
       <div className="flex justify-between w-full">
-        <SearchBar
-          id="search-bar"
-          onChange={onSearchChange}
-          placeholder="Chercher"
-          className="w-full flex-1 lg:w-[300px]"
-        />
+        <div className="flex gap-x-3">
+          <SearchBar
+            id="search-bar"
+            onChange={onSearchChange}
+            placeholder="Chercher"
+            className="w-full flex-1 lg:w-[300px]"
+          />
+          <DateFilter
+            date={searchParams.get("date")}
+            onChange={(date) => {
+              setSearchParams((params) => {
+                if (date) {
+                  params.set("date", date);
+                } else {
+                  params.delete("date");
+                }
+                return params;
+              });
+            }}
+          />
+        </div>
+
         <FilledButton
           className="rounded-lg bg-primary p-2 text-white"
           onClick={() => {
@@ -681,6 +707,7 @@ export default function EncaissementPage() {
           Ajouter
         </FilledButton>
       </div>
+
       <table className="hidden w-full text-center text-lg lg:table">
         <thead className="">
           <tr className="font-bold text-gray">

@@ -114,6 +114,7 @@ function App() {
                   <>
                     <Route path="/" element={<DashboardPage />} />
                     <Route path="/accounts" element={<AccountsPage />} />
+                    <Route path="/caisses" element={<VaultsPage />} />
                     <Route path="/agents" element={<AgentsPage />} />
                     <Route path="/*" element={<Navigate to="/" />} />
                   </>
@@ -153,7 +154,6 @@ function App() {
                 {(user?.is_admin ||
                   (user && user!.assigned_vault_groups.length > 0)) && (
                   <>
-                    <Route path="/caisses" element={<VaultsPage />} />
                     <Route path="/depots" element={<VaultDepositsPage />} />
                     <Route
                       path="/retraits"

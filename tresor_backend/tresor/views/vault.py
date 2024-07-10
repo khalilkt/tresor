@@ -1,6 +1,8 @@
 from rest_framework.generics import ListAPIView
 from rest_framework.generics import RetrieveUpdateAPIView
 from rest_framework import viewsets
+
+from tresor.utils import filter_query_by_date
 from ..models.vault import *
 from rest_framework.permissions import IsAdminUser, BasePermission , IsAuthenticated
 from django.db.models import F
@@ -37,7 +39,7 @@ class VaultDepositViewSet(viewsets.ModelViewSet):
     queryset = VaultDeposit.objects.all().annotate(vault_name=F('vault__name'))
     serializer_class = VaultDepositSerializer
     permission_classes = [IsAuthenticated]
-    ordering = ['-created_at']
+    ordering = ["-date", '-created_at']
     search_fields = ['motif']
 
     def get_queryset(self):
@@ -51,7 +53,13 @@ class VaultDepositViewSet(viewsets.ModelViewSet):
         if "group" in params:
             group = params["group"]
             queryset = queryset.filter(vault__group=group)
+        date = self.request.query_params.get('date', None)
+       
+        if date is not None:
+            queryset = filter_query_by_date(queryset, date)
+        
         return queryset
+
     
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
@@ -68,9 +76,8 @@ class VaultWithdrawalViewSet(viewsets.ModelViewSet):
     queryset = VaultWithdrawal.objects.all().annotate(vault_name=F('vault__name'), account_name=F('account__name'))
     serializer_class = VaultWithdrawalSerializer
     permission_classes = [IsAuthenticated]
-    ordering = ['-created_at']
+    ordering = ["-date" , '-created_at']
     search_fields = ['motif']
-
 
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
@@ -90,6 +97,11 @@ class VaultWithdrawalViewSet(viewsets.ModelViewSet):
         if "group" in params:
             group = params["group"]
             queryset = queryset.filter(vault__group=group)
+        date = self.request.query_params.get('date', None)
+       
+        if date is not None:
+            queryset = filter_query_by_date(queryset, date)
+        
         return queryset
     
 class VaultReleve(APIView):
@@ -109,10 +121,10 @@ class VaultReleve(APIView):
         releve = []
         total_change = 0
 
-        for deposit in vault.deposits.filter(created_at__gte=start_date, created_at__lte=end_date):
+        for deposit in vault.deposits.filter(date__gte=start_date, date__lte=end_date):
             total_change += deposit.amount
             releve.append({
-                "date": deposit.created_at,
+                "date": deposit.date,
                 "amount": deposit.amount,
                 "operation_name": deposit.motif,
                 "type": "deposit",
@@ -120,10 +132,10 @@ class VaultReleve(APIView):
                     # "account_name": deposit.account.name
                 }
             })
-        for withdrawal in vault.withdrawals.filter(created_at__gte=start_date, created_at__lte=end_date):
+        for withdrawal in vault.withdrawals.filter(date__gte=start_date, date__lte=end_date):
             total_change -= withdrawal.amount
             releve.append({
-                "date": withdrawal.created_at,
+                "date": withdrawal.date,
                 "amount": withdrawal.amount,
                 "operation_name": withdrawal.motif,
                 "type": "withdrawal",

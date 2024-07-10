@@ -8,7 +8,7 @@ from django.db.models import F , Value
 from ..models import DisbursementOperation, CollectionOperation, CollectionOperationDetail
 from rest_framework import serializers
 from django.db.models import Sum
-from ..models import Vault
+from ..models import Vault, VaultGroup
 from tresor.models.vault import Vault, VaultDeposit, VaultWithdrawal
 
 class AccountViewSet(ModelViewSet):
@@ -40,13 +40,20 @@ class StatsView(APIView):
         disbursements_count = filter_query_by_date(DisbursementOperation.objects, date).count()
         accounts_count = Account.objects.count()
 
-        total_vault_solde = Vault.objects.aggregate(total_solde= Sum('balance'))['total_solde']
-        total_vault_deposit = filter_query_by_date(VaultDeposit.objects, date, "created_at").aggregate(total_deposit= Sum('amount'))['total_deposit'] or 0
-        total_vault_withdrawal = filter_query_by_date(VaultWithdrawal.objects, date, "created_at").aggregate(total_withdrawal= Sum('amount'))['total_withdrawal'] or 0
-        deposits_count = filter_query_by_date(VaultDeposit.objects, date, "created_at").count()
-        withdrawals_count = filter_query_by_date(VaultWithdrawal.objects, date, "created_at").count()
-        vaults_count = Vault.objects.count()
-
+        groups_stats = {}
+        for group in VaultGroup.objects.all():
+            total_vault_solde = group.vaults.aggregate(total_solde= Sum('balance'))['total_solde']
+            total_vault_deposit = filter_query_by_date(VaultDeposit.objects.filter(vault__group=group), date).aggregate(total_deposit= Sum('amount'))['total_deposit'] or 0
+            total_vault_withdrawal = filter_query_by_date(VaultWithdrawal.objects.filter(vault__group=group), date).aggregate(total_withdrawal= Sum('amount'))['total_withdrawal'] or 0
+            deposits_count = filter_query_by_date(VaultDeposit.objects.filter(vault__group=group), date).count()
+            withdrawals_count = filter_query_by_date(VaultWithdrawal.objects.filter(vault__group=group), date).count()
+            groups_stats[group.name] = {
+                "total_vault_solde": total_vault_solde,
+                "total_vault_deposit": total_vault_deposit,
+                "total_vault_withdrawal": total_vault_withdrawal,
+                "deposits_count": deposits_count,
+                "withdrawals_count": withdrawals_count,
+            }
 
 
         return Response({
@@ -57,12 +64,7 @@ class StatsView(APIView):
             "disbursements_count": disbursements_count,
             "accounts_count": accounts_count,
 
-            "total_vault_solde": total_vault_solde,
-            "total_vault_deposit": total_vault_deposit,
-            "total_vault_withdrawal": total_vault_withdrawal,
-            "deposits_count": deposits_count,
-            "withdrawals_count": withdrawals_count,
-            "vaults_count": vaults_count
+            "groups_stats": groups_stats
         })
     
 
@@ -112,10 +114,10 @@ class AccountReleve(APIView):
                     "account_name": operation.account.name
                 }
             })
-        for fund_transfer in account.fund_transfers.filter(created_at__gte=start_date, created_at__lte=end_date):
+        for fund_transfer in account.fund_transfers.filter(date__gte=start_date, date__lte=end_date):
             total_change += fund_transfer.amount
             releve.append({
-                "date": fund_transfer.created_at.date(),
+                "date": fund_transfer.date,
                 "amount": fund_transfer.amount, 
                 "operation_name": fund_transfer.motif,
                 "type": "fund_transfer",

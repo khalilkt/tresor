@@ -23,6 +23,7 @@ import {
   ViewIcon,
 } from "../components/icons";
 import { formatAmount, formatDate } from "../logiC/utils";
+import { DateFilter } from "../components/date_filter";
 export const VAULT_GROUPS = [
   {
     id: 1,
@@ -83,7 +84,10 @@ function CreateVaultDialog({
     vault: selectedGroup === 1 ? 1 : null,
     amount: 0,
     motif: "",
+
     versement_number: "",
+    ref: "",
+    date: new Date().toISOString().split("T")[0],
   });
 
   const [type, setType] = useState<"normal" | "banq">("normal");
@@ -160,6 +164,11 @@ function CreateVaultDialog({
           <option value={vault.id}>{vault.name}</option>
         ))}
       </Select>
+      <Input
+        type="date"
+        value={formData.date}
+        onChange={(e) => setFormData({ ...formData, date: e.target.value })}
+      />
       <Textarea
         placeholder="Motif"
         value={formData.motif}
@@ -170,17 +179,27 @@ function CreateVaultDialog({
           })
         }
       />
+      {selectedGroup === 2 && (
+        <Input
+          placeholder="Avis de debut"
+          value={formData.ref}
+          onChange={(e) => {
+            setFormData({
+              ...formData,
+              ref: e.target.value,
+            });
+          }}
+        />
+      )}
       <Input
         placeholder="Montant"
         value={formData.amount}
+        type="number"
+        step="0.01"
         onChange={(e) => {
-          let value = parseInt(e.target.value);
-          if (isNaN(value)) {
-            value = 0;
-          }
           setFormData({
             ...formData,
-            amount: value,
+            amount: parseFloat(parseFloat(e.target.value).toFixed(2)),
           });
         }}
       />
@@ -227,6 +246,7 @@ function CreateVaultDialog({
 export default function VaultDepositsPage() {
   const [isExportDialogOpen, setIsVaultCreateDialog] = useState(false);
   const [deletingId, setDeletingId] = useState<number | null>(null);
+  const user = useContext(AuthContext).authData?.user;
 
   const [vaultDepositData, setVaultDepositData] =
     useState<PaginatedData<VaultDepositInterface> | null>(null);
@@ -267,10 +287,13 @@ export default function VaultDepositsPage() {
     }, 500);
   }
 
+  const selectedGroup = parseInt(
+    searchParams.get("group") ?? user!.assigned_vault_groups[0].toString()
+  );
   async function load() {
     let params = new URLSearchParams(searchParams);
     if (!params.has("group")) {
-      params.set("group", "1");
+      params.set("group", selectedGroup.toString());
     }
     try {
       const response = await axios.get(rootUrl + "vaults/deposit", {
@@ -343,8 +366,6 @@ export default function VaultDepositsPage() {
     }
   }
 
-  const user = useContext(AuthContext).authData?.user;
-
   return (
     <div className="flex flex-col items-start gap-y-10 px-8 pb-12 pt-12 lg:px-10 lg:pb-0 lg:pt-20l">
       <MDialog
@@ -358,12 +379,12 @@ export default function VaultDepositsPage() {
           onSubmit={async function (data) {
             await createVaultDeposit(data);
           }}
-          selectedGroup={parseInt(searchParams.get("group") ?? "1")}
+          selectedGroup={selectedGroup}
         />
       </MDialog>
       <MDialog
         isOpen={deletingId !== null}
-        title="Supprimer une operation de depot"
+        title="Supprimer une operation de recette"
         onClose={() => {
           setDeletingId(null);
         }}
@@ -392,7 +413,7 @@ export default function VaultDepositsPage() {
         </div>
       </MDialog>
 
-      <Title>Operation de depots</Title>
+      <Title>Operation de recettes</Title>
 
       <div className="flex justify-center gap-x-2 w-full">
         {VAULT_GROUPS.filter((group) =>
@@ -406,19 +427,34 @@ export default function VaultDepositsPage() {
                 return params;
               });
             }}
-            className={`py-2 px-3 rounded font-medium ${parseInt(searchParams.get("group") ?? "1") === group.id ? "bg-primary text-white" : ""}`}
+            className={`py-2 px-3 rounded font-medium ${selectedGroup === group.id ? "bg-primary text-white" : ""}`}
           >
             {group.name}
           </button>
         ))}
       </div>
       <div className="flex justify-between w-full">
-        <SearchBar
-          id="search-bar"
-          onChange={onSearchChange}
-          placeholder="Chercher"
-          className="w-full flex-1 lg:w-[300px]"
-        />
+        <div className="flex gap-x-4">
+          <SearchBar
+            id="search-bar"
+            onChange={onSearchChange}
+            placeholder="Chercher"
+            className="w-full flex-1 lg:w-[300px]"
+          />
+          <DateFilter
+            date={searchParams.get("date")}
+            onChange={(date) => {
+              setSearchParams((params) => {
+                if (date) {
+                  params.set("date", date);
+                } else {
+                  params.delete("date");
+                }
+                return params;
+              });
+            }}
+          />
+        </div>
         <FilledButton
           className="rounded-lg bg-primary p-2 text-white"
           onClick={() => {
@@ -460,7 +496,7 @@ export default function VaultDepositsPage() {
                   {formatAmount(deposit.amount)}
                 </Td>
                 <Td className="p-0 px-0 pl-0 font-medium text-start">
-                  {formatDate(deposit.created_at.split("T")[0])}
+                  {formatDate(deposit.date.split("T")[0])}
                 </Td>
                 {/* {isAdmin && (
                   <Td className="p-0 px-0 pl-0 text-start">

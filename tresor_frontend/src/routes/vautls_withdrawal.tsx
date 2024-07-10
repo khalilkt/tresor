@@ -24,6 +24,7 @@ import {
 } from "../components/icons";
 import { formatAmount, formatDate } from "../logiC/utils";
 import { VAULT_GROUPS } from "./vaults_deposit";
+import { DateFilter } from "../components/date_filter";
 
 export const ALLOWED_BANK_NAMES = [
   "ATTIJARI BANK",
@@ -76,6 +77,8 @@ function CreateVaultWithdrawalDialog({
     vault: selectedGroup === 1 ? 1 : null,
     amount: 0,
     motif: "",
+    date: new Date().toISOString().split("T")[0],
+    ref: "",
   });
 
   const token = useContext(AuthContext).authData!.token;
@@ -171,6 +174,11 @@ function CreateVaultWithdrawalDialog({
           ))}
         </Select>
       )}
+      <Input
+        type="date"
+        value={formData.date}
+        onChange={(e) => setFormData({ ...formData, date: e.target.value })}
+      />
       <Textarea
         placeholder="Motif"
         value={formData.motif}
@@ -181,17 +189,27 @@ function CreateVaultWithdrawalDialog({
           })
         }
       />
+      {selectedGroup === 2 && (
+        <Input
+          placeholder="Avis de debut"
+          value={formData.ref}
+          onChange={(e) => {
+            setFormData({
+              ...formData,
+              ref: e.target.value,
+            });
+          }}
+        />
+      )}
       <Input
         placeholder="Montant"
         value={formData.amount}
+        type="number"
+        step="0.01"
         onChange={(e) => {
-          let value = parseInt(e.target.value);
-          if (isNaN(value)) {
-            value = 0;
-          }
           setFormData({
             ...formData,
-            amount: value,
+            amount: parseFloat(parseFloat(e.target.value).toFixed(2)),
           });
         }}
       />
@@ -264,11 +282,17 @@ export default function VaultWithdrawalsPage() {
     }, 500);
   }
 
+  const user = useContext(AuthContext).authData!.user;
+
+  const selectedGroup = parseInt(
+    searchParams.get("group") ?? user!.assigned_vault_groups[0].toString()
+  );
+
   async function load() {
     let params = new URLSearchParams(searchParams);
     try {
       if (!params.has("group")) {
-        params.set("group", "1");
+        params.set("group", selectedGroup.toString());
       }
       const response = await axios.get(rootUrl + "vaults/withdrawal", {
         headers: {
@@ -340,7 +364,6 @@ export default function VaultWithdrawalsPage() {
     }
   }
 
-  const user = useContext(AuthContext).authData!.user;
   return (
     <div className="flex flex-col items-start gap-y-10 px-8 pb-12 pt-12 lg:px-10 lg:pb-0 lg:pt-20l">
       <MDialog
@@ -354,7 +377,7 @@ export default function VaultWithdrawalsPage() {
           onSubmit={async function (data) {
             await createVaultWithdrawal(data);
           }}
-          selectedGroup={parseInt(searchParams.get("group") ?? "1")}
+          selectedGroup={selectedGroup}
         />
       </MDialog>
       <MDialog
@@ -401,19 +424,34 @@ export default function VaultWithdrawalsPage() {
                 return params;
               });
             }}
-            className={`py-2 px-3 rounded font-medium ${parseInt(searchParams.get("group") ?? "1") === group.id ? "bg-primary text-white" : ""}`}
+            className={`py-2 px-3 rounded font-medium ${selectedGroup === group.id ? "bg-primary text-white" : ""}`}
           >
             {group.name}
           </button>
         ))}
       </div>
       <div className="flex justify-between w-full">
-        <SearchBar
-          id="search-bar"
-          onChange={onSearchChange}
-          placeholder="Chercher"
-          className="w-full flex-1 lg:w-[300px]"
-        />
+        <div className="flex gap-x-4">
+          <SearchBar
+            id="search-bar"
+            onChange={onSearchChange}
+            placeholder="Chercher"
+            className="w-full flex-1 lg:w-[300px]"
+          />
+          <DateFilter
+            date={searchParams.get("date")}
+            onChange={(date) => {
+              setSearchParams((params) => {
+                if (date) {
+                  params.set("date", date);
+                } else {
+                  params.delete("date");
+                }
+                return params;
+              });
+            }}
+          />
+        </div>
         <FilledButton
           className="rounded-lg bg-primary p-2 text-white"
           onClick={() => {
@@ -455,7 +493,7 @@ export default function VaultWithdrawalsPage() {
                   {formatAmount(withdrawal.amount)}
                 </Td>
                 <Td className="p-0 px-0 pl-0 font-medium text-start">
-                  {formatDate(withdrawal.created_at.split("T")[0])}
+                  {formatDate(withdrawal.date.split("T")[0])}
                 </Td>
                 {/* {isAdmin && (
                                     <Td className="p-0 px-0 pl-0 text-start">

@@ -246,7 +246,7 @@ export default function LoginProtectedLayout() {
           >
             {user.is_admin && (
               <NavItem isOpen={isOpen} to="/accounts" icon={<BankIcon />}>
-                Liste des Comptes
+                Relevé
               </NavItem>
             )}
             <NavItem
@@ -278,9 +278,11 @@ export default function LoginProtectedLayout() {
             }}
             label={"Caisse"}
           >
-            <NavItem isOpen={isOpen} to="/caisses" icon={<BankIcon />}>
-              Liste des Caisses
-            </NavItem>
+            {user!.is_admin && (
+              <NavItem isOpen={isOpen} to="/caisses" icon={<BankIcon />}>
+                Relevé
+              </NavItem>
+            )}
             <NavItem isOpen={isOpen} to="/depots" icon={<CollectionIcon />}>
               Opérations de recettes
             </NavItem>

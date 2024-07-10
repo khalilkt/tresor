@@ -82,6 +82,13 @@ export function BankStatementDialog({
     fetch();
   }, [account, startDate, endDate]);
 
+  let startDateMinusOneDay = startDate ? new Date(startDate) : null;
+  let sDate = null;
+  if (startDateMinusOneDay) {
+    startDateMinusOneDay.setDate(startDateMinusOneDay.getDate() - 1);
+    sDate = formatDate(startDateMinusOneDay?.toISOString().split("T")[0] ?? "");
+  }
+
   return (
     <div className="flex flex-col w-[600px]">
       <div className="flex justify-between">
@@ -171,7 +178,7 @@ export function BankStatementDialog({
             </h1>
             <div className="flex justify-between mb-4">
               <span>
-                Report de solde au {formatDate(startDate)} :{"   "}{" "}
+                Report de solde au {sDate} :{"   "}{" "}
                 {formatAmount(data?.start_date_balance || 0)}
               </span>
               <span>

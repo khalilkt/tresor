@@ -3,13 +3,15 @@ import { MDialog } from "../components/dialog";
 import { PaginatedData, UserInterface } from "../logiC/interfaces";
 import { Pagination, TableBodySquelette, Td, Tr } from "../components/table";
 import { Input, SearchBar, Select, Textarea, Title } from "../components/comps";
-import { FilledButton } from "../components/buttons";
+import { FilledButton, OutlinedButton } from "../components/buttons";
 import axios, { AxiosError } from "axios";
 import { rootUrl } from "../constants";
 import { AuthContext } from "../App";
 import { useSearchParams } from "react-router-dom";
 import * as XLSX from "xlsx";
 import {
+  DeleteIcon,
+  EditIcon,
   LoadingIcon,
   MdpIcon,
   MoreIcon,
@@ -25,9 +27,9 @@ type UserForm = Omit<
   "id" | "total_collection_operations" | "total_disbursement_operations"
 > & { password: string };
 
-const NAME_INPUT_ID = "agent_name_dialog";
-const USERNAME_INPUT_ID = "agent_username_dialog";
-const PASSWORD_INPUT_ID = "agent_password_dialog";
+// const NAME_INPUT_ID = "agent_name_dialog";
+// const USERNAME_INPUT_ID = "agent_username_dialog";
+// const PASSWORD_INPUT_ID = "agent_password_dialog";
 
 const PASSWORDCHANGE_INPUT_ID = "agent_passwordchange_dialog";
 const PASSWORDCHANGE_CONFIRM_INPUT_ID = "agent_passwordchange_confirm_dialog";
@@ -120,9 +122,178 @@ function PasswordChangeDialog({
   );
 }
 
+function AddEditUserDialog({
+  user,
+  onDone,
+}: {
+  user: UserInterface | null;
+  onDone: () => void;
+}) {
+  const [formData, setFormData] = useState<UserForm>({
+    name: user?.name ?? "",
+    username: user?.username ?? "",
+    password: "",
+    is_admin: false,
+    is_superuser: false,
+    has_accounts_access: user?.has_accounts_access ?? false,
+    assigned_vault_groups: user?.assigned_vault_groups ?? [],
+  });
+  const token = useContext(AuthContext).authData!.token;
+
+  async function updateUser(data: UserForm) {
+    try {
+      // pass the data and the token
+      const response = await axios.patch(
+        rootUrl + "users/" + user!.id + "/",
+        {
+          ...data,
+          password: undefined,
+        },
+        {
+          headers: {
+            Authorization: "Token " + token,
+          },
+        }
+      );
+
+      console.log(response.data);
+      onDone();
+    } catch (e) {
+      console.log(e);
+      alert("Une erreur s'est produite. Veuillez réessayer.");
+    }
+  }
+  async function createUser(data: UserForm) {
+    try {
+      // pass the data and the token
+      const response = await axios.post(
+        rootUrl + "users/",
+        {
+          ...data,
+        },
+        {
+          headers: {
+            Authorization: "Token " + token,
+          },
+        }
+      );
+
+      console.log(response.data);
+      onDone();
+    } catch (e) {
+      console.log(e);
+      alert("Une erreur s'est produite. Veuillez réessayer.");
+    }
+  }
+
+  return (
+    <div className="grid grid-cols-2 gap-x-4 gap-y-6">
+      <Input
+        placeholder="Nom"
+        value={formData.name}
+        onChange={(e) => {
+          setFormData({ ...formData, name: e.target.value });
+        }}
+      />
+      <Input
+        placeholder="Nom d'utilisateur"
+        value={formData.username}
+        onChange={(e) => {
+          setFormData({ ...formData, username: e.target.value });
+        }}
+      />
+      {user === null && (
+        <Input
+          className=" col-span-2"
+          placeholder="Mot de passe"
+          type="password"
+          value={formData.password}
+          onChange={(e) => {
+            setFormData({ ...formData, password: e.target.value });
+          }}
+        />
+      )}
+      <div className="flex flex-col justify-between col-span-2 px-2">
+        <div className="flex flex-col">
+          {VAULT_GROUPS.map((group) => (
+            <div className="flex items-center gap-x-3 ">
+              <input
+                type="checkbox"
+                checked={formData.assigned_vault_groups.includes(group.id)}
+                onChange={(e) => {
+                  const checked = e.target.checked;
+                  if (checked) {
+                    setFormData({
+                      ...formData,
+                      assigned_vault_groups: [
+                        ...formData.assigned_vault_groups,
+                        group.id,
+                      ],
+                    });
+                  } else {
+                    setFormData({
+                      ...formData,
+                      assigned_vault_groups:
+                        formData.assigned_vault_groups.filter(
+                          (id) => id !== group.id
+                        ),
+                    });
+                  }
+                }}
+              />
+              <label className="text-medium text-gray">{group.name}</label>
+            </div>
+          ))}
+        </div>
+        <div className="flex items-center gap-x-3 ">
+          <input
+            id="has_accounts_access"
+            type="checkbox"
+            className=""
+            checked={formData?.has_accounts_access}
+            onChange={(e) => {
+              const checked = e.target.checked;
+              setFormData({
+                ...formData,
+                has_accounts_access: checked,
+              });
+            }}
+          />
+          <label className="text-medium text-gray">Accès Comptes</label>
+        </div>
+      </div>
+      <FilledButton
+        onClick={() => {
+          onDone();
+          // setDialogState({ state: "none", payload: null });
+        }}
+        isLight={true}
+        className="col-span-1"
+      >
+        Annuler
+      </FilledButton>
+      <FilledButton
+        disabled={false}
+        onClick={() => {
+          // alert(assigned_groups);
+          // return;
+          if (user) {
+            updateUser(formData);
+          } else {
+            createUser(formData);
+          }
+        }}
+        className="col-span-1"
+      >
+        {false ? <LoadingIcon /> : "Enregistrer"}
+      </FilledButton>
+    </div>
+  );
+}
+
 export default function AgentsPage() {
   const [dialogState, setDialogState] = useState<{
-    state: "add" | "edit_pass" | "delete" | "none";
+    state: "add" | "edit" | "edit_pass" | "delete" | "none";
     payload: any;
   }>({
     state: "none",
@@ -200,129 +371,23 @@ export default function AgentsPage() {
     }
   }
 
-  async function createUser(data: UserForm) {
-    try {
-      // pass the data and the token
-      const response = await axios.post(
-        rootUrl + "users/",
-        {
-          ...data,
-        },
-        {
-          headers: {
-            Authorization: "Token " + token,
-          },
-        }
-      );
-
-      load();
-      setDialogState({ state: "none", payload: null });
-
-      console.log(response.data);
-    } catch (e) {
-      console.log(e);
-      alert("Une erreur s'est produite. Veuillez réessayer.");
-    }
-  }
   const user = useContext(AuthContext).authData?.user;
   return (
     <div className="flex flex-col items-start gap-y-10 px-8 pb-12 pt-12 lg:px-10 lg:pb-0 lg:pt-20l">
       <MDialog
-        isOpen={dialogState.state === "add"}
-        title="Ajouter un agent"
+        isOpen={dialogState.state === "add" || dialogState.state === "edit"}
+        title={dialogState.state === "add" ? "Ajouter un agent" : "Modifier"}
         onClose={function (): void {
           setDialogState({ state: "none", payload: null });
         }}
       >
-        {
-          <div className="grid grid-cols-2 gap-x-4 gap-y-6">
-            <Input id={NAME_INPUT_ID} placeholder="Nom" />
-            <Input id={USERNAME_INPUT_ID} placeholder="Nom d'utilisateur" />
-            {dialogState.state === "add" && (
-              <Input
-                id={PASSWORD_INPUT_ID}
-                className=" col-span-2"
-                placeholder="Mot de passe"
-                type="password"
-              />
-            )}
-            <div className="flex flex-col justify-between col-span-2 px-2">
-              <div className="flex flex-col">
-                {VAULT_GROUPS.map((group) => (
-                  <div className="flex items-center gap-x-3 ">
-                    <input
-                      id={`GROUP_ACCESS_${group.id}`}
-                      type="checkbox"
-                      className=""
-                    />
-                    <label className="text-medium text-gray">
-                      {group.name}
-                    </label>
-                  </div>
-                ))}
-              </div>
-              <div className="flex items-center gap-x-3 ">
-                <input id="has_accounts_access" type="checkbox" className="" />
-                <label className="text-medium text-gray">Accès Comptes</label>
-              </div>
-            </div>
-            <FilledButton
-              onClick={() => {
-                setDialogState({ state: "none", payload: null });
-              }}
-              isLight={true}
-              className="col-span-1"
-            >
-              Annuler
-            </FilledButton>
-            <FilledButton
-              disabled={false}
-              onClick={() => {
-                const name = (
-                  document.getElementById(NAME_INPUT_ID) as HTMLInputElement
-                ).value;
-                const username = (
-                  document.getElementById(USERNAME_INPUT_ID) as HTMLInputElement
-                ).value;
-                const password = (
-                  document.getElementById(PASSWORD_INPUT_ID) as HTMLInputElement
-                ).value;
-
-                const hasAccountsAccess = (
-                  document.getElementById(
-                    "has_accounts_access"
-                  ) as HTMLInputElement
-                ).checked;
-
-                const vaultsAccess = VAULT_GROUPS.map((group) => {
-                  return {
-                    group: group.id,
-                    access: (
-                      document.getElementById(
-                        `GROUP_ACCESS_${group.id}`
-                      ) as HTMLInputElement
-                    ).checked,
-                  };
-                });
-                const assigned_groups = vaultsAccess
-                  .filter((group) => group.access)
-                  .map((group) => group.group);
-                createUser({
-                  name,
-                  username,
-                  password,
-                  is_admin: false,
-                  is_superuser: false,
-                  has_accounts_access: hasAccountsAccess,
-                  assigned_vault_groups: assigned_groups,
-                });
-              }}
-              className="col-span-1"
-            >
-              {false ? <LoadingIcon /> : "Ajouter"}
-            </FilledButton>
-          </div>
-        }
+        <AddEditUserDialog
+          user={dialogState.state === "edit" ? dialogState.payload : null}
+          onDone={() => {
+            setDialogState({ state: "none", payload: null });
+            load();
+          }}
+        />
       </MDialog>
       <MDialog
         isOpen={dialogState.state === "edit_pass"}
@@ -337,6 +402,34 @@ export default function AgentsPage() {
             setDialogState({ state: "none", payload: null });
           }}
         />
+      </MDialog>
+      <MDialog
+        isOpen={dialogState.state === "delete"}
+        title="Supprimer l'utilisateur"
+        onClose={() => {
+          setDialogState({ state: "none", payload: null });
+        }}
+      >
+        <div className="flex flex-col gap-y-4">
+          <p>Voulez-vous vraiment supprimer cette utilisateur ?</p>
+          <div className="flex justify-evenly mt-4">
+            <FilledButton
+              onClick={() => {
+                deleteUser(dialogState.payload.id);
+                setDialogState({ state: "none", payload: null });
+              }}
+            >
+              Oui
+            </FilledButton>
+            <OutlinedButton
+              onClick={() => {
+                setDialogState({ state: "none", payload: null });
+              }}
+            >
+              Non
+            </OutlinedButton>
+          </div>
+        </div>
       </MDialog>
 
       <Title>Agents</Title>
@@ -390,13 +483,38 @@ export default function AgentsPage() {
                   {user.total_disbursement_operations}
                 </Td>
                 <Td className="align-center">
-                  <button
-                    onClick={() => {
-                      setDialogState({ state: "edit_pass", payload: user.id });
-                    }}
-                  >
-                    <MdpIcon />
-                  </button>
+                  <div className="gap-x-4 flex">
+                    <button
+                      onClick={() => {
+                        setDialogState({
+                          state: "edit",
+                          payload: user,
+                        });
+                      }}
+                    >
+                      <EditIcon />
+                    </button>
+                    <button
+                      onClick={() => {
+                        setDialogState({
+                          state: "edit_pass",
+                          payload: user.id,
+                        });
+                      }}
+                    >
+                      <MdpIcon />
+                    </button>
+                    <button
+                      onClick={() => {
+                        setDialogState({
+                          state: "delete",
+                          payload: user,
+                        });
+                      }}
+                    >
+                      <DeleteIcon />
+                    </button>
+                  </div>
                 </Td>
               </Tr>
             ))}

@@ -100,6 +100,9 @@ export interface VaultDepositInterface {
   vault_name: string;
   amount: number;
   motif: string;
+  date: string;
+  ref: string;
+
   created_at: string;
   versement_number: string;
 }
@@ -110,7 +113,9 @@ export interface VaultWithdrawalInterface {
   vault_name: string;
   account: number | null;
   account_name: string | null;
+  date: string;
   amount: number;
   motif: string;
+  ref: string;
   created_at: string;
 }
