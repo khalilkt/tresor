@@ -79,7 +79,7 @@ class VaultWithdrawal(models.Model):
     motif = models.TextField()
     account = models.ForeignKey(Account, on_delete=models.CASCADE, null=True, blank=True, related_name="fund_transfers")#if account is not null => degagement de fonds
     date = models.DateField()
-    ref = models.CharField(max_length=255, default="")
+    ref = models.CharField(max_length=255, default="", blank = True)
     created_by = models.ForeignKey('authentication.User', on_delete=models.PROTECT, related_name='withdrawals')
 
 
