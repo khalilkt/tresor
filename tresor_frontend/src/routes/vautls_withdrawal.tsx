@@ -377,11 +377,18 @@ export default function VaultWithdrawalsPage() {
     }
   }
 
+  const selectedDate = searchParams.get("date");
+  const selectedUserName = searchParams.get("created_by")
+    ? userList.find(
+        (user) => user.id === parseInt(searchParams.get("created_by")!)
+      )?.name
+    : null;
+
   return (
     <div className="flex flex-col items-start gap-y-10 px-8 pb-12 pt-12 lg:px-10 lg:pb-0 lg:pt-20l">
       <MDialog
         isOpen={isExportDialogOpen}
-        title="Ajouter une operation de retrait"
+        title="Ajouter une operation de dépense"
         onClose={function (): void {
           setIsVaultCreateDialog(false);
         }}
@@ -395,7 +402,7 @@ export default function VaultWithdrawalsPage() {
       </MDialog>
       <MDialog
         isOpen={deletingId !== null}
-        title="Supprimer une operation de retrait"
+        title="Supprimer une operation de dépense"
         onClose={() => {
           setDeletingId(null);
         }}
@@ -424,7 +431,7 @@ export default function VaultWithdrawalsPage() {
         </div>
       </MDialog>
 
-      <Title>Opérations de retrait</Title>
+      <Title>Opérations de dépense</Title>
       <div className="flex justify-center gap-x-2 w-full">
         {VAULT_GROUPS.filter((group) =>
           user?.assigned_vault_groups.includes(group.id)
@@ -566,27 +573,33 @@ export default function VaultWithdrawalsPage() {
         className="-z-50 opacity-0 print:opacity-100 absolute"
       >
         <PrintPage>
-          <table className="w-full text-center text-lg">
+          <h2 className="text-xl my-4 text-center ">
+            Opérations de dépense (
+            {VAULT_GROUPS.find((group) => group.id === selectedGroup)?.name})
+          </h2>
+          {selectedDate && (
+            <h3 className="mb-2 ">
+              Date : <span className="font-semibold">{selectedDate}</span>
+            </h3>
+          )}
+          {selectedUserName && (
+            <h3 className="mb-4 ">
+              Agent : <span className="font-semibold">{selectedUserName}</span>
+            </h3>
+          )}
+          <table className="w-full text-center text-sm">
             <thead className="">
               <tr className="font-semibold text-black">
-                <th className="text-medium w-[25%] py-2 text-center border text-base">
+                <th className="text-medium w-[25%] py-2 text-center border">
                   Motif
                 </th>
-                <th className="text-medium py-2 text-center border text-base">
-                  Caisse
-                </th>
+                <th className="text-medium py-2 text-center border">Caisse</th>
                 {selectedGroup === 2 && (
-                  <th className="text-medium py-2 text-center border text-base">
-                    AD
-                  </th>
+                  <th className="text-medium py-2 text-center border">AD</th>
                 )}
 
-                <th className="text-medium py-2 text-center border text-base">
-                  Montant
-                </th>
-                <th className="text-medium py-2 text-center border text-base">
-                  Date
-                </th>
+                <th className="text-medium py-2 text-center border">Montant</th>
+                <th className="text-medium py-2 text-center border">Date</th>
               </tr>
             </thead>
             {!vaultWithdrawalData ? (

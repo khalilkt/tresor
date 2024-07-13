@@ -569,6 +569,12 @@ export default function DecaissementPage() {
   const selectedType: DisbursementOperationType = (searchParams.get("type") ??
     "operation") as DisbursementOperationType;
 
+  const selectedDate = searchParams.get("date");
+  const selectedUserName = searchParams.get("created_by")
+    ? userList.find(
+        (user) => user.id === parseInt(searchParams.get("created_by")!)
+      )?.name
+    : null;
   return (
     <div className="flex flex-col items-start gap-y-10 px-8 pb-12 pt-12 lg:px-10 lg:pb-0 lg:pt-20l">
       <MDialog
@@ -714,7 +720,9 @@ export default function DecaissementPage() {
             <th className="text-medium w-[25%] py-3 text-start text-base">
               Motif
             </th>
-            <th className="text-medium py-3 text-start text-base">OD</th>
+            {selectedType === "operation" && (
+              <th className="text-medium py-3 text-start text-base">OD</th>
+            )}
 
             <th className="text-medium py-3 text-start text-base">
               Compte d'opération
@@ -736,9 +744,11 @@ export default function DecaissementPage() {
                 <Td className="p-0 px-0 pl-0 text-start">
                   {disbursementOperation.motif}
                 </Td>
-                <Td className="p-0 px-0 pl-0 font-medium text-start">
-                  {disbursementOperation.ref.split("/")[0]}
-                </Td>
+                {selectedType === "operation" && (
+                  <Td className="p-0 px-0 pl-0 font-medium text-start">
+                    {disbursementOperation.ref.split("/")[0]}
+                  </Td>
+                )}
                 <Td className="p-0 px-0 pl-0 text-start">
                   {disbursementOperation.account_name}
                 </Td>
@@ -789,29 +799,38 @@ export default function DecaissementPage() {
         className="-z-50 opacity-0 print:opacity-100 absolute"
       >
         <PrintPage>
-          <table className="w-full text-center text-lg">
+          <h2 className="text-xl mb-4 text-center ">
+            Operation de Décaissement ({selectedType})
+          </h2>
+          {selectedDate && (
+            <h3 className="mb-2 ">
+              Date : <span className="font-semibold">{selectedDate}</span>
+            </h3>
+          )}
+          {selectedUserName && (
+            <h3 className="mb-4 ">
+              Agent : <span className="font-semibold">{selectedUserName}</span>
+            </h3>
+          )}
+
+          <table className="w-full text-center text-sm">
             <thead className="">
               <tr className="font-semibold text-black">
-                <th className="text-medium w-[25%] py-3  text-center border text-base">
+                <th className="text-medium w-[25%] py-3  text-center border">
                   Motif
                 </th>
-                <th className="text-medium py-2 text-center border text-base">
-                  OD
-                </th>
-
-                <th className="text-medium py-2 text-center border text-base">
+                {selectedType === "operation" && (
+                  <th className="text-medium py-2 text-center border">OD</th>
+                )}
+                <th className="text-medium py-2 text-center border">
                   Compte d'opération
                 </th>
-                <th className="text-medium py-2 text-center border text-base">
-                  Montant
-                </th>
-                <th className="text-medium py-2 text-center border text-base">
-                  Date
-                </th>
+                <th className="text-medium py-2 text-center border">Montant</th>
+                <th className="text-medium py-2 text-center border">Date</th>
               </tr>
             </thead>
             {!disbursementsData ? (
-              <TableBodySquelette columnCount={isAdmin ? 7 : 6} />
+              <TableBodySquelette columnCount={5} />
             ) : (
               <tbody>
                 {disbursementsData.data?.map((disbursementOperation, i) => (
@@ -819,9 +838,11 @@ export default function DecaissementPage() {
                     <td className="p-0 px-0 pl-0 text-start border">
                       {disbursementOperation.motif}
                     </td>
-                    <td className="p-0 px-0 pl-0 font-medium text-start border">
-                      {disbursementOperation.ref.split("/")[0]}
-                    </td>
+                    {selectedType === "operation" && (
+                      <td className="p-0 px-0 pl-0 font-medium text-start border">
+                        {disbursementOperation.ref.split("/")[0]}
+                      </td>
+                    )}
                     <td className="p-0 px-0 pl-0 text-start border">
                       {disbursementOperation.account_name}
                     </td>

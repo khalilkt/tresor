@@ -380,6 +380,13 @@ export default function VaultDepositsPage() {
     }
   }
 
+  const selectedDate = searchParams.get("date");
+  const selectedUserName = searchParams.get("created_by")
+    ? userList.find(
+        (user) => user.id === parseInt(searchParams.get("created_by")!)
+      )?.name
+    : null;
+
   return (
     <div className="flex flex-col items-start gap-y-10 px-8 pb-12 pt-12 lg:px-10 lg:pb-0 lg:pt-20l">
       <MDialog
@@ -573,23 +580,33 @@ export default function VaultDepositsPage() {
         className="-z-50 opacity-0 print:opacity-100 absolute"
       >
         <PrintPage>
-          <table className="w-full text-center text-lg">
+          <h2 className="text-xl mt-4 mb-4 text-center ">
+            Opérations de recettes (
+            {VAULT_GROUPS.find((group) => group.id === selectedGroup)?.name})
+          </h2>
+          {selectedDate && (
+            <h3 className="mb-2 ">
+              Date : <span className="font-semibold">{selectedDate}</span>
+            </h3>
+          )}
+          {selectedUserName && (
+            <h3 className="mb-4 ">
+              Agent : <span className="font-semibold">{selectedUserName}</span>
+            </h3>
+          )}
+          <table className="w-full text-center text-sm">
             <thead>
               <tr className="font-bold text-black">
-                <th className="text-medium w-[25%] py-2 text-center text-base">
+                <th className="border w-[25%] py-2 text-center text-base">
                   Motif
                 </th>
-                <th className="text-medium py-2 text-center text-base">
-                  Caisse
-                </th>
+                <th className="border py-2 text-center text-base">Caisse</th>
                 {selectedGroup === 2 && (
-                  <th className="text-medium py-2 text-center text-base">AD</th>
+                  <th className="border py-2 text-center text-base">AD</th>
                 )}
 
-                <th className="text-medium py-2 text-center text-base">
-                  Montant
-                </th>
-                <th className="text-medium py-2 text-center text-base">Date</th>
+                <th className="border py-2 text-center text-base">Montant</th>
+                <th className="border py-2 text-center text-base">Date</th>
               </tr>
             </thead>
             {!vaultDepositData ? (

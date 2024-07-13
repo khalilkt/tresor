@@ -610,6 +610,13 @@ export default function EncaissementPage() {
   const selectedType = (searchParams.get("type") ??
     "operation") as CollectionOperationType;
 
+  const selectedDate = searchParams.get("date");
+  const selectedUserName = searchParams.get("created_by")
+    ? userList.find(
+        (user) => user.id === parseInt(searchParams.get("created_by")!)
+      )?.name
+    : null;
+
   return (
     <div className="flex flex-col items-start gap-y-10 px-8 pb-12 pt-12 lg:px-10 lg:pb-0 lg:pt-20l">
       <MDialog
@@ -758,8 +765,11 @@ export default function EncaissementPage() {
             <th className="text-medium w-[25%] py-3 text-start text-base">
               Motif
             </th>
-            <th className="text-medium py-3 text-start text-base">OE</th>
-
+            {selectedType !== "rejected" && (
+              <th className="text-medium py-3 text-start text-base">
+                {selectedType === "versement" ? "Banque" : "OE"}
+              </th>
+            )}
             <th className="text-medium py-3 text-start text-base">Montant</th>
             <th className="text-medium py-3 text-start text-base">Date</th>
             {isAdmin && (
@@ -777,9 +787,13 @@ export default function EncaissementPage() {
                 <Td className="p-0 px-0 pl-0 text-start">
                   {collectionOperation.motif}
                 </Td>
-                <Td className="p-0 px-0 pl-0 text-start">
-                  {collectionOperation.ref.split("/")[0]}
-                </Td>
+                {selectedType !== "rejected" && (
+                  <Td className="p-0 px-0 pl-0 text-start">
+                    {selectedType === "versement"
+                      ? collectionOperation.details[0]?.account_data.name ?? "-"
+                      : collectionOperation.ref.split("/")[0]}
+                  </Td>
+                )}
 
                 <Td className="p-0 px-0 pl-0 font-medium text-start">
                   {formatAmount(collectionOperation.total)}
@@ -828,22 +842,38 @@ export default function EncaissementPage() {
         ref={printRef}
       >
         <PrintPage>
-          <table className="w-full text-center text-lg">
+          <h2 className="text-xl mb-4 text-center ">
+            Operation d'encaissement (
+            {(selectedType === "rejected"
+              ? "rejet"
+              : selectedType
+            ).toUpperCase()}
+            )
+          </h2>
+          {selectedDate && (
+            <h3 className="mb-2 ">
+              Date : <span className="font-semibold">{selectedDate}</span>
+            </h3>
+          )}
+          {selectedUserName && (
+            <h3 className="mb-4 ">
+              Agent : <span className="font-semibold">{selectedUserName}</span>
+            </h3>
+          )}
+          <table className="w-full text-center text-sm">
             <thead className="">
               <tr className="sfont-semibold">
-                <th className="text-medium w-[25%] py-1 text-center border text-base">
+                <th className="text-medium w-[25%] py-1 text-center border">
                   Motif
                 </th>
-                <th className="text-medium py-1 text-center border text-base">
-                  OE
-                </th>
+                {selectedType !== "rejected" && (
+                  <th className="text-medium py-1 text-center border">
+                    {selectedType === "versement" ? "Banque" : "OE"}
+                  </th>
+                )}
 
-                <th className="text-medium py-1 text-center border text-base">
-                  Montant
-                </th>
-                <th className="text-medium py-1 text-center border text-base">
-                  Date
-                </th>
+                <th className="text-medium py-1 text-center border">Montant</th>
+                <th className="text-medium py-1 text-center border">Date</th>
               </tr>
             </thead>
             {!collectionsData ? (
@@ -855,9 +885,15 @@ export default function EncaissementPage() {
                     <td className="p-0 px-0 pl-0 border">
                       {collectionOperation.motif}
                     </td>
-                    <td className="p-0 px-0 pl-0 border">
-                      {collectionOperation.ref.split("/")[0]}
-                    </td>
+
+                    {selectedType !== "rejected" && (
+                      <td className="p-0 px-0 pl-0 border">
+                        {selectedType === "versement"
+                          ? collectionOperation.details[0]?.account_data.name ??
+                            "-"
+                          : collectionOperation.ref.split("/")[0]}
+                      </td>
+                    )}
 
                     <td className="p-0 px-0 pl-0 font-medium border">
                       {formatAmount(collectionOperation.total)}
