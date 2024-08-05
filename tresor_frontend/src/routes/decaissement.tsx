@@ -523,6 +523,14 @@ export default function DecaissementPage() {
     try {
       const file = data.file;
 
+      // in data.detatils we need to make sure the montat after . is 2
+      data.details = data.details.map((detail) => {
+        return {
+          ...detail,
+          montant: parseFloat(parseFloat(detail.montant.toString()).toFixed(2)),
+        };
+      });
+
       const response = await axios.post(
         rootUrl + "disbursements/",
         {

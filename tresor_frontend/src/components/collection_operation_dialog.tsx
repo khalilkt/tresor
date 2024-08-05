@@ -115,6 +115,9 @@ export default function CollectionOpearionDetailDialog({ id }: { id: number }) {
         });
       } else {
         groupedDetails[index].total += detail.montant;
+
+        // groupedDetails[index].total =
+        //   Math.round(groupedDetails[index].total * 100) / 100;
       }
     });
   }

@@ -37,6 +37,9 @@ const tens = [
 export function formatAmount(n: number): string {
   // 1234567 => 1 234 567,00
 
+  //round to 2 decimal places
+  n = Math.round(n * 100) / 100;
+
   let ret = n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ");
   ret = ret.replace(".", ",");
   if (ret.indexOf(",") === -1) ret += ",00";
@@ -45,6 +48,8 @@ export function formatAmount(n: number): string {
   return ret;
 }
 export function numberToFrench(n: number): string {
+  //round to 2 decimal places
+  n = Math.round(n * 100) / 100;
   if (n === 0) return "zéro";
   if (n < 0) return "moins " + numberToFrench(-n);
 
