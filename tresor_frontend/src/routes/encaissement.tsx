@@ -6,7 +6,14 @@ import {
   PaginatedData,
 } from "../logiC/interfaces";
 import { Pagination, TableBodySquelette, Td, Tr } from "../components/table";
-import { Input, SearchBar, Select, Textarea, Title } from "../components/comps";
+import {
+  Input,
+  PrintButton,
+  SearchBar,
+  Select,
+  Textarea,
+  Title,
+} from "../components/comps";
 import { FilledButton, OutlinedButton } from "../components/buttons";
 import axios from "axios";
 import { rootUrl } from "../constants";
@@ -739,14 +746,16 @@ export default function EncaissementPage() {
           </Select>
         </div>
         <div className="flex gap-x-3">
-          <OutlinedButton
+          <PrintButton onTap={() => handlePrint()} />
+
+          {/* <OutlinedButton
             className="rounded-lg"
             onClick={() => {
               handlePrint();
             }}
           >
             Imprimer
-          </OutlinedButton>
+          </OutlinedButton> */}
 
           <FilledButton
             className="rounded-lg bg-primary p-2 text-white"

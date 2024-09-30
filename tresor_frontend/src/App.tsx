@@ -37,20 +37,30 @@ export interface AuthData {
 }
 export const AuthContext = React.createContext<{
   inited: boolean;
+  showSignature: boolean;
   authData: AuthData | null;
   logIn: (username: string, password: string) => void;
   logOut: () => void;
+  updateShowSignature: (value: boolean) => void;
 }>({
   inited: false,
+  showSignature: false,
   authData: null,
   logIn: () => {},
   logOut: () => {},
+  updateShowSignature: () => {},
 });
 
 function App() {
   const [inited, setInited] = React.useState(false);
+  const [showSignature, setShowSignature] = React.useState(false);
   const [authData, setAuthData] = React.useState<AuthData | null>(null);
   const user = authData?.user;
+
+  function updateShowSignature(value: boolean) {
+    setShowSignature(value);
+    localStorage.setItem("showSignature", value ? "true" : "false");
+  }
 
   async function logIn(username: string, password: string) {
     try {
@@ -70,10 +80,15 @@ function App() {
 
   function logOut() {
     localStorage.removeItem("token");
+    localStorage.removeItem("showSignature");
     setAuthData(null);
   }
 
   async function init() {
+    const showSignature = localStorage.getItem("showSignature");
+    if (showSignature) {
+      setShowSignature(showSignature === "true");
+    }
     const token = localStorage.getItem("token");
     if (token) {
       try {
@@ -105,6 +120,8 @@ function App() {
             authData: authData,
             logIn: logIn,
             logOut: logOut,
+            showSignature: showSignature,
+            updateShowSignature: updateShowSignature,
           }}
         >
           {!inited ? (

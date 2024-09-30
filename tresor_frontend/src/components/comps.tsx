@@ -5,6 +5,7 @@ import { AuthContext } from "../App";
 import axios from "axios";
 import * as Popover from "@radix-ui/react-popover";
 import { rootUrl } from "../constants";
+import { OutlinedButton } from "./buttons";
 // h1props is a type that represents the props that can be passed to an h1 element
 export function Title({
   children,
@@ -285,5 +286,46 @@ export function Tag({
       {title.length > 0 && <span>{title}</span>}
       <span className="text-primary">{tag}</span>
     </button>
+  );
+}
+
+export function PrintButton({
+  onTap,
+
+  className = "",
+  showSignatureChoice = false,
+}: {
+  onTap: (showSignature: Boolean) => void;
+  className?: string;
+  showSignatureChoice?: boolean;
+}) {
+  const showSignature = useContext(AuthContext).showSignature;
+  const authContext = useContext(AuthContext);
+  const isAdmin = authContext.authData?.user?.is_admin;
+
+  return (
+    <div className={"flex gap-x-1 relative " + className}>
+      {showSignatureChoice && isAdmin && (
+        <label className="flex w-max absolute top-[50px] items-center gap-x-1">
+          <input
+            type="checkbox"
+            className="form-checkbox w-3 h-3"
+            checked={showSignature}
+            onChange={(e) => {
+              authContext.updateShowSignature(e.target.checked);
+            }}
+          />
+          <span className="text-xs">Avec signature</span>
+        </label>
+      )}
+
+      <OutlinedButton
+        onClick={() => {
+          onTap(showSignature);
+        }}
+      >
+        Imprimer
+      </OutlinedButton>
+    </div>
   );
 }

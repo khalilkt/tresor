@@ -7,7 +7,14 @@ import {
   CollectionOperationInterface,
 } from "../logiC/interfaces";
 import { Pagination, TableBodySquelette, Td, Tr } from "../components/table";
-import { Input, SearchBar, Select, Textarea, Title } from "../components/comps";
+import {
+  Input,
+  PrintButton,
+  SearchBar,
+  Select,
+  Textarea,
+  Title,
+} from "../components/comps";
 import { FilledButton, OutlinedButton } from "../components/buttons";
 import axios, { AxiosError } from "axios";
 import { rootUrl } from "../constants";
@@ -705,13 +712,15 @@ export default function DecaissementPage() {
           </Select>
         </div>
         <div className="flex gap-x-4">
-          <OutlinedButton
+          <PrintButton onTap={() => handlePrint()} />
+
+          {/* <OutlinedButton
             onClick={() => {
               handlePrint();
             }}
           >
             Imprimer
-          </OutlinedButton>
+          </OutlinedButton> */}
           <FilledButton
             className="rounded-lg bg-primary p-2 text-white"
             onClick={() => {

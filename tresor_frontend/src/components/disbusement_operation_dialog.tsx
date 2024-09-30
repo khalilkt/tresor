@@ -11,14 +11,17 @@ import { FilledButton, OutlinedButton } from "./buttons";
 import { PrintIcon } from "./icons";
 import { useReactToPrint } from "react-to-print";
 import { PrintPage } from "./print_page";
-import { Select } from "./comps";
+import { PrintButton, Select } from "./comps";
 import { formatAmount, numberToFrench } from "../logiC/utils";
+import signature from "../assets/signature.png";
 
 export default function DisbursementOperationDetailDialog({
   id,
 }: {
   id: number;
 }) {
+  const showSignature = useContext(AuthContext).showSignature;
+  const isAdmin = useContext(AuthContext).authData?.user?.is_admin;
   const printRef = useRef<HTMLDivElement>(null);
   const [selectedOption, setSelectedOption] = useState<
     "all" | "detail" | string
@@ -174,7 +177,7 @@ export default function DisbursementOperationDetailDialog({
 
           {data.type === "operation" && (
             <>
-              <div className="flex col-span-2 w-full justify-end gap-x-2">
+              <div className="flex mb-4 col-span-2 w-full justify-end gap-x-2">
                 <Select
                   className="w-min"
                   value={selectedOption}
@@ -197,7 +200,12 @@ export default function DisbursementOperationDetailDialog({
                     Fichier
                   </OutlinedButton>
                 )}
-                <FilledButton
+                <PrintButton
+                  showSignatureChoice={true}
+                  onTap={() => handlePrint()}
+                />
+
+                {/* <FilledButton
                   onClick={() => {
                     handlePrint();
                   }}
@@ -205,7 +213,7 @@ export default function DisbursementOperationDetailDialog({
                 >
                   <PrintIcon />
                   Imprimer
-                </FilledButton>
+                </FilledButton> */}
               </div>
 
               <div className="col-span-2 overflow-auto w-full overscroll-y-scroll max-h-[400px]">
@@ -318,6 +326,9 @@ export default function DisbursementOperationDetailDialog({
                     <div className="mt-4 self-end text-centerr flex flex-col font-semibold items-end">
                       <span className="text-center mr-5">Le Directeur</span>
                       <span className="text-center">Mohamed ZEIDANE</span>
+                      {showSignature && isAdmin && (
+                        <img src={signature} className="w-24 h-24 mr-4 mt-2" />
+                      )}
                     </div>
                   </PrintPage>
                 ))}
@@ -399,6 +410,9 @@ export default function DisbursementOperationDetailDialog({
                 <div className="mt-4 self-end text-centerr flex flex-col font-semibold items-end">
                   <span className="text-center mr-5">Le Directeur</span>
                   <span className="text-center">Mohamed ZEIDANE</span>
+                  {showSignature && isAdmin && (
+                    <img src={signature} className="w-24 h-24 mr-4 mt-2" />
+                  )}
                 </div>
               </PrintPage>
             )}

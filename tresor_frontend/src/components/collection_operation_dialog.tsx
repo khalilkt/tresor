@@ -12,8 +12,9 @@ import { FilledButton, OutlinedButton } from "./buttons";
 import { PrintIcon } from "./icons";
 import { useReactToPrint } from "react-to-print";
 import { PrintPage } from "./print_page";
-import { Select } from "./comps";
+import { PrintButton, Select } from "./comps";
 import { formatAmount, numberToFrench } from "../logiC/utils";
+import signature from "../assets/signature.png";
 
 export default function CollectionOpearionDetailDialog({ id }: { id: number }) {
   const printRef = useRef<HTMLDivElement>(null);
@@ -28,6 +29,9 @@ export default function CollectionOpearionDetailDialog({ id }: { id: number }) {
     },
     onAfterPrint: () => {},
   });
+
+  const showSignature = useContext(AuthContext).showSignature;
+  const isAdmin = useContext(AuthContext).authData?.user?.is_admin;
 
   const [data, setData] = useState<CollectionOperationInterface | null>(null);
   const token = useContext(AuthContext).authData!.token;
@@ -194,15 +198,22 @@ export default function CollectionOpearionDetailDialog({ id }: { id: number }) {
                   </OutlinedButton>
                 )}
                 {data.type === "operation" && (
-                  <FilledButton
-                    onClick={() => {
+                  <PrintButton
+                    showSignatureChoice={true}
+                    onTap={() => {
                       handlePrint();
                     }}
-                    className="self-end flex gap-x-2"
-                  >
-                    <PrintIcon />
-                    Imprimer
-                  </FilledButton>
+                  />
+
+                  // <FilledButton
+                  //   onClick={() => {
+                  //     handlePrint();
+                  //   }}
+                  //   className="self-end flex gap-x-2"
+                  // >
+                  //   <PrintIcon />
+                  //   Imprimer
+                  // </FilledButton>
                 )}
               </div>
 
@@ -343,6 +354,9 @@ export default function CollectionOpearionDetailDialog({ id }: { id: number }) {
                     <div className="mt-4 self-end text-center flex flex-col font-semibold items-end">
                       <span className="text-center mr-5">Le Directeur</span>
                       <span className="text-center">Mohamed ZEIDANE</span>
+                      {showSignature && isAdmin && (
+                        <img src={signature} className="w-24 h-24 mr-4 mt-2" />
+                      )}
                     </div>
                   </PrintPage>
                 ))}
@@ -436,6 +450,9 @@ export default function CollectionOpearionDetailDialog({ id }: { id: number }) {
                 <div className="mt-4 self-end text-centerr flex flex-col font-semibold items-end">
                   <span className="text-center mr-5">Le Directeur</span>
                   <span className="text-center">Mohamed ZEIDANE</span>
+                  {showSignature && isAdmin && (
+                    <img src={signature} className="w-24 h-24 mr-4 mt-2" />
+                  )}
                 </div>
               </PrintPage>
             )}

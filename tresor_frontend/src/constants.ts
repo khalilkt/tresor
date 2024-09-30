@@ -1,4 +1,5 @@
-export const rootUrl = true
+const IS_PRODUCTION = true;
+export const rootUrl = IS_PRODUCTION
   ? "https://gestion-bv.com:81/"
   : "http://localhost:8000/";
 

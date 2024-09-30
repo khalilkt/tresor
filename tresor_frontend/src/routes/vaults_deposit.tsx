@@ -7,7 +7,14 @@ import {
   VaultInterface,
 } from "../logiC/interfaces";
 import { Pagination, TableBodySquelette, Td, Tr } from "../components/table";
-import { Input, SearchBar, Select, Textarea, Title } from "../components/comps";
+import {
+  Input,
+  PrintButton,
+  SearchBar,
+  Select,
+  Textarea,
+  Title,
+} from "../components/comps";
 import { FilledButton, OutlinedButton } from "../components/buttons";
 import axios, { AxiosError } from "axios";
 import { rootUrl } from "../constants";
@@ -497,14 +504,23 @@ export default function VaultDepositsPage() {
               ))}
           </Select>
         </div>
-        <div className="flex gap-x-2">
-          <OutlinedButton
-            onClick={() => {
-              handlePrint();
-            }}
-          >
-            Imprimer
-          </OutlinedButton>
+        <div className="flex gap-x-2 ">
+          <div className="flex gap-x-1 relative">
+            {/* <label className="flex w-max absolute top-[50px] items-center gap-x-1">
+              <input type="checkbox" className="form-checkbox w-3 h-3" />
+              <span className="text-xs">Avec signature</span>
+            </label> */}
+            <PrintButton onTap={() => handlePrint()} />
+
+            {/* 
+            <OutlinedButton
+              onClick={() => {
+                handlePrint();
+              }}
+            >
+              Imprimer
+            </OutlinedButton> */}
+          </div>
           <FilledButton
             className="rounded-lg bg-primary p-2 text-white"
             onClick={() => {

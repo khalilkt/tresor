@@ -2,7 +2,7 @@ import { useContext, useEffect, useRef, useState } from "react";
 import { MDialog } from "../components/dialog";
 import { VaultInterface } from "../logiC/interfaces";
 import { Pagination, TableBodySquelette, Td, Tr } from "../components/table";
-import { Input, SearchBar, Title } from "../components/comps";
+import { Input, PrintButton, SearchBar, Title } from "../components/comps";
 import { FilledButton, OutlinedButton } from "../components/buttons";
 import axios from "axios";
 import { rootUrl } from "../constants";
@@ -261,14 +261,16 @@ export default function VaultsPage() {
                                         placeholder="Chercher"
                                         className="w-full flex-1 lg:w-[300px]"
                                 /> */}
-        <OutlinedButton
+        <PrintButton onTap={() => handlePrint()} />
+
+        {/* <OutlinedButton
           className="rounded-lg p-2"
           onClick={() => {
             handlePrint();
           }}
         >
           Imprimer
-        </OutlinedButton>
+        </OutlinedButton> */}
       </div>
       <table className="hidden w-full text-center text-lg lg:table">
         <thead className="">

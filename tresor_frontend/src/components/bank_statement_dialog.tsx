@@ -1,6 +1,6 @@
 import { useContext, useEffect, useState } from "react";
 import { AccountInterface, VaultInterface } from "../logiC/interfaces";
-import { Input } from "./comps";
+import { Input, PrintButton } from "./comps";
 import axios from "axios";
 import { rootUrl } from "../constants";
 import { AuthContext } from "../App";
@@ -118,14 +118,8 @@ export function BankStatementDialog({
           <span className="text-center text-slate-700">Chargement...</span>
         ) : (
           <div className="px-3 flex flex-col">
-            <FilledButton
-              className="text-primary font-semibold self-end my-5"
-              onClick={() => {
-                handlePrint();
-              }}
-            >
-              Imprimer
-            </FilledButton>
+            <PrintButton className="mb-8" onTap={() => handlePrint()} />
+
             <table className="hidden w-full text-center text-lg lg:table">
               <thead className="">
                 <tr className="font-bold text-gray">

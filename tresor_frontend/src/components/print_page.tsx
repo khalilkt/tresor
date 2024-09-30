@@ -1,7 +1,9 @@
 import rim from "../assets/rim.png";
 import qrcode from "../assets/qr_code.jpg";
 import joumhouria from "../assets/joumhouria_image.png";
-import { useEffect, useRef, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
+import signature from "../assets/signature.png";
+import { AuthContext } from "../App";
 
 function formatDate(date: string) {
   const year = date.slice(0, 4);
@@ -17,6 +19,8 @@ export function PrintPage({
 } & React.HTMLProps<HTMLDivElement> & {
     divProps?: React.HTMLProps<HTMLDivElement>;
   }) {
+  const isAdmin = useContext(AuthContext).authData?.user.is_admin ?? false;
+  const showSignature = useContext(AuthContext).showSignature;
   const printComponentRef = useRef<HTMLTableElement>(null);
 
   const handleResize = () => {
@@ -30,12 +34,14 @@ export function PrintPage({
       const heightWithSingleHeader = numberOfPage * PAGE_HEIGHT;
       let requiredHeight = heightWithSingleHeader;
       if (numberOfPage > 1) {
-        let headerHeight =
+        const headerHeight =
           printElement.getElementsByTagName("thead")?.[0]?.clientHeight;
-        // headerHeight = 0;
+
         const footerHeight =
           printElement.getElementsByTagName("tfoot")?.[0]?.clientHeight;
+        console.log(headerHeight, footerHeight);
         requiredHeight -= (numberOfPage - 1) * (headerHeight + footerHeight);
+
         // requiredHeight = PAGE_HEIGHT * 2 - (headerHeight + footerHeight);
       }
       const headerHeight =
@@ -109,11 +115,16 @@ export function PrintPage({
           </td>
         </tr>
       </tbody>
-      <tfoot className=" text-center">
+      <tfoot className="text-center">
         <tr>
           <td>
-            <div className="px-6">
-              <hr className="border-1 mt-10 w-full" />
+            <div className="px-6 pt-2 ">
+              {/* {showSignature && isAdmin && (
+                <div className="w-full h-24 mb-2 flex justify-end">
+                  <img src={signature} className="w-24 h-24 mb-4" />
+                </div>
+              )} */}
+              <hr className="border-1 w-full" />
               <div className="flex justify-between py-2 items-center">
                 <div className="flex flex-col gap-y-px text-xs items-start text-start">
                   <div className="flex gap-x-1 items-center">
