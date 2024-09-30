@@ -12,9 +12,8 @@ import { FilledButton, OutlinedButton } from "./buttons";
 import { PrintIcon } from "./icons";
 import { useReactToPrint } from "react-to-print";
 import { PrintPage } from "./print_page";
-import { PrintButton, Select } from "./comps";
+import { PrintButton, Select, Signature } from "./comps";
 import { formatAmount, numberToFrench } from "../logiC/utils";
-import signature from "../assets/signature.png";
 
 export default function CollectionOpearionDetailDialog({ id }: { id: number }) {
   const printRef = useRef<HTMLDivElement>(null);
@@ -354,9 +353,7 @@ export default function CollectionOpearionDetailDialog({ id }: { id: number }) {
                     <div className="mt-4 self-end text-center flex flex-col font-semibold items-end">
                       <span className="text-center mr-5">Le Directeur</span>
                       <span className="text-center">Mohamed ZEIDANE</span>
-                      {showSignature && isAdmin && (
-                        <img src={signature} className="w-24 h-24 mr-4 mt-2" />
-                      )}
+                      {showSignature && isAdmin && <Signature />}
                     </div>
                   </PrintPage>
                 ))}
@@ -450,9 +447,7 @@ export default function CollectionOpearionDetailDialog({ id }: { id: number }) {
                 <div className="mt-4 self-end text-centerr flex flex-col font-semibold items-end">
                   <span className="text-center mr-5">Le Directeur</span>
                   <span className="text-center">Mohamed ZEIDANE</span>
-                  {showSignature && isAdmin && (
-                    <img src={signature} className="w-24 h-24 mr-4 mt-2" />
-                  )}
+                  {showSignature && isAdmin && <Signature />}
                 </div>
               </PrintPage>
             )}

@@ -2,7 +2,6 @@ import rim from "../assets/rim.png";
 import qrcode from "../assets/qr_code.jpg";
 import joumhouria from "../assets/joumhouria_image.png";
 import { useContext, useEffect, useRef, useState } from "react";
-import signature from "../assets/signature.png";
 import { AuthContext } from "../App";
 
 function formatDate(date: string) {
