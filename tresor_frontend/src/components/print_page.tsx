@@ -59,7 +59,7 @@ export function PrintPage({
     <table
       ref={printComponentRef}
       className={` table w-[21cm] 
-         flex-col overflow-x-clip ${divProps.className}}`}
+         flex-col  overflow-x-clip ${divProps.className}}`}
     >
       <thead className="">
         <div className="px-6 pt-10">

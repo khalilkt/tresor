@@ -6,7 +6,7 @@ import axios from "axios";
 import * as Popover from "@radix-ui/react-popover";
 import { rootUrl } from "../constants";
 import { OutlinedButton } from "./buttons";
-import signature from "../assets/signature.png";
+import signature from "../assets/ss.png";
 // h1props is a type that represents the props that can be passed to an h1 element
 export function Title({
   children,
