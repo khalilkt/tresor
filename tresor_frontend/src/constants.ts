@@ -1,4 +1,7 @@
+export const START_YEAR = 2023;
+
 const IS_PRODUCTION = true;
+
 export const rootUrl = IS_PRODUCTION
   ? "https://gestion-bv.com:81/"
   : "http://localhost:8000/";

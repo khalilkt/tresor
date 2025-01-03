@@ -18,7 +18,7 @@ import axios from "axios";
 import { numberToFrench } from "../logiC/utils";
 
 function FileDownloadDialog() {
-  // 2024-04
+
   const [selectedDate, setSelectedDate] = React.useState<string | null>(null);
   const [selectedOption, setSelectedOption] = React.useState<
     "collection" | "disbursement"

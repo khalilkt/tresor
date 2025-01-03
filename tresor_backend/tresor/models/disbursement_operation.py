@@ -83,13 +83,18 @@ class DisbursementOperationSerializer(serializers.ModelSerializer):
 
 
         account = Account.objects.get(pk=self.initial_data['account'])
+
         total = 0
         for item in value:
             total += item['montant']
         if total > account.balance:
             raise serializers.ValidationError("NOT_ENOUGH_BALANCE")
-        return value
-
+    
+    def validate(self, attrs):
+        # should not update details
+        if self.instance:
+            if 'details' in attrs:
+                raise serializers.ValidationError("UPDATE_NOT_ALLOWED")
 
     def create(self, validated_data):
         validated_data['created_by'] = self.context['request'].user

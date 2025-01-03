@@ -1,5 +1,5 @@
+import { START_YEAR } from "../constants";
 import { Input, Select } from "./comps";
-
 export function DateFilter({
   date,
   onChange,
@@ -7,7 +7,11 @@ export function DateFilter({
   date: string | null;
   onChange: (date: string | null) => void;
 }) {
+
   let selectedDateRange: "days" | "months" | "years" | null = null;
+  //current year 
+  const currentYear = new Date().getFullYear();
+
   if (date !== null) {
     if (date?.split("-").length === 3) {
       selectedDateRange = "days";
@@ -85,8 +89,12 @@ export function DateFilter({
           <option value="" disabled>
             Annee
           </option>
-          <option value="2023">2023</option>
-          <option value="2024">2024</option>
+          <>
+          {
+            Array.from({ length: currentYear - START_YEAR + 1 }).map((_, i) => (
+              <option value={(START_YEAR + i).toString()}>{START_YEAR + i}</option>
+            ))
+          }</>
         </Select>
       )}
     </div>

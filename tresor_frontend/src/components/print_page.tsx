@@ -1,8 +1,7 @@
 import rim from "../assets/rim.png";
 import qrcode from "../assets/qr_code.jpg";
 import joumhouria from "../assets/joumhouria_image.png";
-import { useContext, useEffect, useRef, useState } from "react";
-import { AuthContext } from "../App";
+import { useEffect, useRef } from "react";
 
 function formatDate(date: string) {
   const year = date.slice(0, 4);
@@ -18,8 +17,6 @@ export function PrintPage({
 } & React.HTMLProps<HTMLDivElement> & {
     divProps?: React.HTMLProps<HTMLDivElement>;
   }) {
-  const isAdmin = useContext(AuthContext).authData?.user.is_admin ?? false;
-  const showSignature = useContext(AuthContext).showSignature;
   const printComponentRef = useRef<HTMLTableElement>(null);
 
   const handleResize = () => {
@@ -59,7 +56,7 @@ export function PrintPage({
     <table
       ref={printComponentRef}
       className={` table w-[21cm] 
-         flex-col  overflow-x-clip ${divProps.className}}`}
+         flex-col overflow-x-clip ${divProps.className}}`}
     >
       <thead className="">
         <div className="px-6 pt-10">
