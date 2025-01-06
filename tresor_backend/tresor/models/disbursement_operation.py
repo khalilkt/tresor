@@ -89,6 +89,8 @@ class DisbursementOperationSerializer(serializers.ModelSerializer):
             total += item['montant']
         if total > account.balance:
             raise serializers.ValidationError("NOT_ENOUGH_BALANCE")
+        return value
+    
     
     def validate(self, attrs):
         # should not update details
