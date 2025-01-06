@@ -95,6 +95,9 @@ class DisbursementOperationSerializer(serializers.ModelSerializer):
         if self.instance:
             if 'details' in attrs:
                 raise serializers.ValidationError("UPDATE_NOT_ALLOWED")
+        
+        return attrs
+    
 
     def create(self, validated_data):
         validated_data['created_by'] = self.context['request'].user
