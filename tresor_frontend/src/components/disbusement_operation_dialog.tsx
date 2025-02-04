@@ -264,7 +264,7 @@ export default function DisbursementOperationDetailDialog({
                     detail.bank_name === selectedOption
                 )
                 .map((group) => (
-                  <PrintPage>
+                  <PrintPage key={"printpage" + group.bank_name}>
                     <div className="flex flex-col gap-y-3 pt-8 pb-6 text-sm">
                       <h3 className="text-base font-medium">
                         Ordre
@@ -330,7 +330,7 @@ export default function DisbursementOperationDetailDialog({
                   </PrintPage>
                 ))}
             {selectedOption === "all" && (
-              <PrintPage>
+              <PrintPage key={"printpage" + "all"}>
                 {selectedOption === "all" && (
                   <div className="mt-2 mb-5 w-full text-center flex-col gap-y-2 items-center text-sm">
                     <h3 className=" text-2xl font-semibold text-center">

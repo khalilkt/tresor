@@ -2,6 +2,7 @@ import rim from "../assets/rim.png";
 import qrcode from "../assets/qr_code.jpg";
 import joumhouria from "../assets/joumhouria_image.png";
 import { useEffect, useRef } from "react";
+import React from "react";
 
 function formatDate(date: string) {
   const year = date.slice(0, 4);
@@ -9,24 +10,29 @@ function formatDate(date: string) {
   const day = date.slice(8, 10);
   return `${day}/${month}/${year}`;
 }
+const PAGE_HEIGHT = 29.7 * 37.7952755906;
+
 export function PrintPage({
+  showPageNumber = true,
   children,
   ...divProps
 }: {
   children: React.ReactNode;
+  showPageNumber?: boolean;
 } & React.HTMLProps<HTMLDivElement> & {
     divProps?: React.HTMLProps<HTMLDivElement>;
   }) {
   const printComponentRef = useRef<HTMLTableElement>(null);
+  const [pagesNumber, setPagesNumber] = React.useState(1);
 
   const handleResize = () => {
-    const PAGE_HEIGHT = 29.7 * 37.7952755906;
     const printElement = printComponentRef.current;
 
     if (printElement) {
       printElement.style.height = `auto`;
       let height = printElement.clientHeight;
       const numberOfPage = Math.ceil(height / PAGE_HEIGHT);
+      setPagesNumber(numberOfPage);
       const heightWithSingleHeader = numberOfPage * PAGE_HEIGHT;
       let requiredHeight = heightWithSingleHeader;
       if (numberOfPage > 1) {
@@ -50,14 +56,26 @@ export function PrintPage({
 
   useEffect(() => {
     handleResize();
+    console.log("page number", pagesNumber);
   }, [children, divProps]);
 
   return (
     <table
       ref={printComponentRef}
-      className={` table w-[21cm] 
+      className={`relative table w-[21cm] 
          flex-col overflow-x-clip ${divProps.className}}`}
     >
+      {Array.from({ length: pagesNumber }, (_, index) => (
+        <p
+          style={{
+            top: (index + 1) * PAGE_HEIGHT - 105,
+            right: "50%",
+          }}
+          className="absolute font-semibold"
+        >
+          {index + 1}/{pagesNumber}
+        </p>
+      ))}
       <thead className="">
         <div className="px-6 pt-10">
           <div dir="ltr" className="flex flex-col">
@@ -112,6 +130,7 @@ export function PrintPage({
         </tr>
       </tbody>
       <tfoot className="text-center">
+        {/* <p className="self-end">{currentPage}/3</p> */}
         <tr>
           <td>
             <div className="px-6 pt-2 ">
@@ -223,7 +242,7 @@ export function PrintPage({
                         <path
                           d="M12.0004 20.8182L11.2862 21.5181C11.4742 21.7101 11.7317 21.8182 12.0004 21.8182C12.2691 21.8182 12.5265 21.7101 12.7146 21.5181L12.0004 20.8182ZM12.0004 3.18188L12.7146 2.48198C12.5265 2.29005 12.2691 2.18188 12.0004 2.18188C11.7317 2.18188 11.4742 2.29005 11.2861 2.48198L12.0004 3.18188ZM14.6004 12.0001C14.6004 15.1611 13.3373 18.0251 11.2862 20.1183L12.7146 21.5181C15.1173 19.0662 16.6004 15.7053 16.6004 12.0001H14.6004ZM11.2861 3.88178C13.3373 5.97501 14.6004 8.83903 14.6004 12.0001H16.6004C16.6004 8.29478 15.1173 4.93389 12.7146 2.48198L11.2861 3.88178ZM9.40039 12.0001C9.40039 8.83903 10.6634 5.97501 12.7146 3.88178L11.2861 2.48198C8.88347 4.93389 7.40039 8.29478 7.40039 12.0001H9.40039ZM12.7146 20.1183C10.6634 18.0251 9.40039 15.1611 9.40039 12.0001H7.40039C7.40039 15.7053 8.88348 19.0662 11.2862 21.5181L12.7146 20.1183Z"
                           fill="#000000"
-                        ></path>{" "}
+                        ></path>
                       </g>
                     </svg>
                     <span>{"tresor.mr"}</span>
