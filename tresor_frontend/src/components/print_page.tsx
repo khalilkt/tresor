@@ -68,7 +68,7 @@ export function PrintPage({
       {Array.from({ length: pagesNumber }, (_, index) => (
         <p
           style={{
-            top: (index + 1) * PAGE_HEIGHT - 105,
+            top: (index + 1) * PAGE_HEIGHT - 50,
             right: "50%",
           }}
           className="absolute font-semibold"
