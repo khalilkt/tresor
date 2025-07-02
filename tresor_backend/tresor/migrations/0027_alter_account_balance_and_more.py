@@ -38,6 +38,6 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='vaultwithdrawal',
             name='amount',
-            field=models.DecimalField(decimal_places=4, max_digits=10),
+            field=models.DecimalField(decimal_places=4, max_digits=18),
         ),
     ]
