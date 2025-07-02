@@ -5,10 +5,13 @@ from django.db import transaction
 from ..models.account import AccountSerializer, Account
 
 
+
 class CollectionOperationManager(models.Manager):
     def get_queryset(self):
         ret = super().get_queryset()
-        ret = ret.annotate(total = models.Sum('details__montant'))
+        # ret = ret.annotate(total = models.Sum('details__montant'))
+        ret = ret.annotate(total= models.functions.Coalesce(models.Sum('details__montant'), models.Value(0)))
+        
         ret =  ret.annotate(created_by_name = models.F('created_by__username'))
         return ret
 
@@ -48,7 +51,7 @@ class CollectionOperationDetail(models.Model):
     cheque_number = models.CharField(max_length=255)
     name = models.CharField(max_length=255)
     banq_name = models.CharField(max_length=255)
-    montant = models.DecimalField(max_digits=10, decimal_places=2)
+    montant = models.DecimalField(max_digits=10, decimal_places=4)
     destination_account = models.ForeignKey('Account', on_delete=models.PROTECT , related_name='collection_operations_details') 
 
     created_at = models.DateTimeField(auto_now_add=True)
@@ -64,7 +67,7 @@ class CollectionOperationDetailSerializer(serializers.ModelSerializer):
 
 class CollectionOperationSerializer(serializers.ModelSerializer):
     details = CollectionOperationDetailSerializer(many=True)
-    total = serializers.DecimalField(max_digits=10, decimal_places=2, read_only=True)
+    total = serializers.DecimalField(max_digits=10, decimal_places=4, read_only=True)
     created_by_name = serializers.CharField(read_only=True)
 
     def validate_details(self, value):  

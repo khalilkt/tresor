@@ -21,7 +21,7 @@ class VaultManager(models.Manager):
 class Vault(models.Model):
     name = models.CharField(max_length=255)
     code = models.CharField(max_length=255)
-    balance = models.DecimalField(max_digits=10, decimal_places=2)
+    balance = models.DecimalField(max_digits=10, decimal_places=4)
     group = models.ForeignKey(VaultGroup, on_delete=models.CASCADE, related_name="vaults")
 
     created_at = models.DateTimeField(auto_now_add=True)
@@ -46,7 +46,7 @@ class VaultSerializer(serializers.ModelSerializer):
 
 class VaultDeposit(models.Model):
     vault = models.ForeignKey(Vault, on_delete=models.CASCADE, related_name="deposits")
-    amount = models.DecimalField(max_digits=10, decimal_places=2)
+    amount = models.DecimalField(max_digits=10, decimal_places=4)
     motif = models.TextField()
     versement_number = models.CharField(max_length=255, null=True, blank=True)
     date = models.DateField()
@@ -75,7 +75,7 @@ class VaultDepositSerializer(serializers.ModelSerializer):
 
 class VaultWithdrawal(models.Model):
     vault = models.ForeignKey(Vault, on_delete=models.CASCADE, related_name="withdrawals")
-    amount = models.DecimalField(max_digits=10, decimal_places=2)
+    amount = models.DecimalField(max_digits=10, decimal_places=4)
     motif = models.TextField()
     account = models.ForeignKey(Account, on_delete=models.CASCADE, null=True, blank=True, related_name="fund_transfers")#if account is not null => degagement de fonds
     date = models.DateField()
