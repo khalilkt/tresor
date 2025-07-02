@@ -46,7 +46,7 @@ class DisbursementOperation(models.Model):
 
 class DisbursementOperationDetail(models.Model):
     parent = models.ForeignKey(DisbursementOperation, on_delete=models.CASCADE, related_name='details')
-    montant = models.DecimalField(max_digits=10, decimal_places=4)
+    montant = models.DecimalField(max_digits=18, decimal_places=4)
     name = models.CharField(max_length=255)
     banq_name = models.CharField(max_length=255)
     banq_number = models.CharField(max_length=255)
@@ -63,7 +63,7 @@ class DisbursementOperationDetailSerializer(serializers.ModelSerializer):
 class DisbursementOperationSerializer(serializers.ModelSerializer):
      
     details = DisbursementOperationDetailSerializer(many=True)
-    total = serializers.DecimalField(max_digits=10, decimal_places=4, read_only=True)
+    total = serializers.DecimalField(max_digits=18, decimal_places=4, read_only=True)
     created_by_name = serializers.CharField(read_only=True)
     account_name = serializers.CharField( read_only=True)
     account_data = AccountSerializer(source='account', read_only=True)

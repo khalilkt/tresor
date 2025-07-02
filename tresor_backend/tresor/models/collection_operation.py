@@ -51,7 +51,7 @@ class CollectionOperationDetail(models.Model):
     cheque_number = models.CharField(max_length=255)
     name = models.CharField(max_length=255)
     banq_name = models.CharField(max_length=255)
-    montant = models.DecimalField(max_digits=10, decimal_places=4)
+    montant = models.DecimalField(max_digits=18, decimal_places=4)
     destination_account = models.ForeignKey('Account', on_delete=models.PROTECT , related_name='collection_operations_details') 
 
     created_at = models.DateTimeField(auto_now_add=True)
@@ -67,7 +67,7 @@ class CollectionOperationDetailSerializer(serializers.ModelSerializer):
 
 class CollectionOperationSerializer(serializers.ModelSerializer):
     details = CollectionOperationDetailSerializer(many=True)
-    total = serializers.DecimalField(max_digits=10, decimal_places=4, read_only=True)
+    total = serializers.DecimalField(max_digits=18, decimal_places=4, read_only=True)
     created_by_name = serializers.CharField(read_only=True)
 
     def validate_details(self, value):  

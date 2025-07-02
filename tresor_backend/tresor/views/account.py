@@ -24,7 +24,7 @@ class AccountViewSet(ModelViewSet):
 
 class ReleveSerializer(serializers.Serializer):
     date = serializers.DateField()
-    amount = serializers.DecimalField(max_digits=10, decimal_places=4)
+    amount = serializers.DecimalField(max_digits=18, decimal_places=4)
     operation_name = serializers.CharField()
     type = serializers.CharField()
     meta_data = serializers.DictField()
