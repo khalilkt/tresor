@@ -10,7 +10,9 @@ class CollectionOperationManager(models.Manager):
     def get_queryset(self):
         ret = super().get_queryset()
         # ret = ret.annotate(total = models.Sum('details__montant'))
-        ret = ret.annotate(total= models.functions.Coalesce(models.Sum('details__montant'), models.Value(0)))
+        ret = ret.annotate(total= models.functions.Coalesce(models.Sum('details__montant'), models.Value(0), 
+            output_field=models.DecimalField(max_digits=18, decimal_places=4)
+                                                            ))
         
         ret =  ret.annotate(created_by_name = models.F('created_by__username'))
         return ret
