@@ -156,13 +156,21 @@ function ExcelImportDialog({
   const processExcelData = (
     data: any[][]
   ): DisbursementOperationDetail[] | null => {
-    const columnsToSearch = ["Nom", "Banque", "Compte", "Montant"];
-    const columnsName: { [key: string]: string } = {
-      Nom: "name",
-      Banque: "banq_name",
-      Compte: "banq_number",
-      Montant: "montant",
-    };
+    const columnsToSearch = [
+      "NOMS",
+      "BANQUE",
+      "CB",
+      "C AGE",
+      "COMPTE",
+      "CLE",
+      "MONTANT",
+    ] as const;
+    // const columnsName: { [key: string]: string } = {
+    //   Nom: "name",
+    //   Banque: "banq_name",
+    //   Compte: "banq_number",
+    //   Montant: "montant",
+    // };
     let headerRowIndex = 0;
     let headerRow: any[] = data[headerRowIndex];
     let columnIndices: { [key: string]: number } = {};
@@ -176,9 +184,9 @@ function ExcelImportDialog({
         const columnIndex = headerRow.findIndex(
           (value) => value?.toString().toLowerCase() === column.toLowerCase()
         );
-        console.log("found", columnIndex, column);
         if (columnIndex !== -1) {
           columnIndices[column] = columnIndex;
+          console.log("found", columnIndex, column);
         }
       });
 
@@ -205,17 +213,32 @@ function ExcelImportDialog({
 
     for (let i = headerRowIndex + 1; i < data.length; i++) {
       const row = data[i];
-      let item: any = {};
+      let item: Partial<DisbursementOperationDetail> = {};
+      let banqNumber = "";
       for (let [columnName, columnIndex] of Object.entries(columnIndices)) {
-        item[columnsName[columnName]] = row[columnIndex];
-      }
+        columnName = columnName.trim();
+        const value = row[columnIndex];
 
+        if (columnName === "NOMS") {
+          item.name = value;
+        } else if (columnName === "BANQUE") {
+          item.banq_name = value;
+        } else if (columnName === "MONTANT") {
+          item.montant = value;
+        } else if (["CB", "C AGE", "COMPTE", "CLE"].includes(columnName)) {
+          banqNumber += value;
+        }
+      }
+      item.banq_number = banqNumber;
+      // console.log(item);
       if (
         !Object.values(item).some(
           (value) => value === "" || value === null || value === undefined
         )
       ) {
-        extractedData.push(item);
+        console.log("item :::: ");
+        console.log(item);
+        extractedData.push(item as DisbursementOperationDetail);
       }
     }
 

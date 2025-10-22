@@ -64,10 +64,10 @@ export interface DisbursementOperationInterface {
 }
 
 export interface DisbursementOperationDetail {
-  montant: number;
   name: string;
   banq_name: string;
   banq_number: string;
+  montant: number;
   created_at: string;
 }
 

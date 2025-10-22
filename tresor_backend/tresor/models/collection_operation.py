@@ -13,7 +13,6 @@ class CollectionOperationManager(models.Manager):
         ret = ret.annotate(total= models.functions.Coalesce(models.Sum('details__montant'), models.Value(0), 
             output_field=models.DecimalField(max_digits=18, decimal_places=4)
                                                             ))
-        
         ret =  ret.annotate(created_by_name = models.F('created_by__username'))
         return ret
 
@@ -39,8 +38,6 @@ class CollectionOperation(models.Model):
                 last = CollectionOperation.objects.filter(date__year=self.date.year, type="operation").order_by('created_at').last()
                 ref_number = 1
                 if last and len(last.ref.split("/")) > 1:
-                    # 0023/2024/DTNCR
-                    
                     last_ref = last.ref.split('/')[0]
                     ref_number = int(last_ref) + 1
                 if self.date.year == 2024 and ref_number <= 215:
