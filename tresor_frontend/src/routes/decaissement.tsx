@@ -236,8 +236,6 @@ function ExcelImportDialog({
           (value) => value === "" || value === null || value === undefined
         )
       ) {
-        console.log("item :::: ");
-        console.log(item);
         extractedData.push(item as DisbursementOperationDetail);
       }
     }

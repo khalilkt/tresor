@@ -13,7 +13,14 @@ import { useReactToPrint } from "react-to-print";
 import { PrintPage } from "./print_page";
 import { PrintButton, Select, Signature } from "./comps";
 import { formatAmount, numberToFrench } from "../logiC/utils";
-
+function splitAccountNumber(value: string) {
+  return [
+    value.substring(0, 5),
+    value.substring(5, 10),
+    value.substring(10, value.length - 2),
+    value.substring(value.length - 2, value.length),
+  ];
+}
 export default function DisbursementOperationDetailDialog({
   id,
 }: {
@@ -280,10 +287,10 @@ export default function DisbursementOperationDetailDialog({
                     <table className="text-center w-full">
                       <thead>
                         <tr className="font-semibold bg-slate-100 text-center border">
-                          <th className="py-1 border  text-center ">Nom</th>
-                          <th className="py-1 border  text-center ">
-                            Numéro de compte
-                          </th>
+                          <th className="py-1 border  text-center ">NOMS</th>
+                          {["CB", "C AGE", "COMPTE", "CLE"].map((v) => (
+                            <th className="py-1 border  text-center ">{v} </th>
+                          ))}
                           <th className="py-1 border  text-center ">MONTANT</th>
                         </tr>
                       </thead>
@@ -291,17 +298,17 @@ export default function DisbursementOperationDetailDialog({
                         {group.details.map((detail, i) => (
                           <tr className="" key={i}>
                             <td className="border ">{detail.name}</td>
+                            {splitAccountNumber(detail.banq_number).map((v) => (
+                              <td className="border  text-center">{v}</td>
+                            ))}
 
-                            <td className="border  text-center">
-                              {detail.banq_number}
-                            </td>
                             <td className="border  text-end">
                               {formatAmount(detail.montant)}
                             </td>
                           </tr>
                         ))}
                         <tr className="">
-                          <td className="" colSpan={2}></td>
+                          <td className="" colSpan={5}></td>
                           <td className="border  text-end">
                             {formatAmount(
                               group.details.reduce(
